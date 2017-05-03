@@ -45,17 +45,22 @@ var Artifacts = React.createClass({
      this.setState({doneLoading: !bool});
   },
   _getArtifacts: function() {
+    var self = this;
     var callback = {
       success: function(artifacts) {
+        self.setState({doneLoading: true, artifacts:artifacts});
         setTimeout(function() {
-          this.setState({doneLoading: true, artifacts:artifacts});
-        }.bind(this), 300);
-      }.bind(this),
+          // joyride
+          if (self.props.joyrideCurrent===5) {  
+              self.props.joyrideStep(6);
+          }
+        }, 300);
+      },
       error: function(err) {
         var errormsg = err || "Please check your connection";
         AppActions.setSnackbar("Artifacts couldn't be loaded. " +errormsg);
-        this.setState({doneLoading: true});
-      }.bind(this)
+        self.setState({doneLoading: true});
+      }
     };
     AppActions.getArtifacts(callback);
   },
@@ -125,7 +130,7 @@ var Artifacts = React.createClass({
     return (
       <div className="contentContainer">
         <div className="relative">
-          <Repository groupDevices={this.state.groupDevices} allDevices={this.state.allDevices} refreshArtifacts={this._getArtifacts} startLoader={this._startLoading} loading={!this.state.doneLoading} selected={this.state.selected} artifacts={this.state.artifacts} groups={this.state.groups} hasPending={this.state.hasPending} hasDevices={this.state.hasDevices} />
+          <Repository joyrideStep={this.props.joyrideStep} joyrideRun={this.props.joyrideRun} groupDevices={this.state.groupDevices} allDevices={this.state.allDevices} refreshArtifacts={this._getArtifacts} startLoader={this._startLoading} loading={!this.state.doneLoading} selected={this.state.selected} artifacts={this.state.artifacts} groups={this.state.groups} hasPending={this.state.hasPending} hasDevices={this.state.hasDevices} />
         </div>
         <Snackbar
           open={this.state.snackbar.open}

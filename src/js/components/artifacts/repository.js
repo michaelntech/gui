@@ -72,6 +72,10 @@ var Repository = React.createClass({
   },
   _onUploadSubmit: function(files) {
     var self = this;
+
+    // update joyride
+    self.props.joyrideRun(false);
+
     //var tmpFile = meta.artifactFile;
     //delete meta.artifactFile;
     //delete meta.verified;
@@ -82,6 +86,10 @@ var Repository = React.createClass({
         self.setState({progress: 0});
         AppActions.setSnackbar("Upload successful", 4000);
         self.props.refreshArtifacts();
+          
+          // update joyride
+          self.props.joyrideRun(true);
+          self.props.joyrideStep(7);
       },
       error: function(err) {
         console.log(err);
@@ -229,7 +237,7 @@ var Repository = React.createClass({
     return (
       <div>
 
-        <div className={items.length ? "top-right-button fadeIn" : "top-right-button fadeOut"} >
+        <div id={items.length ? "dropzoneContainer" : null} className={items.length ? "top-right-button fadeIn" : "top-right-button fadeOut"} >
           <Dropzone className="dropzone onboard" activeClassName="active" rejectClassName="active" multiple={false} accept=".mender" onDrop={this.onDrop}>
             <div className="icon inline-block"><FileIcon style={{height:"24px", width:"24px", verticalAlign:"middle", marginTop:"-2px"}}/></div>
             <div className="dashboard-placeholder inline">Drag here or <a>browse</a> to upload an artifact file</div>
@@ -271,7 +279,7 @@ var Repository = React.createClass({
             </TableBody>
           </Table>
 
-          <div className={(items.length || this.props.loading) ? "hidden" : "dashboard-placeholder fadeIn" }>
+          <div id={!items.length ? "dropzoneContainer" : null} className={(items.length || this.props.loading) ? "hidden" : "dashboard-placeholder fadeIn" }>
             <Dropzone className="dropzone onboard" activeClassName="active" rejectClassName="active" multiple={false} accept=".mender" onDrop={this.onDrop}>
               <p style={{width: "500px", fontSize:"16px", margin:"auto"}} className="dashboard-placeholder">No artifacts found. Drag a file here or <a>browse</a> to upload to the repository</p>
               <img src="assets/img/artifacts.png" alt="artifacts" />

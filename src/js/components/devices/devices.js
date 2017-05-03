@@ -14,6 +14,7 @@ var Loader = require('../common/loader');
 var pluralize = require('pluralize');
 require('../common/prototype/Array.prototype.equals');
 
+
 import Snackbar from 'material-ui/Snackbar';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
@@ -22,6 +23,7 @@ import FontIcon from 'material-ui/FontIcon';
 import { List, ListItem } from 'material-ui/List';
 
 import { Router, Route, Link } from 'react-router';
+
 
 function getState() {
   return {
@@ -33,7 +35,7 @@ function getState() {
     attributes: AppStore.getAttributes(),
     artifacts: AppStore.getArtifactsRepo(),
     snackbar: AppStore.getSnackbar(),
-    totalDevices: AppStore.getTotalDevices()
+    totalDevices: AppStore.getTotalDevices(),
   }
 }
 
@@ -187,6 +189,14 @@ var Devices = React.createClass({
 
     AppActions.getDevicesForAdmission(function(devices, links) {
       self.setState({pendingDevices: devices, authLoading:false});
+      
+      // joyride
+      if (devices.length && (self.props.joyrideCurrent===1)) {
+        setTimeout(function() {
+          self.props.joyrideStep(2);
+        }, 100);
+      }
+
     }, pageNo, perPage);
   },
   _refreshGroups: function() {
@@ -327,8 +337,8 @@ var Devices = React.createClass({
     var callback = {
       success: function(data) {
         AppActions.setSnackbar("Device was authorized");
-        self._refreshAdmissions();
         self.setState({expandedAdmRow: null});
+        self._refreshAdmissions();
         self._setDeviceDetails(devices[0]);
       },
       error: function(err) {
@@ -373,6 +383,12 @@ var Devices = React.createClass({
           self._refreshAdmissions();
           self._pauseTimers(false);      // unpause timers
           self.setState({doneLoading: true, expandedAdmRow: null, expandedRow: null});
+
+          // joyride
+          setTimeout(function() {
+            if (self.props.joyrideCurrent===3)
+            self.props.joyrideStep(4);
+          }, 1000);
         }
       });
     }
@@ -457,6 +473,12 @@ var Devices = React.createClass({
     } else {
       this.setState({expandedAdmRow: null});
     }
+
+    // joyride - once expanded, open next step
+    var self = this;
+    setTimeout(function() {
+      if (self.props.joyrideCurrent===2) {self.props.joyrideStep(3);}
+    }, 200);
   },
 
 

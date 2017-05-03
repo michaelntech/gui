@@ -16,6 +16,7 @@ import IconButton from 'material-ui/IconButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 
+
 var Authorized =  React.createClass({
   getInitialState: function() {
     return {
@@ -70,11 +71,11 @@ var Authorized =  React.createClass({
     var devices = this.props.pending.map(function(device, index) {
       var expanded = '';
       if ( this.props.expandedAdmRow === index ) {
-        expanded = <SelectedDevices styles={this.props.styles} addTooltip={this.props.addTooltip} attributes={device.attributes} deviceId={this.state.deviceId} accept={this.props.authorizeDevices} block={this.props.block} device={this.state.expandedDevice} unauthorized={true} selected={[device]}  />
+        expanded = <SelectedDevices styles={this.props.styles} attributes={device.attributes} deviceId={this.state.deviceId} accept={this.props.authorizeDevices} block={this.props.block} device={this.state.expandedDevice} unauthorized={true} selected={[device]}  />
       }
       return (
-        <TableRow style={{"backgroundColor": "#e9f4f3"}} className={expanded ? "expand" : null} hoverable={true} key={index}>
-          <TableRowColumn style={expanded ? {height: this.state.divHeight} : null}>{ShortSHA(device.id)}</TableRowColumn>
+        <TableRow style={{"backgroundColor": "#e9f4f3"}} className={expanded ? "expand" : null} hoverable={true} key={index} id={"auth"+index}>
+          <TableRowColumn style={expanded ? {height: this.state.divHeight} : null} className={(index<1) ? "expand-device" : null}>{ShortSHA(device.id)}</TableRowColumn>
           <TableRowColumn><Time value={device.request_time} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
           <TableRowColumn>{device.status}</TableRowColumn>
           <TableRowColumn className="expandButton" style={{"paddingLeft": "12px"}}>
@@ -123,7 +124,7 @@ var Authorized =  React.createClass({
           </TableBody>
         </Table>
 
-        <RaisedButton onClick={this._authorizeDevices.bind(null, this.props.pending)} primary={true} label={"Authorize " + devices.length +" " + pluralize("devices", devices.length)} style={{position:"absolute", bottom: "15px", right:"15px"}} />
+        <RaisedButton className="click-auth" onClick={this._authorizeDevices.bind(null, this.props.pending)} primary={true} label={"Authorize " + devices.length +" " + pluralize("devices", devices.length)} style={{position:"absolute", bottom: "15px", right:"15px"}} />
       </Collapse>
     );
   }

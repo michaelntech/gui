@@ -387,16 +387,33 @@ a, span.link {
 
 }
 
-// joyride onboard
-.joyride-beacon {
-  cursor: pointer;
+// Joyride overrule
+.joyride-tooltip__footer,
+.joyride-tooltip__close.joyride-tooltip__close--header {
+  display: none;
+}
 
-  &.bottom {
-    bottom: -18px;
-    left: 50%;
-    margin-left: -18px;
+.joyride-beacon {
+  background-color: transparent;
+  border: none;
+
+  .joyride-beacon__inner {
+    height: 18px;
+    width: 18px;
+    top: 9px;
   }
 }
+
+.joyride-overlay {
+  z-index: 1501 !important;
+}
+
+.joyride-tooltip__main a.skip {
+  font-size: 13px;
+  position: relative;
+  top: 16px;
+}
+
 
 .tooltip.info {
   position: absolute;
@@ -418,9 +435,6 @@ a, span.link {
   }
 }
 
-.joyride-tooltip__header {
-  border-bottom: none !important;
-}
 
 .development {
   background-color: @alertgreen;

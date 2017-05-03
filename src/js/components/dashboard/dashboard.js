@@ -3,6 +3,7 @@ var AppStore = require('../../stores/app-store');
 var LocalStore = require('../../stores/local-store');
 var AppActions = require('../../actions/app-actions');
 var Deployments = require('./deployments');
+
 import { Router, Route, Link } from 'react-router';
 import RaisedButton from 'material-ui/RaisedButton';
 import Snackbar from 'material-ui/Snackbar';
@@ -19,16 +20,6 @@ function getState() {
   }
 }
 
-/* Joyride */
-var tooltips = {
-  admissions: {
-    title: 'Authorize devices',
-    text: 'Devices must be authorized before you can deploy an update to them. <br/><br/>Click <b>Review details</b> to view the device\'s details before authorizing it.',
-    selector: '#authorize',
-    position: 'bottom',
-    type: 'hover'
-  }
-};
 
 var Dashboard = React.createClass({
   getInitialState: function() {
@@ -65,15 +56,14 @@ var Dashboard = React.createClass({
     }.bind(this));
   },
   _refreshAdmissions: function() {
+    var self = this;
     AppActions.getNumberOfDevicesForAdmission(function(count) {
       var pending = count;
-      this.setState({pending: pending});
+      self.setState({pending: pending});
       setTimeout(function() {
-        this.setState({doneAdmnsLoading:true});
-        // this.props.addTooltip(tooltips.admissions);
-        // this.props.makeReady(true);
-      }.bind(this), 300)
-    }.bind(this));
+        self.setState({doneAdmnsLoading:true});
+      }, 300)
+    });
   },
   _handleClick: function(params) {
     switch(params.route){
@@ -102,14 +92,10 @@ var Dashboard = React.createClass({
     return (
       <div className="contentContainer dashboard">
         <div>
-          <div className={this.state.pending && !this.state.hideReview ? "onboard margin-bottom" : "hidden" }>
-            <div className="close" onClick={this._setStorage.bind(null, "reviewDevices", true)}/>
+          <div className={this.state.pending && !this.state.hideReview ? "onboard margin-bottom review-devices" : "hidden" }>
+            <div className="close" onClick={this._setStorage.bind(null, "reviewDevices", true)} />
             <p>There {pending_str} waiting authorization</p>
             <RaisedButton onClick={this._handleClick.bind(null, {route:"devices"})} primary={true} label="Review details" />
-            <div id="authorize" className={this.props.showTooltips ? "activity joyride-beacon absolute bottom" : "hidden"}>
-              <span className="joyride-beacon__inner"></span>
-              <span className="joyride-beacon__outer"></span>
-            </div>
           </div>
           <div className="leftDashboard">
             <Deployments loadingActive={!this.state.doneActiveDepsLoading} loadingRecent={!this.state.donePastDepsLoading} clickHandle={this._handleClick} progress={this.state.progress} recent={this.state.recent} />

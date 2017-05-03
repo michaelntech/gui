@@ -1,6 +1,7 @@
 import React from 'react';
 import { Router, Route, Link } from 'react-router';
 import cookie from 'react-cookie';
+import Welcome from '../joyride/welcome';
 var AppActions = require('../../actions/app-actions');
 
 import { Tabs, Tab } from 'material-ui/Tabs';
@@ -42,6 +43,29 @@ var Header = React.createClass({
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({tabIndex: this._updateActive()});
+
+    // joyride - if not started && will be changing to dash tab, start
+  },
+  componentDidUpdate: function(prevProps, prevState) {
+    var self = this;
+    // joyride
+    if (prevState.tabIndex !== self.state.tabIndex) {
+      if (!self.props.joyrideCurrent && self.context.router.isActive({ pathname: '/' }, true)) {
+        self.props.joyrideStep(0);
+        setTimeout(function() {
+          self.props.joyrideRun(true);
+        }, 200);
+      } else if (!self.props.joyrideCurrent && !(self.context.router.isActive({ pathname: '/' }, true))) {
+        self.props.joyrideRun(false);
+      }
+    }
+  },
+  componentDidMount: function() {
+    // joyride
+    if (!this.props.joyrideCurrent && this.context.router.isActive({ pathname: '/' }, true)) {
+      this.props.joyrideStep(0);
+      this.props.joyrideRun(true);
+    }
   },
   _updateActive: function() {
     return this.context.router.isActive({ pathname: '/' }, true) ? '/' :
@@ -53,7 +77,6 @@ var Header = React.createClass({
     this.context.router.push(tab.props.value);
   },
   changeTab: function() {
-    this.props.clearSteps();
     AppActions.setSnackbar("");
   },
   _logOut: function() {
@@ -68,7 +91,8 @@ var Header = React.createClass({
           style={styles.tabs}
           label={item.text}
           value={item.route}
-          onActive={tabHandler} />
+          onActive={tabHandler}
+          id={item.text} />
       )
     });
     var iconButtonElement = (
@@ -93,6 +117,7 @@ var Header = React.createClass({
             {iconButtonElement}
           </ToolbarGroup>
         </Toolbar>
+        <div id="joyrideStart" style={{width:"100%", height:"0"}}></div>
         <div id="header-nav">
           <Tabs
             value={this.state.tabIndex}

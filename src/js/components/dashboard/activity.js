@@ -3,19 +3,8 @@ import { Router, Route, Link } from 'react-router';
 import Time from 'react-time';
 import FontIcon from 'material-ui/FontIcon';
 
-var tooltip = {
-  title: 'Recent activity',
-  text: '<div class="development"><i class="material-icons">build</i>Under development</div>All recent activity by you or any other users will show here - giving you full visibility over what\'s been happening with your devices and deployments.',
-  selector: '#activity-info',
-  position: 'top-right',
-  type: 'hover',
-  trigger: '.activity-log'
-};
-
 var Activity = React.createClass({
-  componentDidMount: function() {
-    this.props.addTooltip(tooltip);
-  },
+
   _clickHandle: function() {
     this.props.clickHandle();
   },
@@ -36,10 +25,6 @@ var Activity = React.createClass({
       <div style={{position: "relative"}} className="activity-log">
         <div className="dashboard-header">
           <h2 className="inline-block">User activity</h2>
-          <div className={this.props.showTooltips ? "activity joyride-beacon" : "hidden"}>
-            <span className="joyride-beacon__inner"></span>
-            <span className="joyride-beacon__outer"></span>
-          </div>
         </div>
         <div>
           <div className="margin-bottom">

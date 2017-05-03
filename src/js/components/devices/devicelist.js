@@ -426,7 +426,7 @@ var DeviceList = React.createClass({
                 </FlatButton>
             </h2>
           </div>
-          <div className="margin-bottom">
+          <div className="margin-bottom" id="deviceList">
             <Table
               onCellClick={this._expandRow}
               multiSelectable={true}

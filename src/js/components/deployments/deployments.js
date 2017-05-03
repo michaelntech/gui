@@ -111,6 +111,14 @@ var Deployments = React.createClass({
     } else {
       this.setState({reportType:"progress"});
     }
+
+    var self = this;
+    // joyride
+    //if (self.props.joyrideCurrent===7) {
+      setTimeout(function() { 
+        self.props.joyrideStep(8);
+      }, 500);
+    //}
   },
   _refreshDeployments: function() {
     this._refreshInProgress();
@@ -270,6 +278,12 @@ var Deployments = React.createClass({
       })
     }
     this.setState({dialog: true});
+
+    if (this.props.joyrideCurrent===8) {
+      setTimeout(function() {
+        this.props.joyrideStep(9);
+      }.bind(this), 100);
+    }
   },
 
   _onScheduleSubmit: function() {
@@ -315,6 +329,14 @@ var Deployments = React.createClass({
     var group = (attr==="group") ? val : this.state.group;
     var artifact = (attr==="artifact") ? val : this.state.artifact;
     this._getDeploymentDevices(group, artifact);
+
+
+    // joyride
+    if (this.props.joyrideCurrent===9) {
+      this.props.joyrideStep(10);
+    } else if (this.props.joyrideCurrent===10) {
+      this.props.joyrideStep(11);
+    }
   },
   _getDeploymentDevices: function(group, artifact) {
     var devices = [];
@@ -413,7 +435,8 @@ var Deployments = React.createClass({
         primary={true}
         onClick={this._onScheduleSubmit}
         ref="save"
-        disabled={disabled} />
+        disabled={disabled}
+        id="submitButton" />
     ];
     var reportActions = [
       <FlatButton
@@ -437,7 +460,7 @@ var Deployments = React.createClass({
     }
     return (
       <div className="contentContainer allow-overflow">
-        <div className="top-right-button">
+        <div id="deploymentButton" className="top-right-button">
           <ScheduleButton secondary={true} openDialog={this.dialogOpen} />
         </div>
 

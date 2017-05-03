@@ -1,18 +1,37 @@
 import React from 'react';
 import Header from './header/header';
 import Joyride from 'react-joyride';
-
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import RawTheme from '../themes/mender-theme.js';
+
+import Welcome from './joyride/welcome';
+import AuthRequest from './joyride/authrequest';
+import VirtualDevice from './joyride/virtualdevice';
+import UploadArtifact from './joyride/uploadartifact';
+import CreateDeployment from './joyride/createdeployment';
 
 var isDemoMode = false;
 
 function getState() {
   return {
-    ready: false,
-    steps: []
+    isReady: false,
+    isRunning: false,
+    steps: [],
+    selector: '',
+    showOverlay: true,
+    autoStart: true,
+    disableOverlay: true,
+    locale: {
+      back: 'Back',
+      close: 'Close',
+      last: 'Finish',
+      next: 'Next',
+      skip: 'Skip tutorial'
+    },
+    holePadding: 0,
   }
 }
+
 
 var App = React.createClass({
   childContextTypes: {
@@ -30,15 +49,124 @@ var App = React.createClass({
     return getState();
   },
   componentDidMount: function() {
-   // this.refs.joyride.start();
+    var steps = [{
+        title: 'Welcome to Mender!',
+        text: <Welcome joyrideSkip={this.setSkip} joyrideStep={this.setStep} startJoyride={this.startJoyride} />,
+        selector: '#joyrideStart',
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false
+      },
+      {
+        title: 'Authorize your first virtual device',
+        text: <AuthRequest joyrideSkip={this.setSkip} joyrideStep={this.setStep} />,
+        selector: '.review-devices',
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Authorize your virtual device',
+        text: <VirtualDevice joyrideSkip={this.setSkip} clicked={false} />,
+        selector: "#auth0",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Authorize your virtual device',
+        text: <VirtualDevice joyrideSkip={this.setSkip} clicked={true} />,
+        selector: ".joyride-accept",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Your device is now authorized!',
+        text: <VirtualDevice joyrideStep={this.setStep} joyrideSkip={this.setSkip} clicked={true} accepted={true} />,
+        selector: "#deviceList",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Upload a Mender Artifact',
+        text: <UploadArtifact joyrideSkip={this.setSkip} />,
+        selector: "#Artifacts",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Upload a Mender Artifact',
+        text: <UploadArtifact joyrideSkip={this.setSkip} loaded={true} />,
+        selector: "#dropzoneContainer",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Deploy the Artifact to the device',
+        text: <UploadArtifact joyrideSkip={this.setSkip} uploaded={true} />,
+        selector: "#Deployments",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Create a deployment',
+        text: <CreateDeployment joyrideSkip={this.setSkip} />,
+        selector: "#deploymentButton",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Create a deployment',
+        text: <CreateDeployment joyrideSkip={this.setSkip} clicked={true} />,
+        selector: "#selectArtifact",
+        position: 'right',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Create a deployment',
+        text: <CreateDeployment joyrideSkip={this.setSkip} artifact={true} />,
+        selector: "#selectGroup",
+        position: 'right',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+      {
+        title: 'Create a deployment',
+        text: <CreateDeployment joyrideSkip={this.setSkip} ready={true} />,
+        selector: "#submitButton",
+        position: 'top',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
+    ];
+    this.addSteps(steps);
+
+    setTimeout(() => {
+      this.setState({
+        isReady: true
+      });
+    }, 100);
   },
   componentDidUpdate (prevProps, prevState) {
-    if (!prevState.ready && this.state.ready) {
-      // this.refs.joyride.start();
-    }
-  },
-  makeReady: function(ready) {
-    this.setState({ready:ready});
+  
   },
   addSteps: function(steps) {
     var joyride = this.refs.joyride;
@@ -52,28 +180,76 @@ var App = React.createClass({
     }
 
     this.setState(function(currentState) {
-        currentState.steps = currentState.steps.concat(joyride.parseSteps(steps));
+        currentState.steps = currentState.steps.concat(steps);
         return currentState;
     });
   },
   clearSteps: function() {
     this.setState({steps: []});
-    this.refs.joyride.start();
   },
   addTooltip: function(data) {
     this.refs.joyride.addTooltip(data);
   },
+  joyrideCallback: function(data) {
+
+    this.setState({
+      joyrideCurrent: data.index,
+      selector: data.type === 'tooltip:before' ? data.step.selector : '',
+      showOverlay: (data.step || {}).selector === "#logo" ? false : true,
+      holePadding: data.index>0 ? 3 : 0
+    });
+    
+  },
+  resetJoyride: function() {
+    this.clearSteps();
+    this.refs.joyride.reset(true);
+  },
+  runJoyride: function(val) {
+    this.setState({isRunning: val});
+  },
+  next: function() {
+    this.refs.joyride.next();
+  },
+  setStep: function(i) {
+    this.setState({joyrideStepIndex: i});
+  },
+  setSkip: function(val) {
+    this.setState({isRunning: false});
+  },
+  startJoyride: function() {
+    this.setState({startedJoyride: true});
+  },
   render: function() {
+    if (this.state.isReady) {
+      var html = (
+        <div className="wrapper fadeIn">
+          <Joyride 
+            ref="joyride"
+            stepIndex={this.state.joyrideStepIndex}
+            steps={this.state.steps} 
+            run={this.state.isRunning} 
+            callback={this.joyrideCallback} 
+            showOverlay={this.state.showOverlay}
+            showSkipButton={true}
+            autoStart={this.state.autoStart}
+            type="single"
+            disableOverlay={this.state.disableOverlay}
+            locale={this.state.locale}
+            holePadding={this.state.holePadding}
+            tooltipOffset={10} />
+          <div className="header">
+            <Header demo={isDemoMode} history={this.props.history} joyrideStep={this.setStep} joyrideRun={this.runJoyride} joyrideCurrent={this.state.joyrideCurrent} />
+          </div>
+          <div className="container">
+            {React.cloneElement(this.props.children, {resetJoyride: this.resetJoyride, joyrideRun:this.runJoyride, joyrideStep: this.setStep, joyrideSkip: this.setSkip, joyrideCurrent: this.state.joyrideCurrent})}
+          </div>
+        </div> 
+      )
+    } else {
+      var html = ''
+    }
     return (
-      <div className="wrapper">
-        <Joyride ref="joyride" steps={this.state.steps} showOverlay={true} type='single' tooltipOffset={12} />
-        <div className="header">
-          <Header demo={isDemoMode} addSteps={this.addSteps} addTooltip={this.addTooltip} clearSteps={this.clearSteps} history={this.props.history} />
-        </div>
-        <div className="container">
-          {React.cloneElement(this.props.children, {addSteps: this.addSteps, addTooltip: this.addTooltip, makeReady: this.makeReady})}
-        </div>
-      </div>
+      <div>{html}</div>
     )
   }
 });

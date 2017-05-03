@@ -19,14 +19,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Divider from 'material-ui/Divider';
 
 
-var tooltip = {
-  title: 'Waiting for inventory data',
-  text: 'Inventory data not yet received from the device - this can take up to 30 minutes with default installation. <p>Also see the documentation for <a href="https://docs.mender.io/Client-configuration/Polling-intervals" target="_blank">Polling intervals</a>.</p>',
-  selector: '#inventory-info',
-  position: 'bottom-right',
-  type: 'hover',
-};
-
 function getGroups() {
   var copy = AppStore.getGroups().slice();
   return copy
@@ -44,9 +36,6 @@ var SelectedDevices = React.createClass({
     };
   },
 
-  componentDidMount: function() {
-    this.props.addTooltip(tooltip);
-  },
 
   dialogToggle: function (ref) {
     var state = {};
@@ -250,6 +239,7 @@ var SelectedDevices = React.createClass({
         <div className={this.props.unauthorized ? "report-list" : "hidden"}>
           <List style={{marginTop:"-8px"}}>
             <ListItem
+              className="joyride-accept"
               style={this.props.styles.listStyle}
               onClick={this._handleAccept}
               primaryText="Authorize device"

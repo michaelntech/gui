@@ -74,7 +74,9 @@ var Repository = React.createClass({
     var self = this;
 
     // update joyride
-    self.props.joyrideRun(false);
+    if (self.props.joyrideCurrent===6) {
+      self.props.joyrideRun(false);
+    }
 
     //var tmpFile = meta.artifactFile;
     //delete meta.artifactFile;
@@ -87,9 +89,12 @@ var Repository = React.createClass({
         AppActions.setSnackbar("Upload successful", 4000);
         self.props.refreshArtifacts();
           
+        if (self.props.joyrideCurrent===6) {
           // update joyride
           self.props.joyrideRun(true);
           self.props.joyrideStep(7);
+        }
+          
       },
       error: function(err) {
         console.log(err);

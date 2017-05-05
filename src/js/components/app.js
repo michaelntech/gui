@@ -79,7 +79,7 @@ var App = React.createClass({
         title: 'Authorize your virtual device',
         text: <VirtualDevice joyrideSkip={this.setSkip} clicked={true} />,
         selector: ".joyride-accept",
-        position: 'bottom',
+        position: 'right',
         type: 'hover',
         isFixed: false,
         allowClicksThruHole: true

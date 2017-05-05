@@ -43,8 +43,6 @@ var Header = React.createClass({
   },
   componentWillReceiveProps: function(nextProps) {
     this.setState({tabIndex: this._updateActive()});
-
-    // joyride - if not started && will be changing to dash tab, start
   },
   componentDidUpdate: function(prevProps, prevState) {
     var self = this;

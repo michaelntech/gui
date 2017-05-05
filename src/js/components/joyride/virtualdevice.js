@@ -6,20 +6,20 @@ var VirtualDevice = React.createClass({
     var content = (
       <div>
         <p>Here you can see the ID and details of the device requesting authorization.</p>
-        <p>Click to expand the row and view more device identity details.</p>
+        <p><b>Click the row to expand it</b> and view further device identity details.</p>
       </div>
     );
     if (this.props.accepted) {
       content = (
         <div>
-          <p>Your virtual device has been accepted, so you can now manage its deployments.</p>
+          <p>Your virtual device has been authorized, so you can now manage its deployments.</p>
           <RaisedButton className="float-right" label="Next" onClick={this.props.joyrideStep.bind(null, 5)} />
         </div> 
       );
     } else if (this.props.clicked) {
       content = (
         <div>
-          <p>Once you have seen the device's identity, click to authorize it.</p>
+          <p>Now you can see all of the device's identity details on the left. <b>Click the button with the checkmark</b> to authorize the device.</p>
         </div>
       ); 
     }

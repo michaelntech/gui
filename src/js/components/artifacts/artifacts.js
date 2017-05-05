@@ -130,7 +130,7 @@ var Artifacts = React.createClass({
     return (
       <div className="contentContainer">
         <div className="relative">
-          <Repository joyrideStep={this.props.joyrideStep} joyrideRun={this.props.joyrideRun} groupDevices={this.state.groupDevices} allDevices={this.state.allDevices} refreshArtifacts={this._getArtifacts} startLoader={this._startLoading} loading={!this.state.doneLoading} selected={this.state.selected} artifacts={this.state.artifacts} groups={this.state.groups} hasPending={this.state.hasPending} hasDevices={this.state.hasDevices} />
+          <Repository joyrideStep={this.props.joyrideStep} joyrideCurrent={this.props.joyrideCurrent} joyrideRun={this.props.joyrideRun} groupDevices={this.state.groupDevices} allDevices={this.state.allDevices} refreshArtifacts={this._getArtifacts} startLoader={this._startLoading} loading={!this.state.doneLoading} selected={this.state.selected} artifacts={this.state.artifacts} groups={this.state.groups} hasPending={this.state.hasPending} hasDevices={this.state.hasDevices} />
         </div>
         <Snackbar
           open={this.state.snackbar.open}

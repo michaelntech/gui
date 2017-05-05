@@ -114,11 +114,11 @@ var Deployments = React.createClass({
 
     var self = this;
     // joyride
-    //if (self.props.joyrideCurrent===7) {
+    if (self.props.joyrideCurrent===7) {
       setTimeout(function() { 
         self.props.joyrideStep(8);
       }, 500);
-    //}
+    }
   },
   _refreshDeployments: function() {
     this._refreshInProgress();
@@ -306,6 +306,10 @@ var Deployments = React.createClass({
           if (data) {
             // successfully retrieved new deployment
             AppActions.setSnackbar("Deployment created successfully");
+
+            // stop joyride
+            self.props.joyrideRun(false);
+
             self._refreshDeployments();
           } else {
             AppActions.setSnackbar("Error while creating deployment");

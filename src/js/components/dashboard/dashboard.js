@@ -33,9 +33,17 @@ var Dashboard = React.createClass({
     AppStore.removeChangeListener(this._onChange);
   },
   componentDidMount: function() {
-    this.timer = setInterval(this._refreshDeployments, 5000);
-    this._refreshDeployments();
-    this._refreshAdmissions();
+    var self = this;
+    self.timer = setInterval(self._refreshDeployments, 5000);
+    self._refreshDeployments();
+    self._refreshAdmissions();
+
+    if (!self.props.joyrideCurrent) {
+      setTimeout(function() {
+        self.props.joyrideStep(0);
+        self.props.joyrideRun(true);
+      }, 500)
+    }
   },
   _onChange: function() {
     this.setState(this.getInitialState());

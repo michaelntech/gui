@@ -11,6 +11,7 @@ var Loader = require('../common/loader');
 // material ui
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import FlatButton from 'material-ui/FlatButton';
+import FontIcon from 'material-ui/FontIcon';
 
 
 var Past = React.createClass({
@@ -19,6 +20,14 @@ var Past = React.createClass({
       retry: false,
       pageSize: 5
     };
+  },
+  componentDidMount: function() {
+    this.props.addTooltip({
+      text: 'All previous deployments will show up here. Click on a finished deployment to see a full in-depth report.',
+      selector: '#pastHelp',
+      trigger: '#pastHelp',
+      position: 'bottom'
+    });
   },
   _pastCellClick: function(rowNumber, columnId) {
     // adjust index to allow for client side pagination
@@ -36,6 +45,7 @@ var Past = React.createClass({
     this.setState({currentPage: pageNo});
   },
   render: function() {
+    var self = this;
     var pastMap = this.props.past.map(function(deployment, index) {
 
       var time = "-";
@@ -49,7 +59,7 @@ var Past = React.createClass({
       var status = (
         <DeploymentStatus id={deployment.id} />
       );
-
+      
       return (
         <TableRow key={index}>
           <TableRowColumn>{deployment.artifact_name}</TableRowColumn>
@@ -76,6 +86,7 @@ var Past = React.createClass({
         <h3>Past deployments</h3>
         <div className="deploy-table-contain">
           <Loader show={this.props.loading} />
+
           <Table
             onCellClick={this._pastCellClick}
             className={pastMap.length ? null : 'hidden'}
@@ -104,17 +115,25 @@ var Past = React.createClass({
             </TableBody>
           </Table>
 
+     
+
+
           {
             this.props.count>this.props.past.length ? 
             <Pagination locale={_en_US} simple pageSize={this.state.pageSize} current={this.state.currentPage || 1} total={this.props.count} onChange={this._handlePageChange} /> 
             :
-            <div className={this.props.loading || this.props.past ? 'hidden' : "dashboard-placeholder"}>
+            <div className={this.props.loading || pastMap.length ? 'hidden' : "dashboard-placeholder"}>
               <p>Completed deployments will appear here.</p>
               <p>You can review logs and reports for each device group you've deployed to</p>
               <img src="assets/img/history.png" alt="Past" />
             </div>
           }
 
+         
+          {!this.props.openedTips["#pastHelp"]
+            ? <FontIcon id="pastHelp" className={this.props.showHelpTooltips ? "material-icons help-tooltip" : "hidden"} style={{right:"0", top:"45px"}}>help</FontIcon> 
+            : null
+          }
         </div>
 
       </div>

@@ -12,6 +12,7 @@ var Loader = require('../common/loader');
 // material ui
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import FlatButton from 'material-ui/FlatButton';
+import FontIcon from 'material-ui/FontIcon';
 
 var Progress = React.createClass({
   getInitialState: function() {
@@ -19,6 +20,14 @@ var Progress = React.createClass({
       retry: false,
       pageSize: 20
     };
+  },
+  componentDidMount: function() {
+    this.props.addTooltip({
+      text: 'Deployments currently in progress will show here. Click on a deployment to see a full progress report, broken down by device.',
+      selector: '#progressHelp',
+      trigger: '#progressHelp',
+      position: 'bottom'
+    });
   },
   _progressCellClick: function(rowNumber, columnId) {
     var self = this;
@@ -54,7 +63,7 @@ var Progress = React.createClass({
     return (
       <div className="fadeIn">
         <h3>In progress</h3>
-        <div className="deploy-table-contain"> 
+        <div className="deploy-table-contain" id="inprogressTable"> 
           <Loader show={this.props.loading} />
           <Table
             onCellClick={this._progressCellClick}
@@ -94,6 +103,12 @@ var Progress = React.createClass({
               <img src="assets/img/deployments.png" alt="In progress" />
             </div>
           }
+
+          {!this.props.openedTips["#progressHelp"]
+            ? <FontIcon id="progressHelp" className={this.props.showHelpTooltips ? "material-icons help-tooltip" : "hidden"} style={{right:"0", top:"45px"}}>help</FontIcon> 
+            : null
+          }
+
         </div>
 
 

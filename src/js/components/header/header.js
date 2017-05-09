@@ -23,7 +23,7 @@ var menuItems = [
 var styles = {
   tabs: {
     backgroundColor: "#f7f7f7",
-    color: "#414141"
+    color: "#414141",
   },
   inkbar: {
     backgroundColor: "#7D3F69"
@@ -64,6 +64,16 @@ var Header = React.createClass({
       this.props.joyrideStep(0);
       this.props.joyrideRun(true);
     }
+    this._addTooltips();
+  },
+  _addTooltips: function() {
+    // joyride
+    this.props.addTooltip({
+      text: 'The dashboard gives you an at-a-glance overview of your ongoing and most recent deployments.',
+      selector: '#Dashboard',
+      trigger: '#DashboardHelp',
+      position: 'bottom'
+    })
   },
   _updateActive: function() {
     return this.context.router.isActive({ pathname: '/' }, true) ? '/' :
@@ -83,7 +93,9 @@ var Header = React.createClass({
   },
   render: function() {
     var tabHandler = this._handleTabActive;
-    var menu = menuItems.map(function(item, index) {
+    var self = this;
+   
+    var menu = menuItems.map(function(item, index) { 
       return (
         <Tab key={index}
           style={styles.tabs}
@@ -116,6 +128,7 @@ var Header = React.createClass({
           </ToolbarGroup>
         </Toolbar>
         <div id="joyrideStart" style={{width:"100%", height:"0"}}></div>
+        
         <div id="header-nav">
           <Tabs
             value={this.state.tabIndex}
@@ -124,7 +137,14 @@ var Header = React.createClass({
             tabItemContainerStyle={{backgroundColor:"inherit"}}>
             {menu}
           </Tabs>
+        { !self.props.openedTips["#Dashboard"]
+          ? 
+          <FontIcon id="DashboardHelp" className={self.props.showHelpTooltips ? "material-icons help-tooltip" : "hidden"} style={{left:"20px", top:"10px"}}>help</FontIcon>
+          :
+          null
+        }
         </div>
+
       </div>
     );
   }

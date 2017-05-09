@@ -29,6 +29,8 @@ function getState() {
       skip: 'Skip tutorial'
     },
     holePadding: 0,
+    showHelpTooltips: false,
+    openedTips: {}
   }
 }
 
@@ -156,6 +158,15 @@ var App = React.createClass({
         isFixed: false,
         allowClicksThruHole: true
       },
+      {
+        title: 'You\'re all set!',
+        text: <CreateDeployment joyrideSkip={this.setSkip} created={true} />,
+        selector: "#pending",
+        position: 'bottom',
+        type: 'hover',
+        isFixed: false,
+        allowClicksThruHole: true
+      },
     ];
     this.addSteps(steps);
 
@@ -192,12 +203,23 @@ var App = React.createClass({
   },
   joyrideCallback: function(data) {
 
-    this.setState({
-      joyrideCurrent: data.index,
-      selector: data.type === 'tooltip:before' ? data.step.selector : '',
-      showOverlay: (data.step || {}).selector === "#logo" ? false : true,
-      holePadding: data.index>0 ? 3 : 0
-    });
+    if (data.type.indexOf("standalone")!==-1) {
+      if (data.type==="standalone:after") {
+        // update state to mark as opened
+        var openedTips = this.state.openedTips;
+        openedTips[data.step.selector] = true;
+        this.setState({openedTips: openedTips});
+      }
+
+    } else {
+      this.setState({
+        joyrideCurrent: data.index,
+        selector: data.type === 'tooltip:before' ? data.step.selector : '',
+        showOverlay: (data.step || {}).selector === "#logo" ? false : true,
+        holePadding: data.index>0 ? 3 : 0
+      });
+    }
+   
     
   },
   resetJoyride: function() {
@@ -213,13 +235,19 @@ var App = React.createClass({
   setStep: function(i) {
     this.setState({joyrideStepIndex: i});
   },
-  setSkip: function(val) {
-    this.setState({isRunning: false});
+  setSkip: function() {
+    this.resetJoyride();
+    this.runJoyride(false);
+    this.setHelpTooltips(true);
   },
   startJoyride: function() {
     this.setState({startedJoyride: true});
   },
+  setHelpTooltips: function(val) {
+    this.setState({showHelpTooltips: val});
+  },
   render: function() {
+
     if (this.state.isReady) {
       var html = (
         <div className="wrapper fadeIn">
@@ -238,10 +266,10 @@ var App = React.createClass({
             holePadding={this.state.holePadding}
             tooltipOffset={10} />
           <div className="header">
-            <Header demo={isDemoMode} history={this.props.history} joyrideStep={this.setStep} joyrideRun={this.runJoyride} joyrideCurrent={this.state.joyrideCurrent} />
+            <Header demo={isDemoMode} history={this.props.history} joyrideStep={this.setStep} joyrideRun={this.runJoyride} joyrideCurrent={this.state.joyrideCurrent} showHelpTooltips={this.state.showHelpTooltips} setHelpTooltips={this.setHelpTooltips} addTooltip={this.addTooltip} openedTips={this.state.openedTips} />
           </div>
           <div className="container">
-            {React.cloneElement(this.props.children, {resetJoyride: this.resetJoyride, joyrideRun:this.runJoyride, joyrideStep: this.setStep, joyrideSkip: this.setSkip, joyrideCurrent: this.state.joyrideCurrent})}
+            {React.cloneElement(this.props.children, {resetJoyride: this.resetJoyride, joyrideRun:this.runJoyride, joyrideStep: this.setStep, joyrideSkip: this.setSkip, joyrideCurrent: this.state.joyrideCurrent, showHelpTooltips: this.state.showHelpTooltips, setHelpTooltips: this.setHelpTooltips, addTooltip: this.addTooltip, openedTips:this.state.openedTips})}
           </div>
         </div> 
       )

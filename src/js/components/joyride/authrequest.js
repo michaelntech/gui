@@ -14,7 +14,7 @@ var AuthRequest = React.createClass({
 
         <p>Click <b>Review details</b> to view the device that is waiting to be authorized.</p>
          
-        <a className="skip" onClick={this.props.joyrideSkip.bind(null, true)}>Skip tutorial</a>
+        <a className="skip" onClick={this.props.joyrideSkip}>Skip tutorial</a>
       </div>
     )
   }

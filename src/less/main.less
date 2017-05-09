@@ -47,6 +47,10 @@ body {
   right: 0;
 }
 
+ul.unstyled li {
+  list-style: none;
+}
+
 
 /* Type */
 
@@ -109,6 +113,9 @@ a, span.link {
 }
 .transparent {
   opacity: 0;
+}
+.invisible {
+  visibility: hidden;
 }
 
 .relative {
@@ -393,6 +400,8 @@ a, span.link {
   display: none;
 }
 
+
+
 .joyride-beacon {
   background-color: transparent;
   border: none;
@@ -418,6 +427,18 @@ a, span.link {
   box-shadow: 0 0 0 9999px rgba(0,0,0,.25), 0 0 15px rgba(0,0,0,.25) !important;
 }
 
+.help-tooltip {
+  position: absolute !important;
+  color: @alertpurple !important;
+  border-style: solid;
+  border-radius: 50%;
+  border-width: 3px;
+  width: 24px;
+  font-size: 18px !important;
+  .animation(highlight 1.4s infinite);
+  cursor: pointer;
+}
+
 
 .tooltip.info {
   position: absolute;
@@ -437,6 +458,10 @@ a, span.link {
     .opacity(1);
     .animation(bounce 0.4s forwards);
   }
+}
+
+.success-tick {
+  .animation(bounce 0.4s forwards);
 }
 
 
@@ -1000,6 +1025,7 @@ tr.expand {
 
 
 
+
 /* Buttons */
 
 .fixedButtons {
@@ -1476,6 +1502,7 @@ span.month, span.day {
 .deploy-table-contain {
   margin-bottom: 60px;
   margin-top: 30px;
+  position: relative;
 }
 
 @media (min-width: 1700px) {
@@ -1599,6 +1626,21 @@ span.month, span.day {
 @keyframes spin {
    100% {
     .rotate(360deg); 
+  }
+}
+
+@keyframes highlight {
+  0% {
+    border-color: lighten(@alertpurple, 10%);
+    animation-timing-function:ease-in;
+  }
+  50% {
+    border-color: lighten(@alertpurple, 50%);
+    animation-timing-function:ease-out;
+  }
+  100% {
+    border-color: lighten(@alertpurple, 10%);
+    animation-timing-function:ease-in;
   }
 }
 

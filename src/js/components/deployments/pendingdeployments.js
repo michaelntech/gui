@@ -67,7 +67,7 @@ var Pending = React.createClass({
     }, this);
 
     return (
-      <div className={pendingMap.length ? "fadeIn" : "hidden" }>
+      <div className={pendingMap.length ? "fadeIn" : "hidden" } id="#pending">
         <h3>Pending</h3>
         <div className="deploy-table-contain">
           <Table

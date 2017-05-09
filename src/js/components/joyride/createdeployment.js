@@ -1,4 +1,6 @@
 import React from 'react';
+import FontIcon from 'material-ui/FontIcon';
+import RaisedButton from 'material-ui/RaisedButton';
 
 var CreateDeployment = React.createClass({
 
@@ -11,9 +13,14 @@ var CreateDeployment = React.createClass({
     if (this.props.created) {
       content = (
         <div>
-          <p>Now a deployment has been created - the Artifact will be deployed to your virtual device.</p>
-          <p>The device will download the image, install it and reboot.</p>
-          <p></p>
+          <ul className="unstyled">
+            <li><FontIcon className="material-icons margin-right align-middle" style={{color: "#009E73"}}>done</FontIcon>Connect a virtual device to the server</li>
+            <li><FontIcon className="material-icons margin-right align-middle" style={{color: "#009E73"}}>done</FontIcon>Upload a Mender Artifact</li>
+            <li><FontIcon className="material-icons margin-right align-middle success-tick" style={{color: "#009E73"}}>done</FontIcon>Deploy an update to the device</li>
+          </ul>
+          <p>Congratulations! You're now deploying your first update. The device will download the Artifact, install the image and reboot.</p>
+          <p>Now you can track the deployment's progress and see it in the dashboard.</p>
+          <RaisedButton className="float-right" label="Finish" primary={true} onClick={this.props.joyrideSkip} />
         </div>
       );
     } else if (this.props.ready) {
@@ -41,7 +48,7 @@ var CreateDeployment = React.createClass({
       <div className="joyride-inline">
         {content}
 
-        <a className="skip" onClick={this.props.joyrideSkip.bind(null, true)}>Skip tutorial</a>
+        <a className="skip" onClick={this.props.joyrideSkip}>Skip tutorial</a>
       </div>
     )
   }

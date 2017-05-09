@@ -59,6 +59,18 @@ var DeviceList = React.createClass({
       this.refs.editGroupName.focus();
     }
   },
+
+  componentDidMount: function() {
+    var self = this;
+    setTimeout(function() {
+      self.props.addTooltip({
+        text: 'You can also use the <b>checkboxes</b> to select devices and move them to another group, or remove from the current group. <p>Because each device can only belong to <b>one</b> custom group at a time, moving it to a new group will also remove it from its current group, should it belong to one.</p>',
+        selector: '#groupHelp2',
+        trigger: '#groupHelp2',
+        position: 'bottom-left'
+      });
+    }, 1000);
+  },
   
   _onRowSelection: function(selected) {
     if (selected === "all" || selected === "none") {
@@ -426,7 +438,13 @@ var DeviceList = React.createClass({
                 </FlatButton>
             </h2>
           </div>
-          <div className="margin-bottom" id="deviceList">
+          <div className="margin-bottom relative" id="deviceList">
+            <div className={this.props.openedTips["#groupHelp"] ? null : 'hidden'}>
+              {(this.props.showHelpTooltips && !this.props.openedTips["#groupHelp2"])
+                ? <FontIcon id="groupHelp2" className="material-icons help-tooltip" style={{top:"50px"}}>help</FontIcon> 
+                : null
+              }
+            </div>
             <Table
               onCellClick={this._expandRow}
               multiSelectable={true}

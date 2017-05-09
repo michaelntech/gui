@@ -547,7 +547,8 @@ var Devices = React.createClass({
             groupDevices={this.state.groupDevices}
             selectedGroup={this.state.selectedGroup}
             allDevices={this.state.allDevices}
-            totalDevices={this.state.totalDevices} />
+            totalDevices={this.state.totalDevices}
+            addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} />
         </div>
         <div className="rightFluid padding-right">
           <div className={this.state.pendingDevices.length ? "fadeIn onboard" : "hidden"}>
@@ -594,7 +595,8 @@ var Devices = React.createClass({
             accept={this._acceptDevice}
             expandRow={this._clickRow}
             expandedRow={this.state.expandedRow}
-            expandedDevice={this.state.expandedDevice} />
+            expandedDevice={this.state.expandedDevice}
+            addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips}  />
             {this.state.totalDevices ? <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentPage || 1} total={this.state.numDevices} onChange={this._handlePageChange} /> : null }
             {this.state.devLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
         </div>

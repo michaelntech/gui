@@ -13,7 +13,7 @@ var ScheduleButton = require('./schedulebutton.js');
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
-
+import FontIcon from 'material-ui/FontIcon';
 import Snackbar from 'material-ui/Snackbar';
 
 function getState() {
@@ -137,6 +137,7 @@ var Deployments = React.createClass({
       page = self.state.prog_page;
     }
     AppActions.getDeploymentsInProgress(function(deployments, links) {
+
       self.setState({doneLoading:true});
       self._dismissSnackBar();
      
@@ -151,6 +152,7 @@ var Deployments = React.createClass({
       } else {
         self.setState({progressCount: deployments.length});
       }
+     
     }, page, per_page);
   },
   _refreshPending: function(page, per_page) {
@@ -158,13 +160,16 @@ var Deployments = React.createClass({
     / refresh only pending deployments
     /
     */
+ 
     var self = this;
     if (page) {
       self.setState({pend_page: page});
     } else {
       page = self.state.pend_page;
     }
+
     AppActions.getPendingDeployments(function(deployments, links) {
+
       self._dismissSnackBar();
     
       // Get full count of deployments for pagination
@@ -186,6 +191,7 @@ var Deployments = React.createClass({
     /
     */
     var self = this;
+
     if (page) {
       self.setState({past_page: page});
     } else {
@@ -193,6 +199,7 @@ var Deployments = React.createClass({
     }
    
     AppActions.getPastDeployments(function(deployments, links) {
+
       self.setState({doneLoading:true});
       self._dismissSnackBar();
 
@@ -306,11 +313,12 @@ var Deployments = React.createClass({
           if (data) {
             // successfully retrieved new deployment
             AppActions.setSnackbar("Deployment created successfully");
-
-            // stop joyride
-            self.props.joyrideRun(false);
-
             self._refreshDeployments();
+
+            if (self.props.joyrideCurrent===11) {
+              self.props.joyrideRun(true);
+              self.props.joyrideStep(12);
+            }
           } else {
             AppActions.setSnackbar("Error while creating deployment");
             self.setState({doneLoading:true});
@@ -322,6 +330,10 @@ var Deployments = React.createClass({
       }
     };
     AppActions.createDeployment(newDeployment, callback);
+
+    // joyride 
+    self.props.joyrideRun(false);
+
     self.setState({doneLoading:false});
     this.dialogDismiss('dialog');
   },
@@ -469,12 +481,13 @@ var Deployments = React.createClass({
         </div>
 
         <div style={{paddingTop:"3px"}}>
-          <Pending count={this.state.pendingCount || this.state.pending.length}  refreshPending={this._refreshPending}  pending={this.state.pending} abort={this._abortDeployment} />
+        <div id="pending">
+          <Pending addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} count={this.state.pendingCount || this.state.pending.length}  refreshPending={this._refreshPending}  pending={this.state.pending} abort={this._abortDeployment} />
+        </div>
+          <Progress addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} count={this.state.progressCount || this.state.progress.length} refreshProgress={this._refreshInProgress} abort={this._abortDeployment} loading={!this.state.doneLoading} openReport={this._showProgress} progress={this.state.progress} createClick={this.dialogOpen.bind(null, "schedule")}/>
 
-          <Progress count={this.state.progressCount || this.state.progress.length} refreshProgress={this._refreshInProgress} abort={this._abortDeployment} loading={!this.state.doneLoading} openReport={this._showProgress} progress={this.state.progress} createClick={this.dialogOpen.bind(null, "schedule")}/>
-
-          <Past count={this.state.pastCount} loading={!this.state.doneLoading} past={this.state.past} refreshPast={this._refreshPast} showReport={this._showReport} />
-
+          <Past addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} count={this.state.pastCount} loading={!this.state.doneLoading} past={this.state.past} refreshPast={this._refreshPast} showReport={this._showReport} />
+  
         </div>
 
         <Dialog

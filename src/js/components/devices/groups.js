@@ -10,6 +10,15 @@ import Subheader from 'material-ui/Subheader';
 require('../common/prototype/Array.prototype.equals');
 
 var Groups = React.createClass({
+  componentDidMount: function() {
+    this.props.addTooltip({
+      text: 'You can organise your devices into custom <b>groups</b> to control which devices will receive which updates. <p>Note: each device can only belong to <b>one</b> custom group at a time. You can create and remove as many groups as you like.</p>',
+      selector: '#groupHelp',
+      trigger: '#groupHelp',
+      position: 'bottom-left'
+    });
+  },
+
   _changeGroup: function(group) {
     this.props.changeGroup(group);
   },
@@ -29,7 +38,7 @@ var Groups = React.createClass({
 
     return (
       <div>
-        <List>
+        <List style={{position:"relative"}}>
           <Subheader>Groups</Subheader>
             <ListItem 
               key="All" 
@@ -59,6 +68,11 @@ var Groups = React.createClass({
             leftIcon={createBtn}
             primaryText="Create a group"
             onClick={this.dialogToggle} />
+
+            {(this.props.showHelpTooltips && !this.props.openedTips["#groupHelp"])
+              ? <FontIcon id="groupHelp" className="material-icons help-tooltip" style={{right:"10px", bottom:"10px"}}>help</FontIcon> 
+              : null
+            }
         </List>
 
       </div>

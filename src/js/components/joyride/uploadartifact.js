@@ -1,4 +1,5 @@
 import React from 'react';
+import FontIcon from 'material-ui/FontIcon';
 
 var UploadArtifact = React.createClass({
 
@@ -6,14 +7,19 @@ var UploadArtifact = React.createClass({
     var content = (
       <div>
         <p>The next step is to upload a <b>Mender Artifact</b> to the server.</p>
-        <p>A Mender Artifact is a file format that includes metadata like the checksum and name, as well as the actual root file system that is deployed. See <a href="https://docs.mender.io/architecture/mender-artifacts" target="_blank">Mender Artifacts</a> for more.</p>
+        <p>A Mender Artifact is a file format that includes metadata like the checksum and name, as well as the actual root file system that will be deployed. See <a href="https://docs.mender.io/architecture/mender-artifacts" target="_blank">Mender Artifacts</a> for more.</p>
         <p>Now, <b>click the Artifacts tab</b> to continue.</p>
       </div>
     );
     if (this.props.uploaded) {
       content = (
         <div>
-          <p>Now you're ready to deploy the Artifact to your virtual device.</p>
+          <ul className="unstyled">
+            <li><FontIcon className="material-icons margin-right align-middle" style={{color: "#009E73"}}>done</FontIcon>Connect a virtual device to the server</li>
+            <li><FontIcon className="material-icons margin-right align-middle success-tick" style={{color: "#009E73"}}>done</FontIcon>Upload a Mender Artifact</li>
+            <li style={{color:"#c7c7c7"}}><FontIcon className="material-icons margin-right align-middle" style={{color: "#d4e9e7"}}>done</FontIcon>Deploy an update to the device</li>
+          </ul>
+          <p>Now you've uploaded the Artifact, you're ready to deploy it as an update to your virtual device.</p>
           <p><b>Click the Deployments tab</b> to continue.</p>
         </div>
       );
@@ -29,7 +35,7 @@ var UploadArtifact = React.createClass({
       <div className="joyride-inline">
         {content}
 
-        <a className="skip" onClick={this.props.joyrideSkip.bind(null, true)}>Skip tutorial</a>
+        <a className="skip" onClick={this.props.joyrideSkip}>Skip tutorial</a>
       </div>
     )
   }

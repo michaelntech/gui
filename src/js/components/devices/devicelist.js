@@ -21,7 +21,7 @@ import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
-
+import DropIcon from 'react-material-icons/icons/navigation/arrow-drop-down';
 import Snackbar from 'material-ui/Snackbar';
 
 var DeviceList = React.createClass({
@@ -62,12 +62,20 @@ var DeviceList = React.createClass({
 
   componentDidMount: function() {
     var self = this;
+
+    // joyride
     setTimeout(function() {
       self.props.addTooltip({
         text: 'You can also use the <b>checkboxes</b> to select devices and move them to another group, or remove from the current group. <p>Because each device can only belong to <b>one</b> custom group at a time, moving it to a new group will also remove it from its current group, should it belong to one.</p>',
         selector: '#groupHelp2',
         trigger: '#groupHelp2',
         position: 'bottom-left'
+      });
+      self.props.addTooltip({
+        text: 'View more device details - including inventory information - by clicking to expand the table row.',
+        selector: '#deviceHelp',
+        trigger: '#deviceHelp',
+        position: 'bottom-right'
       });
     }, 1000);
   },
@@ -313,7 +321,7 @@ var DeviceList = React.createClass({
         attrs[device.attributes[i].name] = device.attributes[i].value;
       }
       if ( this.props.expandedRow === index ) {
-        expanded = <SelectedDevices styles={this.props.styles} block={this.props.block} accept={this.props.accept} addTooltip={this.props.addTooltip} redirect={this.props.redirect} artifacts={this.props.artifacts} device={this.props.expandedDevice} selectedGroup={this.props.selectedGroup} groups={this.props.groups} />
+        expanded = <SelectedDevices addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} styles={this.props.styles} block={this.props.block} accept={this.props.accept} addTooltip={this.props.addTooltip} redirect={this.props.redirect} artifacts={this.props.artifacts} device={this.props.expandedDevice} selectedGroup={this.props.selectedGroup} groups={this.props.groups} />
       }
       return (
         <TableRow hoverable={!expanded} className={expanded ? "expand" : null} key={device.id}>
@@ -445,6 +453,14 @@ var DeviceList = React.createClass({
                 : null
               }
             </div>
+            
+           
+              {(this.props.showHelpTooltips && !this.props.openedTips["#deviceHelp"])
+                ? <FontIcon id="deviceHelp" className="material-icons help-tooltip" style={{top:"65px", "right":"-20px"}}>help</FontIcon> 
+                : null
+              }
+          
+
             <Table
               onCellClick={this._expandRow}
               multiSelectable={true}

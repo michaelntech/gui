@@ -36,6 +36,14 @@ var SelectedDevices = React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    this.props.addTooltip({
+      text: 'You can remove devices from the server - even after they\'ve been authorized - by blocking or decommissioning them.',
+      selector: '#decommissionButton',
+      trigger: '#decommissionHelp',
+      position: 'bottom-right'
+    });
+  },
 
   dialogToggle: function (ref) {
     var state = {};
@@ -164,7 +172,7 @@ var SelectedDevices = React.createClass({
         var status = this.props.device.auth_sets ? this.props.device.auth_sets[0].status : "";
         var statusButton = status === "accepted" ?
           (
-            <div key="decommissionButton">
+            <div key="decommissionButton" id="decommissionButton">
               <ListItem
                 style={this.props.styles.listStyle}
                 primaryText="Block or decommission this device"
@@ -173,7 +181,7 @@ var SelectedDevices = React.createClass({
               <Divider />
             </div>
           ) : (
-            <div key="decommissionButton">
+            <div key="decommissionButton" id="decommissionButton">
               <ListItem
                 style={this.props.styles.listStyle}
                 primaryText={"Authorization status: "+ status}
@@ -253,6 +261,10 @@ var SelectedDevices = React.createClass({
           </List>
         </div>
 
+        {(this.props.showHelpTooltips && !this.props.openedTips["#decommissionButton"])
+            ? <FontIcon id="decommissionHelp" className="material-icons help-tooltip" style={{right: "60px", bottom: "80px"}}>help</FontIcon> 
+            : null
+        }
       </div>
     )
     

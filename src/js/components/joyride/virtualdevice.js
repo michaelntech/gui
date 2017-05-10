@@ -14,8 +14,8 @@ var VirtualDevice = React.createClass({
       content = (
         <div>
           <ul className="unstyled">
-            <li><FontIcon className="material-icons margin-right align-middle success-tick" style={{color: "#009E73"}}>done</FontIcon>Connect a virtual device to the server</li>
-            <li style={{color:"#c7c7c7"}}><FontIcon className="material-icons margin-right align-middle" style={{color: "#d4e9e7"}}>done</FontIcon>Upload a Mender Artifact</li>
+            <li style={{color: "#009E73"}}><FontIcon className="material-icons margin-right align-middle success-tick" style={{color: "#009E73"}}>done</FontIcon>Connect a virtual device to the server</li>
+            <li style={{color:"#c7c7c7"}}><FontIcon className="material-icons margin-right align-middle" style={{color: "#d4e9e7"}}>done</FontIcon>Upload a Mender artifact</li>
             <li style={{color:"#c7c7c7"}}><FontIcon className="material-icons margin-right align-middle" style={{color: "#d4e9e7"}}>done</FontIcon>Deploy an update to the device
             </li>
           </ul>

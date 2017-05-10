@@ -564,7 +564,8 @@ var Devices = React.createClass({
               total={this.state.totalAdmDevices}
               expandedAdmRow={this.state.expandedAdmRow}
               expandRow={this._clickAdmRow}
-              authorizeDevices={this._authorizeDevices} />
+              authorizeDevices={this._authorizeDevices}
+              addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} />
             <div>
               {this.state.totalAdmDevices ? <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentAdmPage || 1} total={this.state.totalAdmDevices} onChange={this._handleAdmPageChange} /> : null }
              

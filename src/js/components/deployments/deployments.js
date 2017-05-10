@@ -296,6 +296,9 @@ var Deployments = React.createClass({
   _onScheduleSubmit: function() {
     var ids = [];
     var self = this;
+    // joyride 
+    self.props.joyrideRun(false);
+
     for (var i=0; i<this.state.filteredDevices.length; i++) {
       ids.push(this.state.filteredDevices[i].id);
     }
@@ -311,13 +314,16 @@ var Deployments = React.createClass({
         var id = data.substring(lastslashindex  + 1);
         AppActions.getSingleDeployment(id, function(data) {
           if (data) {
+            console.log(data);
             // successfully retrieved new deployment
             AppActions.setSnackbar("Deployment created successfully");
             self._refreshDeployments();
 
             if (self.props.joyrideCurrent===11) {
-              self.props.joyrideRun(true);
               self.props.joyrideStep(12);
+              setTimeout(function() {
+                self.props.joyrideRun(true);
+              }, 500);
             }
           } else {
             AppActions.setSnackbar("Error while creating deployment");
@@ -330,9 +336,6 @@ var Deployments = React.createClass({
       }
     };
     AppActions.createDeployment(newDeployment, callback);
-
-    // joyride 
-    self.props.joyrideRun(false);
 
     self.setState({doneLoading:false});
     this.dialogDismiss('dialog');
@@ -481,11 +484,9 @@ var Deployments = React.createClass({
         </div>
 
         <div style={{paddingTop:"3px"}}>
-        <div id="pending">
+          <div id="tutorialEnd"></div>
           <Pending addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} count={this.state.pendingCount || this.state.pending.length}  refreshPending={this._refreshPending}  pending={this.state.pending} abort={this._abortDeployment} />
-        </div>
           <Progress addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} count={this.state.progressCount || this.state.progress.length} refreshProgress={this._refreshInProgress} abort={this._abortDeployment} loading={!this.state.doneLoading} openReport={this._showProgress} progress={this.state.progress} createClick={this.dialogOpen.bind(null, "schedule")}/>
-
           <Past addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} count={this.state.pastCount} loading={!this.state.doneLoading} past={this.state.past} refreshPast={this._refreshPast} showReport={this._showReport} />
   
         </div>

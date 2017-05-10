@@ -161,8 +161,8 @@ var App = React.createClass({
       {
         title: 'You\'re all set!',
         text: <CreateDeployment joyrideSkip={this.setSkip} created={true} />,
-        selector: "#pending",
-        position: 'bottom',
+        selector: "#tutorialEnd",
+        position: 'top',
         type: 'hover',
         isFixed: false,
         allowClicksThruHole: true
@@ -214,9 +214,7 @@ var App = React.createClass({
     } else {
       this.setState({
         joyrideCurrent: data.index,
-        selector: data.type === 'tooltip:before' ? data.step.selector : '',
-        showOverlay: (data.step || {}).selector === "#logo" ? false : true,
-        holePadding: data.index>0 ? 3 : 0
+        showOverlay: (data.step || {}).selector === "#logo" ? false : true
       });
     }
    
@@ -233,7 +231,10 @@ var App = React.createClass({
     this.refs.joyride.next();
   },
   setStep: function(i) {
-    this.setState({joyrideStepIndex: i});
+    this.setState({
+      joyrideStepIndex: i,
+      holePadding: (i>0 && i<12) ? 3 : 0 
+    });
   },
   setSkip: function() {
     this.resetJoyride();

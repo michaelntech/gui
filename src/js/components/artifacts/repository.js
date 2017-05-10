@@ -46,6 +46,18 @@ var Repository = React.createClass({
       divHeight: 148,
     };
   },
+  componentDidMount: function() {
+    var self = this;
+     // joyride
+    setTimeout(function() {
+      self.props.addTooltip({
+        text: 'You can view more information about each artifact by clicking to expand the table row.',
+        selector: '#artifactHelp',
+        trigger: '#artifactHelp',
+        position: 'bottom-right'
+      });
+    }, 1000);
+  },
 
   componentWillReceiveProps: function(nextProps) {
     artifacts = nextProps.artifacts;
@@ -219,7 +231,7 @@ var Repository = React.createClass({
       var compatible = pkg.device_types_compatible.join(", ");
       var expanded = '';
       if (this.state.artifact.id === pkg.id) {
-        expanded = <SelectedArtifact compatible={compatible} formatTime={this._formatTime} editArtifact={this._editArtifactData} buttonStyle={styles.flatButtonIcon} artifact={this.state.artifact} />
+        expanded = <SelectedArtifact addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} compatible={compatible} formatTime={this._formatTime} editArtifact={this._editArtifactData} buttonStyle={styles.flatButtonIcon} artifact={this.state.artifact} />
       }
      
       return (
@@ -263,6 +275,14 @@ var Repository = React.createClass({
   
         
         <div style={{position: "relative", marginTop:"10px"}}>
+
+
+          {(this.props.showHelpTooltips && !this.props.openedTips["#artifactHelp"])
+            ? <FontIcon id="artifactHelp" className="material-icons help-tooltip" style={{top:"65px", "right":"-20px"}}>help</FontIcon> 
+            : null
+          }
+
+
           <Table
             onCellClick={this._onRowSelection}
             className={items.length ? null : "hidden"}>

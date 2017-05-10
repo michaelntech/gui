@@ -85,11 +85,6 @@ var Repository = React.createClass({
   _onUploadSubmit: function(files) {
     var self = this;
 
-    // update joyride
-    if (self.props.joyrideCurrent===6) {
-      self.props.joyrideRun(false);
-    }
-
     //var tmpFile = meta.artifactFile;
     //delete meta.artifactFile;
     //delete meta.verified;
@@ -100,13 +95,6 @@ var Repository = React.createClass({
         self.setState({progress: 0});
         AppActions.setSnackbar("Upload successful", 4000);
         self.props.refreshArtifacts();
-          
-        if (self.props.joyrideCurrent===6) {
-          // update joyride
-          self.props.joyrideRun(true);
-          self.props.joyrideStep(7);
-        }
-          
       },
       error: function(err) {
         console.log(err);

@@ -23,7 +23,7 @@ var Progress = React.createClass({
   },
   componentDidMount: function() {
     this.props.addTooltip({
-      text: 'Deployments currently in progress will show here. Click on a deployment to see a full progress report, broken down by device.',
+      text: 'Deployments currently in progress will show here, with <b>status</b> showing the number devices at each stage of the deployment.<p>Click on a deployment to see a more complete progress report, with full details for each device.</p>',
       selector: '#progressHelp',
       trigger: '#progressHelp',
       position: 'bottom'
@@ -105,7 +105,7 @@ var Progress = React.createClass({
           }
 
           {!this.props.openedTips["#progressHelp"]
-            ? <FontIcon id="progressHelp" className={this.props.showHelpTooltips ? "material-icons help-tooltip" : "hidden"} style={{right:"0", top:"45px"}}>help</FontIcon> 
+            ? <FontIcon id="progressHelp" className={this.props.showHelpTooltips&&progressMap.length ? "material-icons help-tooltip" : "hidden"} style={{right:"0", top:"45px"}}>help</FontIcon> 
             : null
           }
 

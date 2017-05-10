@@ -37,10 +37,26 @@ var SelectedDevices = React.createClass({
   },
 
   componentDidMount: function() {
+    //joyride
+    if (!this.props.unauthorized) {
+      this.props.addTooltip({
+        text: 'You can remove devices from the server - even after they\'ve been authorized - by blocking or decommissioning them.',
+        selector: '#decommissionButton',
+        trigger: '#decommissionHelp',
+        position: 'bottom-right'
+      });
+    } else {
+      this.props.addTooltip({
+        text: 'Authorize or block access to the Mender server for this new device.<p>Only authorized devices can receive updates from and report to the server.</p>',
+        selector: '#authExpandHelp',
+        trigger: '#authExpandHelp',
+        position: 'bottom-right'
+      });
+    }
     this.props.addTooltip({
-      text: 'You can remove devices from the server - even after they\'ve been authorized - by blocking or decommissioning them.',
-      selector: '#decommissionButton',
-      trigger: '#decommissionHelp',
+      title: 'Waiting for inventory data',
+      text: 'Inventory data not yet received from the device - this can take up to 30 minutes with default installation. <p>Also see the documentation for <a href="https://docs.mender.io/Client-configuration/Polling-intervals" target="_blank">Polling intervals</a>.</p>',
+      selector: '#inventory-info',
       position: 'bottom-right'
     });
   },
@@ -247,7 +263,6 @@ var SelectedDevices = React.createClass({
         <div className={this.props.unauthorized ? "report-list" : "hidden"}>
           <List style={{marginTop:"-8px"}}>
             <ListItem
-              className="joyride-accept"
               style={this.props.styles.listStyle}
               onClick={this._handleAccept}
               primaryText="Authorize device"
@@ -261,8 +276,13 @@ var SelectedDevices = React.createClass({
           </List>
         </div>
 
-        {(this.props.showHelpTooltips && !this.props.openedTips["#decommissionButton"])
+        {(this.props.showHelpTooltips && !this.props.openedTips["#decommissionButton"] &&!this.props.unauthorized)
             ? <FontIcon id="decommissionHelp" className="material-icons help-tooltip" style={{right: "60px", bottom: "80px"}}>help</FontIcon> 
+            : null
+        }
+
+        {(this.props.showHelpTooltips && !this.props.openedTips["#authExpandHelp"] && this.props.unauthorized)
+            ? <FontIcon id="authExpandHelp" className="material-icons help-tooltip" style={{left: "66%", top: "45px"}}>help</FontIcon> 
             : null
         }
       </div>

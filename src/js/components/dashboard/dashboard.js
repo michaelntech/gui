@@ -7,6 +7,7 @@ var Deployments = require('./deployments');
 import { Router, Route, Link } from 'react-router';
 import RaisedButton from 'material-ui/RaisedButton';
 import Snackbar from 'material-ui/Snackbar';
+import FontIcon from 'material-ui/FontIcon';
 
 function getState() {
   return {
@@ -37,13 +38,14 @@ var Dashboard = React.createClass({
     self.timer = setInterval(self._refreshDeployments, 5000);
     self._refreshDeployments();
     self._refreshAdmissions();
-
-    if (!self.props.joyrideCurrent) {
-      setTimeout(function() {
-        self.props.joyrideStep(0);
-        self.props.joyrideRun(true);
-      }, 500)
-    }
+    
+    // joyride
+    this.props.addTooltip({
+      text: 'A new device is asking to connect to the Mender server. You can click <b>Review details</b> to view the device that is waiting to be authorized.',
+      selector: '#dashboardPending',
+      trigger: '#dashboardPending',
+      position: 'bottom'
+    });
   },
   _onChange: function() {
     this.setState(this.getInitialState());
@@ -105,6 +107,14 @@ var Dashboard = React.createClass({
             <p>There {pending_str} waiting authorization</p>
             <RaisedButton onClick={this._handleClick.bind(null, {route:"devices"})} primary={true} label="Review details" />
           </div>
+
+          { !this.props.openedTips["#dashboardPending"]
+            ? 
+            <FontIcon id="dashboardPending" className={this.props.showHelpTooltips ? "material-icons help-tooltip" : "hidden"} style={{left:"50%", marginLeft:"-12px", top:"120px"}}>help</FontIcon>
+            :
+            null
+          }
+
           <div className="leftDashboard">
             <Deployments loadingActive={!this.state.doneActiveDepsLoading} loadingRecent={!this.state.donePastDepsLoading} clickHandle={this._handleClick} progress={this.state.progress} recent={this.state.recent} />
           </div>

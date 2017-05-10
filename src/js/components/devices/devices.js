@@ -189,14 +189,6 @@ var Devices = React.createClass({
 
     AppActions.getDevicesForAdmission(function(devices, links) {
       self.setState({pendingDevices: devices, authLoading:false});
-      
-      // joyride
-      if (devices.length && (self.props.joyrideCurrent===1)) {
-        setTimeout(function() {
-          self.props.joyrideStep(2);
-        }, 100);
-      }
-
     }, pageNo, perPage);
   },
   _refreshGroups: function() {
@@ -383,12 +375,6 @@ var Devices = React.createClass({
           self._refreshAdmissions();
           self._pauseTimers(false);      // unpause timers
           self.setState({doneLoading: true, expandedAdmRow: null, expandedRow: null});
-
-          // joyride
-          setTimeout(function() {
-            if (self.props.joyrideCurrent===3)
-            self.props.joyrideStep(4);
-          }, 1000);
         }
       });
     }
@@ -473,12 +459,6 @@ var Devices = React.createClass({
     } else {
       this.setState({expandedAdmRow: null});
     }
-
-    // joyride - once expanded, open next step
-    var self = this;
-    setTimeout(function() {
-      if (self.props.joyrideCurrent===2) {self.props.joyrideStep(3);}
-    }, 200);
   },
 
 

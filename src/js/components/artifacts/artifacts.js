@@ -49,12 +49,6 @@ var Artifacts = React.createClass({
     var callback = {
       success: function(artifacts) {
         self.setState({doneLoading: true, artifacts:artifacts});
-        setTimeout(function() {
-          // joyride
-          if (self.props.joyrideCurrent===5) {  
-              self.props.joyrideStep(6);
-          }
-        }, 300);
       },
       error: function(err) {
         var errormsg = err || "Please check your connection";
@@ -130,7 +124,7 @@ var Artifacts = React.createClass({
     return (
       <div className="contentContainer">
         <div className="relative">
-          <Repository addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} joyrideStep={this.props.joyrideStep} joyrideCurrent={this.props.joyrideCurrent} joyrideRun={this.props.joyrideRun} groupDevices={this.state.groupDevices} allDevices={this.state.allDevices} refreshArtifacts={this._getArtifacts} startLoader={this._startLoading} loading={!this.state.doneLoading} selected={this.state.selected} artifacts={this.state.artifacts} groups={this.state.groups} hasPending={this.state.hasPending} hasDevices={this.state.hasDevices} />
+          <Repository addTooltip={this.props.addTooltip} openedTips={this.props.openedTips} showHelpTooltips={this.props.showHelpTooltips} groupDevices={this.state.groupDevices} allDevices={this.state.allDevices} refreshArtifacts={this._getArtifacts} startLoader={this._startLoading} loading={!this.state.doneLoading} selected={this.state.selected} artifacts={this.state.artifacts} groups={this.state.groups} hasPending={this.state.hasPending} hasDevices={this.state.hasDevices} />
         </div>
         <Snackbar
           open={this.state.snackbar.open}

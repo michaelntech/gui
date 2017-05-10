@@ -113,12 +113,6 @@ var Deployments = React.createClass({
     }
 
     var self = this;
-    // joyride
-    if (self.props.joyrideCurrent===7) {
-      setTimeout(function() { 
-        self.props.joyrideStep(8);
-      }, 500);
-    }
   },
   _refreshDeployments: function() {
     this._refreshInProgress();
@@ -285,19 +279,11 @@ var Deployments = React.createClass({
       })
     }
     this.setState({dialog: true});
-
-    if (this.props.joyrideCurrent===8) {
-      setTimeout(function() {
-        this.props.joyrideStep(9);
-      }.bind(this), 100);
-    }
   },
 
   _onScheduleSubmit: function() {
     var ids = [];
     var self = this;
-    // joyride 
-    self.props.joyrideRun(false);
 
     for (var i=0; i<this.state.filteredDevices.length; i++) {
       ids.push(this.state.filteredDevices[i].id);
@@ -318,13 +304,6 @@ var Deployments = React.createClass({
             // successfully retrieved new deployment
             AppActions.setSnackbar("Deployment created successfully");
             self._refreshDeployments();
-
-            if (self.props.joyrideCurrent===11) {
-              self.props.joyrideStep(12);
-              setTimeout(function() {
-                self.props.joyrideRun(true);
-              }, 500);
-            }
           } else {
             AppActions.setSnackbar("Error while creating deployment");
             self.setState({doneLoading:true});
@@ -348,14 +327,6 @@ var Deployments = React.createClass({
     var group = (attr==="group") ? val : this.state.group;
     var artifact = (attr==="artifact") ? val : this.state.artifact;
     this._getDeploymentDevices(group, artifact);
-
-
-    // joyride
-    if (this.props.joyrideCurrent===9) {
-      this.props.joyrideStep(10);
-    } else if (this.props.joyrideCurrent===10) {
-      this.props.joyrideStep(11);
-    }
   },
   _getDeploymentDevices: function(group, artifact) {
     var devices = [];

@@ -18,6 +18,12 @@ var SelectedArtifact = React.createClass({
   },
   componentDidUpdate: function(prevProps, prevState) {
     if (this.state.descEdit) { this.refs.description.focus() };
+    this.props.addTooltip({
+      text: 'You can edit the artifact\'s description and view details of the image files contained in the artifact.',
+      selector: '#artifactDetailsHelp',
+      trigger: '#artifactDetailsHelp',
+      position: 'bottom-right'
+    });
   },
   _handleLinkClick: function(device_type) {
     var filters = "device_type="+device_type;
@@ -109,6 +115,13 @@ var SelectedArtifact = React.createClass({
       <div className={this.props.artifact.name == null ? "muted" : null}>
         <h3 className="margin-bottom-none">Artifact details</h3>
         <div>
+
+
+          {(this.props.showHelpTooltips && !this.props.openedTips["#artifactDetailsHelp"])
+            ? <FontIcon id="artifactDetailsHelp" className="material-icons help-tooltip" style={{top:"45px", "left":"66%"}}>help</FontIcon> 
+            : null
+          }
+
 
           <div className="artifact-list list-item">
      

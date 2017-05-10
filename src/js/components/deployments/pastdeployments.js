@@ -23,7 +23,7 @@ var Past = React.createClass({
   },
   componentDidMount: function() {
     this.props.addTooltip({
-      text: 'All previous deployments will show up here. Click on a finished deployment to see a full in-depth report.',
+      text: 'All previous deployments will show up here. <p><b>Status</b> shows how many devices each succeeded, failed, or skipped the update. You can also click to open a full in-depth report.</p>',
       selector: '#pastHelp',
       trigger: '#pastHelp',
       position: 'bottom'
@@ -131,7 +131,7 @@ var Past = React.createClass({
 
          
           {!this.props.openedTips["#pastHelp"]
-            ? <FontIcon id="pastHelp" className={this.props.showHelpTooltips ? "material-icons help-tooltip" : "hidden"} style={{right:"0", top:"45px"}}>help</FontIcon> 
+            ? <FontIcon id="pastHelp" className={this.props.showHelpTooltips&&pastMap.length  ? "material-icons help-tooltip" : "hidden"} style={{right:"0", top:"45px"}}>help</FontIcon> 
             : null
           }
         </div>

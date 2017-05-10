@@ -26,6 +26,14 @@ var Authorized =  React.createClass({
        divHeight: 178,
     }
   },
+  componentDidMount: function() {
+     this.props.addTooltip({
+      text: 'When there is device asking for permission to join the server, you can review its identity details and choose to accept or reject it. <p>Click a row to expand for more information about each device.</p>',
+      selector: '#authorizeHelp',
+      trigger: '#authorizeHelp',
+      position: 'bottom'
+    });
+  },
   componentWillReceiveProps: function(nextProps) {
     var h = nextProps.pending.length * 50;
     h += 135;
@@ -123,6 +131,12 @@ var Authorized =  React.createClass({
             {devices}
           </TableBody>
         </Table>
+
+
+        {(this.props.showHelpTooltips && !this.props.openedTips["#authorizeHelp"])
+          ? <FontIcon id="authorizeHelp" className="material-icons help-tooltip" style={{top:"60px", "left":"66%"}}>help</FontIcon> 
+          : null
+        }
 
         <RaisedButton className="click-auth" onClick={this._authorizeDevices.bind(null, this.props.pending)} primary={true} label={"Authorize " + devices.length +" " + pluralize("devices", devices.length)} style={{position:"absolute", bottom: "15px", right:"15px"}} />
       </Collapse>

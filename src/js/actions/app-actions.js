@@ -142,6 +142,41 @@ var AppActions = {
         callback.error(err);
       });
   },
+  getDeviceCount: function(callback, status) {
+    var filter = status ? "?"+status : '';
+
+    DevicesApi
+      .get(devAuthApiUrl+filter)
+      .then(function(res) {
+        console.log(res);
+        callback(res);
+
+        switch (status) {
+          case "pending":
+            AppDispatcher.handleViewAction({
+              actionType: AppConstants.SET_PENDING_DEVICES,
+              count: 0
+            });
+            break;
+          case "accepted":
+            AppDispatcher.handleViewAction({
+              actionType: AppConstants.SET_ACCEPTED_DEVICES,
+              count: 0
+            });
+            break;
+          default:
+            AppDispatcher.handleViewAction({
+              actionType: AppConstants.SET_TOTAL_DEVICES,
+              count: 0
+            });
+        }
+      })
+      .catch(function(err) {
+        callback(err);
+      });
+  },
+
+
   getNumberOfDevices: function (callback, group) {
     var count = 0;
     var per_page = 100;

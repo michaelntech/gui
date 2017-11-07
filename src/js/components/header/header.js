@@ -7,6 +7,8 @@ import { clearAllRetryTimers } from '../../utils/retrytimer';
 import ReactTooltip from 'react-tooltip';
 import { toggleHelptips } from '../../utils/togglehelptips';
 import { DevicesNav, ArtifactsNav, DeploymentsNav } from '../helptips/helptooltips';
+var DeviceNotifications = require('./devicenotifications');
+var DeploymentNotifications = require('./deploymentnotifications');
 var AppActions = require('../../actions/app-actions');
 var AppStore = require('../../stores/app-store');
 var createReactClass = require('create-react-class');
@@ -48,6 +50,7 @@ var Header = createReactClass({
       pendingDevices: AppStore.getPendingDevices(),
       artifacts: AppStore.getArtifactsRepo(),
       hasDeployments: AppStore.getHasDeployments(),
+      deploymentsInProgress: AppStore.getDeploymentsInProgress(),
       multitenancy: AppStore.hasMultitenancy(),
     };
   },
@@ -68,10 +71,11 @@ var Header = createReactClass({
        this._updateUsername();
     } else {
       if (prevState.sessionId!==this.state.sessionId ) {
-        this._hasDeployments();
-        this._hasDevices();
         this._hasArtifacts();
         this._checkShowHelp();
+        this._hasDeployments();
+        this._hasDevices();
+        this._hasPendingDevices();
       }
     }
   },
@@ -81,6 +85,7 @@ var Header = createReactClass({
     if (this.props.isLoggedIn) {
       this._hasDeployments();
       this._hasDevices();
+      this._hasPendingDevices();
       this._hasArtifacts();
       this._checkShowHelp();
     }
@@ -110,12 +115,49 @@ var Header = createReactClass({
     };
     AppActions.getDeployments(callback, 1, 1);
   },
-  _hasDevices: function() {
-    // check if *any* devices connected, for onboarding help tips
+  _hasDeploymentsInProgress: function() {
+    // check if deployments in progress
     var self = this;
-    AppActions.getNumberOfDevices(function(count) {
-       self.setState({totalDevices: count});
-    });
+    var callback = {
+      success: function(data) {
+        self.setState({deploymentsInProgress: data.length});
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    };
+    AppActions.getDeploymentsInProgress(callback);
+  },
+  _hasDevices: function() {
+    console.log("has dev");
+    // check if any devices connected + accepted
+    var self = this;
+    var callback = {
+      success: function(data) {
+        console.log(data);
+        self.setState({totalDevices: data.count});
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    };
+
+    AppActions.getDeviceCount(callback, "accepted");
+  },
+  _hasDevices: function() {
+    // check if any devices connected + accepted
+    var self = this;
+    var callback = {
+      success: function(data) {
+        console.log(data);
+        self.setState({pendingDevices: data.count});
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    };
+
+    AppActions.getDeviceCount(callback, "pending");
   },
   _hasArtifacts: function() {
     var self = this;
@@ -193,10 +235,17 @@ var Header = createReactClass({
           onActive={tabHandler} />
       )
     });
+    var dropdownLabel = (
+      <span>
+         <FontIcon className="material-icons" style={{marginRight: '8px', top: '5px', fontSize: '20px', color: '#c7c7c7'}}>account_circle</FontIcon>
+         {(this.state.user || {}).email}
+      </span>
+    );
+
     var dropDownElement = (
 
-      <DropDownMenu anchorOrigin={{vertical: 'center', horizontal: 'middle'}} targetOrigin={{vertical: 'bottom', horizontal: 'middle'}}  style={{marginRight: "0"}} iconStyle={{ fill: 'rgb(0, 0, 0)' }} value={(this.state.user || {}).email} onChange={this._handleHeaderMenu}>
-        <MenuItem primaryText={(this.state.user || {}).email} value={(this.state.user || {}).email} className="hidden" />
+      <DropDownMenu className="header-dropdown" anchorOrigin={{vertical: 'center', horizontal: 'middle'}} targetOrigin={{vertical: 'bottom', horizontal: 'middle'}}  style={{marginRight: "0", fontSize: "14px", paddingLeft: "4px"}} iconStyle={{ fill: 'rgb(0, 0, 0)' }} value={(this.state.user || {}).email} onChange={this._handleHeaderMenu}>
+        <MenuItem primaryText={dropdownLabel} value={(this.state.user || {}).email} className="hidden" />
         <MenuItem primaryText="My account" value="/settings/my-account" />
         <MenuItem primaryText="My organization" value="/settings/my-organization" className={this.state.multitenancy ? null : "hidden" } />
         <MenuItem primaryText="User management" value="/settings/user-management" />
@@ -219,7 +268,7 @@ var Header = createReactClass({
                   data-for='demo-mode'
                   data-event='click focus'
                   data-offset="{'bottom': 15, 'right': 60}">
-                  <InfoIcon style={{marginRight:"6px", height:"16px", verticalAlign:"bottom"}} />
+                  <InfoIcon style={{marginRight:"2px", height:"16px", verticalAlign:"bottom"}} />
                   Demo mode
                 </a>
              
@@ -239,6 +288,9 @@ var Header = createReactClass({
           </ToolbarGroup>
 
           <ToolbarGroup key={1} className="float-right">
+            <DeviceNotifications pending={this.state.pendingDevices.length} total={this.state.totalDevices} limit={this.state.deviceLimit} />
+            <DeploymentNotifications deploymentsInProgress={this.state.deploymentsInProgress} />
+           
             {dropDownElement}
           </ToolbarGroup>
         </Toolbar>

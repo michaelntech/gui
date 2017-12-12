@@ -19,7 +19,7 @@ var _snackbar = {
   message: ""
 };
 var _currentUser = {};
-var _hasMultitenancy = false;
+var _hasMultitenancy = true;
 var _showHelptips = null;
 var _groups = [];
 var _uploadInProgress = false;

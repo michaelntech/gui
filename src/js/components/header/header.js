@@ -20,6 +20,7 @@ import MenuItem from 'material-ui/MenuItem';
 import FontIcon from 'material-ui/FontIcon';
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
 import InfoIcon from 'react-material-icons/icons/action/info-outline';
+import ExitIcon from 'react-material-icons/icons/action/exit-to-app';
 
 
 var menuItems = [
@@ -214,6 +215,7 @@ var Header = createReactClass({
       this.context.router.isActive('/devices') ? '/devices' :
       this.context.router.isActive('/artifacts') ? '/artifacts' :
       this.context.router.isActive('/deployments') ? '/deployments' :
+      this.context.router.isActive('/help') ? '/help' :
       this.context.router.isActive('/settings') ? '/settings' : '/';
   },
   _handleTabActive: function(tab) {
@@ -260,8 +262,9 @@ var Header = createReactClass({
         <MenuItem primaryText="My account" value="/settings/my-account" />
         <MenuItem primaryText="My organization" value="/settings/my-organization" className={this.state.multitenancy ? null : "hidden" } />
         <MenuItem primaryText="User management" value="/settings/user-management" />
-        <MenuItem primaryText={ this.state.showHelptips ? "Hide help tips" : "Show help tips"} value="/settings/user-management" value="toggleHelptips" />
-        <MenuItem primaryText="Log out" value="/login" />
+        <MenuItem primaryText={ this.state.showHelptips ? "Hide help tooltips" : "Show help tooltips"} value="toggleHelptips" />
+        <MenuItem primaryText="Help" value="/help" />
+        <MenuItem primaryText="Log out" value="/login" rightIcon={<ExitIcon style={{color: "#c7c7c7", fill: "#c7c7c7"}} />} />
       </DropDownMenu>
     );
     return (

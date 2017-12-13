@@ -8,7 +8,7 @@ var HelpTopics =  createReactClass({
   render: function() {
     return (
         <div>
-         Topics
+         <h2>Help</h2>
         </div>
     )
   }

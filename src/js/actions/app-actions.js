@@ -312,7 +312,7 @@ var AppActions = {
       .get(tenantadmUrl+"/user/tenant")
       .then(function(res) {
         AppDispatcher.handleViewAction({
-          actionType: AppConstants.SET_MULTITENANCY,
+          actionType: AppConstants.SET_ORGANIZATION,
           organization: res.body
         });
         callback.success(res.body);

@@ -216,7 +216,7 @@ var Header = createReactClass({
       this.context.router.isActive('/artifacts') ? '/artifacts' :
       this.context.router.isActive('/deployments') ? '/deployments' :
       this.context.router.isActive('/help') ? '/help' :
-      this.context.router.isActive('/settings') ? '/settings' : '/';
+      this.context.router.isActive('/settings') ? '/settings' : '';
   },
   _handleTabActive: function(tab) {
     this.context.router.push(tab.props.value);

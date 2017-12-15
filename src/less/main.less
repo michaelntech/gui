@@ -786,9 +786,8 @@ table thead.clickable tr>th:first-child {
   }
 }
 
-div.code {
+.code {
   font-family: monospace;
-  margin: 24px;
   border: 1px solid @lightgrey;
   background-color: @lightestgrey;
   border-radius: 4px;
@@ -798,6 +797,14 @@ div.code {
   position: relative;
   white-space: pre-line;
   font-size: 14px;
+
+  &.log {
+    margin: 24px;
+  }
+}
+
+span.code {
+  padding: 2px;
 }
 
 #reportAbort {

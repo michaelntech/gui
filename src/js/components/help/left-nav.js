@@ -21,12 +21,13 @@ var LeftNav =  createReactClass({
   },
 
   componentDidUpdate: function(prevProps, prevState) {
-
+    if (this.props.pages !== prevProps.pages) {
+      this._setNavLinks();
+    }
   },
 
   _clickLink: function (path) {
-    console.log("clicked, " +path);
-    this.context.router.push(path);
+    this.props.changePage(path);
   },
 
   _setNavLinks: function () {
@@ -37,16 +38,14 @@ var LeftNav =  createReactClass({
     function eachRecursive(obj, path, level) {
         for (var k in obj) {
           if (typeof obj[k] == "object" && obj[k] !== null && k!=="component") {
-              path = path ? path+"/"+k : "/help/"+k;
-              links.push({title: obj[k].title, level:level, path:path});
+              var this_path = path+"/"+k;
+              links.push({title: obj[k].title, level:level, path:this_path});
               self.setState({links:links});
-              eachRecursive(obj[k], path, level+1);
-          } else {
-            // blah
+              eachRecursive(obj[k], this_path, level+1);
           }
         }
       }
-      eachRecursive(self.props.pages, "", 0);
+      eachRecursive(self.props.pages, "/help", 0);
   },
  
   render: function () {

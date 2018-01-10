@@ -135,7 +135,7 @@ var DeploymentsNav = createReactClass({
 var UploadArtifact = createReactClass({
   render: function () {
     var multitenancy = AppStore.hasMultitenancy();
-    var isHosted = (window.location.hostname === "hosted.mender.io");
+    var isHosted = (window.location.hostname !== "hosted.mender.io");
     return (
       <div>
         <h3>Upload an Artifact</h3>
@@ -233,7 +233,7 @@ var FinishedDeployment = createReactClass({
         }
         
         <p>Clicking the row will open a more detailed report.</p>
-        <p>If you were using the test virtual device, you should now <a href="https://docs.mender.io/getting-started/deploy-to-physical-devices" target="_blank">visit our documentation for more about deploying to physical devices</a>.</p>
+        <p>If you were using the test virtual device, you should now <Link to={`/help/connecting-devices`}>look at the help pages to learn how to provision physical devices</Link></p>
         <p><a className="hidehelp" onClick={toggleHelptips}>Hide all help tips</a></p>
       </div>
     )

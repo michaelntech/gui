@@ -324,7 +324,41 @@ var AppActions = {
   },
 
   getHostedLinks: function(id, callback) {
-    GeneralApi
+
+    var example = {
+      "links": {
+        "1.2.0": {
+          "beaglebone_release_1_1.2.0.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/beaglebone_release_1_1.2.0.mender.gz",
+          "beaglebone_release_2_1.2.0.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/beaglebone_release_2_1.2.0.mender.gz",
+          "mender-beaglebone_1.2.0.sdimg.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/mender-beaglebone_1.2.0.sdimg.gz",
+          "vexpress_release_1_1.2.0.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/vexpress_release_1_1.2.0.mender.gz",
+          "vexpress_release_2_1.2.0.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/vexpress_release_2_1.2.0.mender.gz"
+        },
+        "raspberrypi3": {
+          "master": {
+            "mender-raspberrypi3_master.sdimg.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/mender-raspberrypi3_master.sdimg.gz",
+            "raspberrypi3_release_1_master.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/raspberrypi3_release_1_master.mender.gz",
+            "raspberrypi3_release_2_master.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/raspberrypi3_release_2_master.mender.gz"
+          }
+        },
+        "beaglebone": {
+          "1.2.1": {
+            "beaglebone_release_1_1.2.1.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/beaglebone_release_1_1.2.1.mender.gz",
+            "beaglebone_release_2_1.2.1.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/beaglebone_release_2_1.2.1.mender.gz",
+            "mender-beaglebone_1.2.1.sdimg.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/mender-beaglebone_1.2.1.sdimg.gz"
+          }
+        },
+        "vexpress": {
+          "1.2.1": {
+            "vexpress_release_1_1.2.1.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/vexpress_release_1_1.2.1.mender.gz",
+            "vexpress_release_2_1.2.1.mender.gz": "https://s3.amazonaws.com/hosted-mender-artifacts-onboarding/59c8f0b2db6e7900ae1165d2/vexpress_release_2_1.2.1.mender.gz"
+          }
+        }
+      }
+    };
+    callback.success(example);
+
+   /* GeneralApi
       .get(hostedLinks+id+"/links.json")
       .then(function(res) {
         callback.success(res.body);
@@ -332,6 +366,7 @@ var AppActions = {
       .catch(function(err) {
         callback.error(err);
       })
+      */
   },
 
 

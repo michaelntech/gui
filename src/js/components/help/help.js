@@ -65,7 +65,7 @@ var Help =  createReactClass({
     return {
       snackbar: AppStore.getSnackbar(),
       hasMultitenancy: AppStore.hasMultitenancy(),
-      isHosted: (window.location.hostname === "hosted.mender.io")
+      isHosted: (window.location.hostname !== "hosted.mender.io")
     };
   },
   componentDidMount: function() {

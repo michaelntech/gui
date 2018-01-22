@@ -13,7 +13,7 @@ var ReviewDevices = createReactClass({
         <h3>Getting started</h3>
         <hr/>
         <p>If this is the first time you've used Mender, we have provided a virtual device for you to create a test deployment.</p>
-        <p>{this.props.devices} {pluralize("devices", this.props.devices)} {pluralize("are", this.props.devices)} waiting to be authorized by you. Click <Link to={`/devices`}>'Review details'</Link> to see the {pluralize("devices", this.props.devices)} which {pluralize("are", this.props.devices)} requesting to be accepted.</p>
+        <p>{this.props.devices} {pluralize("devices", this.props.devices)} {pluralize("are", this.props.devices)} waiting to be authorized by you. Click <Link to={`/devices/pending`}>'Review details'</Link> to see the {pluralize("devices", this.props.devices)} which {pluralize("are", this.props.devices)} requesting to be accepted.</p>
         <p><a className="hidehelp" onClick={toggleHelptips}>Hide all help tips</a></p>
       </div>
     )
@@ -99,7 +99,7 @@ var DevicesNav = createReactClass({
         { this.props.devices ? 
           <div>
         <p>There {this.props.devices === 1 ? "is a device" : "are devices"} waiting to be connected to the Mender server. Before you can manage any deployments, you must first authorize devices that are requesting to join.</p>
-        <p>Go to the <Link to={`/devices`}>Devices tab</Link> to add devices to the server.</p></div>
+        <p>Go to the <Link to={`/devices/pending`}>Devices tab</Link> to add devices to the server.</p></div>
         : 
         <div>
         <p>There aren't any devices connected yet.</p>

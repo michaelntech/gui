@@ -8,7 +8,7 @@ import FontIcon from 'material-ui/FontIcon';
 
 var DeviceNotifications = createReactClass({
   _handleClick: function() {
-    this.context.router.push('/devices/');
+    this.context.router.push('/devices/pending');
   },
   render: function() {
     var styles = {

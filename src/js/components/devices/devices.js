@@ -28,31 +28,30 @@ import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import { List, ListItem } from 'material-ui/List';
+import { Tabs, Tab } from 'material-ui/Tabs';
 
 import { Router, Route, Link } from 'react-router';
 
-function getState() {
-  return {
-    groups: AppStore.getGroups(),
-    groupsForList: AppStore.getGroups(),
-    selectedGroup: AppStore.getSelectedGroup(),
-    pendingDevices: AppStore.getPendingDevices(),
-    filters: AppStore.getFilters(),
-    attributes: AppStore.getAttributes(),
-    artifacts: AppStore.getCollatedArtifacts(),
-    snackbar: AppStore.getSnackbar(),
-    totalDevices: AppStore.getTotalAcceptedDevices(),
-    user: AppStore.getCurrentUser(),
-    refreshDeviceLength: 10000,
-    refreshAdmissionLength: 20000,
-    showHelptips: AppStore.showHelptips(),
-    deviceLimit: AppStore.getDeviceLimit,
-  }
-}
 
 var Devices = createReactClass({
   getInitialState: function() {
-    return getState();
+    return {
+      tabIndex: this._updateActive(),
+      groups: AppStore.getGroups(),
+      groupsForList: AppStore.getGroups(),
+      selectedGroup: AppStore.getSelectedGroup(),
+      pendingDevices: AppStore.getPendingDevices(),
+      filters: AppStore.getFilters(),
+      attributes: AppStore.getAttributes(),
+      artifacts: AppStore.getCollatedArtifacts(),
+      snackbar: AppStore.getSnackbar(),
+      totalDevices: AppStore.getTotalAcceptedDevices(),
+      user: AppStore.getCurrentUser(),
+      refreshDeviceLength: 10000,
+      refreshAdmissionLength: 20000,
+      showHelptips: AppStore.showHelptips(),
+      deviceLimit: AppStore.getDeviceLimit,
+    }
   },
   componentWillMount: function() {
     AppStore.changeListener(this._onChange);
@@ -64,6 +63,12 @@ var Devices = createReactClass({
     this.admissionTimer = setInterval(this._refreshAdmissions, this.state.refreshAdmissionLength);
     this._refreshAll();
   },
+
+  // nested tabs
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({tabIndex: this._updateActive()});
+  },
+
   _handleGroupsChange: function(group) {
     AppActions.selectGroup(group);
     this.setState({doneLoading:false, selectedGroup:group});
@@ -565,6 +570,18 @@ var Devices = createReactClass({
     AppActions.getDeviceCount(callbackCount, status);
   },
 
+
+  // nested tabs
+  _updateActive: function() {
+    var self = this;
+    return this.context.router.isActive({ pathname: '/devices' }, true) ? '/devices/accepted' :
+      this.context.router.isActive('/devices/accepted') ? '/devices/accepted' :
+      this.context.router.isActive('/devices/pending') ? '/devices/pending' : '/devices/accepted';
+  },
+  _handleTabActive: function(tab) {
+    this.context.router.push(tab.props.value);
+  },
+
   render: function() {
     var decommissionActions =  [
       <div style={{marginRight:"10px", display:"inline-block"}}>
@@ -602,96 +619,132 @@ var Devices = createReactClass({
 
     var blockedDevice = (this.state.blockDevice || {}).status !== "accepted";
 
+
+    // nested tabs
+    var tabHandler = this._handleTabActive;
+
     return (
       <div className="margin-top">
-       <div className="leftFixed">
-          <Groups
-            openGroupDialog={this._handleGroupDialog}
-            changeGroup={this._handleGroupChange}
-            groupList={this.state.groups}
-            groupDevices={this.state.groupDevices}
-            selectedGroup={this.state.selectedGroup}
-            allDevices={this.state.allDevices}
-            totalDevices={this.state.totalDevices}
-            showHelptips={this.state.showHelptips} />
-        </div>
-        <div className="rightFluid padding-right">
 
-        { !this.state.pendingDevices.length && !this.state.numDevices && this.state.doneLoading && this.state.showHelptips ?
-          <div>
-            <div
-              id="onboard-15"
-              className="tooltip help highlight"
-              data-tip
-              data-for='no-device-tip'
-              data-event='click focus'>
-              <FontIcon className="material-icons">help</FontIcon>
-            </div>
-            <ReactTooltip
-              id="no-device-tip"
-              globalEventOff='click'
-              place="bottom"
-              type="light"
-              effect="solid"
-              className="react-tooltip">
-              <NoDevices />
-            </ReactTooltip>
-          </div>
-        : null }
+        <Tabs
+          value={this.state.tabIndex}
+          onChange={this.changeTab}
+          tabItemContainerStyle={{background: "none", width:"400px"}}>
+
+          <Tab
+            label="Accepted"
+            value="/devices/accepted"
+            onActive={tabHandler}
+            style={{display:"block", width:"100%", color: "rgba(0, 0, 0, 0.8)"}}>
+
+              
+              <div id="AcceptedDevices" className="margin-top">
+                 <div className="leftFixed">
+                    <Groups
+                      openGroupDialog={this._handleGroupDialog}
+                      changeGroup={this._handleGroupChange}
+                      groupList={this.state.groups}
+                      groupDevices={this.state.groupDevices}
+                      selectedGroup={this.state.selectedGroup}
+                      allDevices={this.state.allDevices}
+                      totalDevices={this.state.totalDevices}
+                      showHelptips={this.state.showHelptips} />
+                  </div>
+                  <div className="rightFluid padding-right">
+
+                
+                    <DeviceList
+                      styles={styles}
+                      redirect={this._redirect}
+                      refreshDevices={this._refreshDevices}
+                      groupsChanged={this._handleGroupsChange}
+                      selectedField={this.state.selectedField}
+                      changeSelect={this._changeTmpGroup}
+                      addGroup={this._addTmpGroup}
+                      filters={this.state.filters}
+                      attributes={this.state.attributes}
+                      onFilterChange={this._updateFilters}
+                      artifacts={this.state.artifacts}
+                      loading={this.state.devLoading}
+                      groups={this.state.groupsForList}
+                      devices={this.state.devices || []}
+                      selectedGroup={this.state.selectedGroup}
+                      page={this.state.currentPage}
+                      pauseRefresh={this._pauseTimers}
+                      block={this._blockDialog}
+                      accept={this._acceptDevice}
+                      expandRow={this._clickRow}
+                      expandedRow={this.state.expandedRow}
+                      expandedDevice={this.state.expandedDevice}
+                      showHelptips={this.state.showHelptips} />
+                      {this.state.totalDevices ? <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentPage || 1} total={this.state.numDevices} onChange={this._handlePageChange} /> : null }
+                      {this.state.devLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
+                  </div>
+                </div>
+
+          </Tab>
+
+          <Tab
+            label="Pending"
+            value="/devices/pending"
+            onActive={tabHandler}
+            style={{display:"block", width:"100%", color: "rgba(0, 0, 0, 0.8)"}}>
+
+              <div id="PendingDevices" className="margin-top">
+
+                  { !this.state.pendingDevices.length && !this.state.numDevices && this.state.doneLoading && this.state.showHelptips ?
+                    <div>
+                      <div
+                        id="onboard-15"
+                        className="tooltip help highlight"
+                        data-tip
+                        data-for='no-device-tip'
+                        data-event='click focus'>
+                        <FontIcon className="material-icons">help</FontIcon>
+                      </div>
+                      <ReactTooltip
+                        id="no-device-tip"
+                        globalEventOff='click'
+                        place="bottom"
+                        type="light"
+                        effect="solid"
+                        className="react-tooltip">
+                        <NoDevices />
+                      </ReactTooltip>
+                    </div>
+                  : null }
 
 
-          <div className={this.state.pendingDevices.length ? "fadeIn onboard" : "hidden"}>
-            <Unauthorized
-              deviceLimit={this.state.deviceLimit}
-              totalDevices={this.state.totalDevices}
-              styles={styles} 
-              block={this._blockDialog} 
-              pauseRefresh={this._pauseTimers}
-              showLoader={this._showLoader}
-              refresh={this._refreshDevices}
-              refreshAdmissions={this._refreshAdmissions}
-              pending={this.state.pendingDevices}
-              total={this.state.totalAdmDevices}
-              expandedAdmRow={this.state.expandedAdmRow}
-              expandRow={this._clickAdmRow}
-              authorizeDevices={this._authorizeDevices}
-              disabled={this.state.paused}
-              showHelptips={this.state.showHelptips}
-              highlightHelp={!this.state.totalDevices} />
-            <div>
-              {this.state.totalAdmDevices ? <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentAdmPage || 1} total={this.state.totalAdmDevices} onChange={this._handleAdmPageChange} /> : null }
+                    <div className={this.state.pendingDevices.length ? "fadeIn onboard" : "hidden"}>
+                      <Unauthorized
+                        deviceLimit={this.state.deviceLimit}
+                        totalDevices={this.state.totalDevices}
+                        styles={styles} 
+                        block={this._blockDialog} 
+                        pauseRefresh={this._pauseTimers}
+                        showLoader={this._showLoader}
+                        refresh={this._refreshDevices}
+                        refreshAdmissions={this._refreshAdmissions}
+                        pending={this.state.pendingDevices}
+                        total={this.state.totalAdmDevices}
+                        expandedAdmRow={this.state.expandedAdmRow}
+                        expandRow={this._clickAdmRow}
+                        authorizeDevices={this._authorizeDevices}
+                        disabled={this.state.paused}
+                        showHelptips={this.state.showHelptips}
+                        highlightHelp={!this.state.totalDevices} />
+                      <div>
+                        {this.state.totalAdmDevices ? <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentAdmPage || 1} total={this.state.totalAdmDevices} onChange={this._handleAdmPageChange} /> : null }
 
-              {this.state.authLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
-            </div>
-          </div>
-          <Loader show={!this.state.doneLoading} />
-          <DeviceList
-            styles={styles}
-            redirect={this._redirect}
-            refreshDevices={this._refreshDevices}
-            groupsChanged={this._handleGroupsChange}
-            selectedField={this.state.selectedField}
-            changeSelect={this._changeTmpGroup}
-            addGroup={this._addTmpGroup}
-            filters={this.state.filters}
-            attributes={this.state.attributes}
-            onFilterChange={this._updateFilters}
-            artifacts={this.state.artifacts}
-            loading={this.state.devLoading}
-            groups={this.state.groupsForList}
-            devices={this.state.devices || []}
-            selectedGroup={this.state.selectedGroup}
-            page={this.state.currentPage}
-            pauseRefresh={this._pauseTimers}
-            block={this._blockDialog}
-            accept={this._acceptDevice}
-            expandRow={this._clickRow}
-            expandedRow={this.state.expandedRow}
-            expandedDevice={this.state.expandedDevice}
-            showHelptips={this.state.showHelptips} />
-            {this.state.totalDevices ? <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentPage || 1} total={this.state.numDevices} onChange={this._handlePageChange} /> : null }
-            {this.state.devLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
-        </div>
+                        {this.state.authLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
+                      </div>
+                    </div>
+                    <Loader show={!this.state.doneLoading} />
+              </div>
+            </Tab>
+        </Tabs>
+
+
         <Snackbar
           open={this.state.snackbar.open}
           message={this.state.snackbar.message}

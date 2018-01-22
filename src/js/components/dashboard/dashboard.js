@@ -140,7 +140,7 @@ var Dashboard = createReactClass({
             <p>There {pending_str} waiting authorization</p>
             <div className="relative">
               <RaisedButton
-                onClick={this._handleClick.bind(null, {route:"devices"})}
+                onClick={this._handleClick.bind(null, {route:"devices/pending"})}
                 primary={true}
                 label="Review details"
               />

@@ -622,6 +622,14 @@ var Devices = createReactClass({
 
     // nested tabs
     var tabHandler = this._handleTabActive;
+    var style = {
+      tabStyle : {
+        display:"block",
+        width:"100%",
+        color: "rgba(0, 0, 0, 0.8)",
+        textTransform: "none"
+      }
+    };
 
     return (
       <div className="margin-top">
@@ -635,7 +643,7 @@ var Devices = createReactClass({
             label="Accepted"
             value="/devices/accepted"
             onActive={tabHandler}
-            style={{display:"block", width:"100%", color: "rgba(0, 0, 0, 0.8)"}}>
+            style={style.tabStyle}>
 
               
               <div id="AcceptedDevices" className="margin-top">
@@ -688,7 +696,7 @@ var Devices = createReactClass({
             label="Pending"
             value="/devices/pending"
             onActive={tabHandler}
-            style={{display:"block", width:"100%", color: "rgba(0, 0, 0, 0.8)"}}>
+            style={style.tabStyle}>
 
               <div id="PendingDevices" className="margin-top">
 
@@ -715,7 +723,7 @@ var Devices = createReactClass({
                   : null }
 
 
-                    <div className={this.state.pendingDevices.length ? "fadeIn onboard" : "hidden"}>
+                    <div className={this.state.pendingDevices.length ? null : "hidden"}>
                       <Unauthorized
                         deviceLimit={this.state.deviceLimit}
                         totalDevices={this.state.totalDevices}

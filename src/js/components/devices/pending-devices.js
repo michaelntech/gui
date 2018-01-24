@@ -8,7 +8,7 @@ import ReactTooltip from 'react-tooltip';
 import { AuthDevices, ExpandAuth, AuthButton } from '../helptips/helptooltips';
 var Loader = require('../common/loader');
 var AppActions = require('../../actions/app-actions');
-var SelectedDevices = require('./selecteddevices');
+var ExpandedDevice = require('./expanded-device');
 var pluralize = require('pluralize');
 var createReactClass = require('create-react-class');
 
@@ -23,42 +23,61 @@ import InfoIcon from 'react-material-icons/icons/action/info-outline';
 var Authorized =  createReactClass({
   getInitialState: function() {
     return {
-       sortCol: "name",
-       sortDown: true,
        minHeight: 180,
        divHeight: 178,
+       devices: [],
     }
   },
-  componentWillReceiveProps: function(nextProps) {
-    var h = nextProps.pending.length * 55;
+
+  componentDidMount() {
+    this._getDevices();
+  },
+
+
+
+  /*
+  * Devices to show
+  */ 
+  _getDevices: function() {
+    var self = this;
+
+    var callback =  {
+      success: function(devices) {
+        self.setState({devices: devices});
+      },
+      error: function(error) {
+        console.log(err);
+            var errormsg = err.error || "Please check your connection.";
+            setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
+      }
+    };
+
+    AppActions.getDevicesByStatus(callback, "pending");
+  },
+
+
+  _adjustHeight: function () {
+    // do this when number of devices changes
+    var h = this.state.devices.length * 55;
     h += 100;
     this.setState({minHeight: h});
   },
   _sortColumn: function(col) {
-    var direction;
-    if (this.state.sortCol !== col) {
-      ReactDOM.findDOMNode(this.refs[this.state.sortCol]).className = "sortIcon material-icons";
-      ReactDOM.findDOMNode(this.refs[col]).className = "sortIcon material-icons selected";
-      this.setState({sortCol:col, sortDown: true});
-      direction = true;
-    } else {
-      direction = !(this.state.sortDown);
-      ReactDOM.findDOMNode(this.refs[this.state.sortCol]).className = "sortIcon material-icons selected " +direction;
-      this.setState({sortDown: direction});
-    }
-    // sort table
-    AppActions.sortTable("_pendingDevices", col, direction);
+    console.log("sort");
   },
   _expandRow: function(rowNumber, columnId, event) {
     event.stopPropagation();
     // If action buttons column, no expand
     if (columnId === 3) {
-      this.props.expandRow(null);
+      
     } else if (columnId < 4){
-      var device = this.props.pending[rowNumber];
+      var device = this.state.devices[rowNumber];
+      if (this.state.expandRow === rowNumber) {
+        rowNumber = null;
+      }
       device.id_data = device.attributes;
-      this.setState({expandedDevice: device});
-      this.props.expandRow(rowNumber);
+      this.setState({expandedDevice: device, expandRow: rowNumber});
+
     }
   },
   _adjustCellHeight: function(height) {
@@ -78,12 +97,20 @@ var Authorized =  createReactClass({
   },
   render: function() {
     var limitMaxed = this.props.deviceLimit && (this.props.deviceLimit <= this.props.totalDevices);
-    var limitNear = this.props.deviceLimit && (this.props.deviceLimit < this.props.totalDevices + this.props.pending.length );
+    var limitNear = this.props.deviceLimit && (this.props.deviceLimit < this.props.totalDevices + this.state.devices.length );
 
-    var devices = this.props.pending.map(function(device, index) {
+    var styles = {
+      listStyle: {
+        fontSize: "12px",
+        paddingTop: "10px",
+        paddingBottom: "10px"
+      },
+    };
+
+    var devices = this.state.devices.map(function(device, index) {
       var expanded = '';
-      if ( this.props.expandedAdmRow === index ) {
-        expanded = <SelectedDevices disabled={limitMaxed} styles={this.props.styles} attributes={device.attributes} deviceId={this.state.deviceId} accept={this.props.authorizeDevices} block={this.props.block} device={this.state.expandedDevice} unauthorized={true} selected={[device]}  />
+      if ( this.state.expandRow === index ) {
+        expanded = <ExpandedDevice disabled={limitMaxed} styles={styles} attributes={device.attributes} deviceId={this.state.deviceId} accept={this.props.authorizeDevices} block={this.props.block} device={this.state.expandedDevice} unauthorized={true} selected={[device]}  />
       }
       var checkIcon = (this.state.authLoading === index && this.props.disabled) ?
         (
@@ -138,6 +165,8 @@ var Authorized =  createReactClass({
     ) : null;
 
     var minHeight = deviceLimitWarning ? this.state.minHeight + 20 : this.state.minHeight;
+
+
     return (
       <Collapse springConfig={{stiffness: 190, damping: 20}} style={{minHeight:minHeight}} isOpened={true} id="authorize" className="margin-top-small authorize">
         
@@ -177,9 +206,9 @@ var Authorized =  createReactClass({
             adjustForCheckbox={false} 
           >
             <TableRow>
-              <TableHeaderColumn className="columnHeader" tooltip="ID">ID<FontIcon ref="id" style={this.props.styles.sortIcon} onClick={this._sortColumn.bind(null, "id")} className="sortIcon material-icons">sort</FontIcon></TableHeaderColumn>
-              <TableHeaderColumn className="columnHeader" tooltip="Request time">Request time<FontIcon ref="request_time" style={this.props.styles.sortIcon} onClick={this._sortColumn.bind(null, "request_time")} className="sortIcon material-icons">sort</FontIcon></TableHeaderColumn>
-              <TableHeaderColumn className="columnHeader" tooltip="Status">Status<FontIcon ref="status" style={this.props.styles.sortIcon} onClick={this._sortColumn.bind(null, "status")} className="sortIcon material-icons">sort</FontIcon></TableHeaderColumn>
+              <TableHeaderColumn className="columnHeader" tooltip="ID">ID</TableHeaderColumn>
+              <TableHeaderColumn className="columnHeader" tooltip="Request time">Request time</TableHeaderColumn>
+              <TableHeaderColumn className="columnHeader" tooltip="Status">Status</TableHeaderColumn>
               <TableHeaderColumn className="columnHeader" tooltip="Authorize device?">Authorize?</TableHeaderColumn>
             </TableRow>
           </TableHeader>
@@ -230,7 +259,7 @@ var Authorized =  createReactClass({
      
           <div className="align-right">
             {deviceLimitWarning}
-            <RaisedButton disabled={this.props.disabled || limitMaxed || limitNear} onClick={this._authorizeDevices.bind(null, this.props.pending, null)} primary={true} label={"Authorize " + devices.length +" " + pluralize("devices", devices.length)} />
+            <RaisedButton disabled={this.props.disabled || limitMaxed || limitNear} onClick={this._authorizeDevices.bind(null, this.state.devices, null)} primary={true} label={"Authorize " + devices.length +" " + pluralize("devices", devices.length)} />
           </div>
 
           { this.props.showHelptips && devices.length ?

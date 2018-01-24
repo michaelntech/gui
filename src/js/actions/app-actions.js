@@ -100,38 +100,21 @@ var AppActions = {
     });
   },
 
-  getDevices: function(callback, page, per_page, group, search_term, all) {
+  getDevices: function(callback, page, per_page, group, search_term) {
     var count = 0;
     var page = page || default_page;
     var per_page = per_page || default_per_page;
-    var forGroup = group ? '/groups/' + group : "";
+    var forGroup = group ? "&group="+group : "";
     var searchTerm = search_term ? "&"+search_term : "";
     var devices = [];
-    function getDeviceList() {
-      DevicesApi
-        .get(inventoryApiUrl+forGroup+"/devices?per_page="+per_page+"&page="+page+searchTerm)
-        .then(function(res) {
-          var links = parse(res.headers['link']);
-          count += res.body.length;
-          devices = devices.concat(res.body);
-          if (all && links.next) {
-            page++;
-            getDeviceList();
-          } else {
-            if (!group) {
-              AppDispatcher.handleViewAction({
-                actionType: AppConstants.RECEIVE_ALL_DEVICES,
-                devices: devices
-              });
-            }
-            callback.success(devices, parse(res.headers['link']));
-          }
-        })
-        .catch(function(err) {
-          callback.error(err);
-        });
-    };
-    getDeviceList();
+    DevicesApi
+      .get(inventoryApiUrl+"/devices?per_page="+per_page+"&page="+page+searchTerm+forGroup)
+      .then(function(res) {
+        callback.success(devices,);
+      })
+      .catch(function(err) {
+        callback.error(err);
+      });
   },
   getDeviceById: function(id, callback) {
     DevicesApi
@@ -345,17 +328,21 @@ var AppActions = {
   },
 
   /* Device Admission */
-  getDevicesForAdmission: function (callback, page, per_page) {
-    // only return pending devices
+  getDevicesByStatus: function (callback, status, page, per_page) {
+   
     var page = page || default_page;
     var per_page = per_page || default_adm_per_page;
     DevicesApi
-      .get(devicesApiUrl+"/devices?status=pending&per_page="+per_page+"&page="+page)
+      .get(devicesApiUrl+"/devices?status="+ status +"&per_page="+per_page+"&page="+page)
       .then(function(res) {
-        AppDispatcher.handleViewAction({
-          actionType: AppConstants.RECEIVE_ADMISSION_DEVICES,
-          devices: res.body
-        });
+        switch (status) {
+          case "pending":
+            AppDispatcher.handleViewAction({
+              actionType: AppConstants.RECEIVE_ADMISSION_DEVICES,
+              count: res.body
+            });
+            break;
+        }
         callback.success(res.body, parse(res.headers['link']));
       })
       .catch(function(err) {

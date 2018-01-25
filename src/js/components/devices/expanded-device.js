@@ -127,23 +127,14 @@ var SelectedDevices = createReactClass({
 
     var deviceIdentity = [];
     deviceIdentity.push(
-      <div key="id_checksum">
-        <ListItem style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).id || ''} secondaryTextLines={2} className="break-word" />
-        <Divider />
-      </div>
+        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).id || ''} secondaryTextLines={2} />
     );
 
     if ((this.props.device || {}).id_data) {
-      var length = Object.keys(this.props.device.id_data).length;
       for (var k in this.props.device.id_data) {
-        var idx = Object.keys(this.props.device.id_data).indexOf(k); // use idx to tell whether or not to show divider line afterwards
         deviceIdentity.push(
-          <div key={k}>
-            <ListItem style={this.props.styles.listStyle} disabled={true} primaryText={k} secondaryText={ this.props.device.id_data[k]} />
-            { (this.props.device.created_ts || (idx<length-1) ) ? <Divider /> : null}
-          </div>
+          <ListItem key={k} style={this.props.styles.listStyle} disabled={true} primaryText={k} secondaryText={ this.props.device.id_data[k]} />
         );
-        i++;
       };
     }
 
@@ -250,7 +241,7 @@ var SelectedDevices = createReactClass({
       <div key="deviceinfo">
         <div id="device-identity" className="report-list">
           <h4 className="margin-bottom-none">Device identity</h4>
-          <List>
+          <List className="list-horizontal-display">
             {deviceIdentity}
           </List>
         </div>
@@ -270,25 +261,6 @@ var SelectedDevices = createReactClass({
             {createDeployment}
           </List>
         </div>
-
-        <div className={this.props.unauthorized ? "report-list" : "hidden"}>
-          <List style={{marginTop:"-8px"}}>
-            <ListItem
-              onClick={this._handleAccept}
-              disabled={this.props.disabled}
-              style={this.props.styles.listStyle}
-              innerDivStyle={this.props.disabled ? {color: "#c7c7c7", marginTop:"12px", marginBottom:"12px"} : null}
-              primaryText="Authorize device"
-              leftIcon={<FontIcon className={this.props.disabled ? "material-icons auth" : "material-icons green auth"} style={{marginTop:6, marginBottom:6}}>check_circle</FontIcon>} />
-            <Divider />
-            <ListItem
-              style={this.props.styles.listStyle}
-              primaryText="Reject device"
-              onClick={this._handleBlock.bind(null, false)}
-              leftIcon={<FontIcon className="material-icons red auth" style={{marginTop:6, marginBottom:6}}>cancel</FontIcon>} />
-          </List>
-        </div>
-
       </div>
     );
 

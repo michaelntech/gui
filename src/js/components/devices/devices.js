@@ -5,6 +5,7 @@ import ReactTooltip from 'react-tooltip';
 var createReactClass = require('create-react-class');
 var AcceptedDevices = require('./accepted-devices');
 var PendingDevices = require('./pending-devices');
+var pluralize = require('pluralize');
 
 
 var AppStore = require('../../stores/app-store');
@@ -22,6 +23,7 @@ var Devices = createReactClass({
 			tabIndex: this._updateActive(),
 			acceptedCount: AppStore.getTotalAcceptedDevices(),
 			pendingCount: AppStore.getTotalPendingDevices(),
+			snackbar: AppStore.getSnackbar(),
 		};
 	},
 
@@ -44,6 +46,7 @@ var Devices = createReactClass({
 
   	_refreshAll: function() {
   		this._getAcceptedCount();
+  		this._getPendingCount();
   	},
 
 
@@ -97,6 +100,74 @@ var Devices = createReactClass({
 
 
 
+
+	// authorize devices
+	_authorizeDevices: function(devices) {
+	    /*
+	    * function for authorizing group of devices via devadmn API
+	    */
+	    var self = this;
+	    self.setState({pauseAdmisson: true});
+
+	    // make into chunks of 5 devices
+	    var arrays = [], size = 5;
+	    var deviceList = devices.slice();
+	    while (deviceList.length > 0) {
+	      arrays.push(deviceList.splice(0, size));
+	    }
+
+	    var i = 0;
+	    var success = 0;
+	    var loopArrays = function(arr) {
+	      // for each chunk, authorize one by one
+	      self._authorizeBatch(arr[i], function(num) {
+	        success = success+num;
+	        i++;
+	        if (i < arr.length) {
+	          loopArrays(arr);
+	        } else {
+	          setTimeout(function() {
+	          	self.setState({pauseAdmisson: false});
+	            AppActions.setSnackbar(success + " " + pluralize("devices", success) + " " + pluralize("were", success) + " authorized");
+	          }, 2000);
+	          
+	          // refresh counts
+	          self._refreshAll();
+	        }
+	      });
+	    }
+	    loopArrays(arrays);
+	  },
+	  _authorizeBatch(devices, callback) {
+	    // authorize the batch of devices one by one, callback when finished
+	    var i = 0;
+	    var fail = 0;
+	    var singleCallback = {
+	      success: function(data) {
+	        i++;
+	        if (i===devices.length) {
+	          callback(i);
+	        }
+	      }.bind(this),
+	      error: function(err) {
+	        var errMsg = err.res.body.error || ""
+
+	        fail++;
+	        i++;
+
+	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem authorizing the device: "+errMsg));
+	        if (i===devices.length) {
+	          callback(i-fail);
+	        }
+	      }
+	    };
+
+	    devices.forEach( function(device, index) {
+	      AppActions.acceptDevice(device, singleCallback);
+	    });
+	  },
+
+
 	render: function() {
 		// nested tabs
 	    var tabHandler = this._handleTabActive;
@@ -125,7 +196,7 @@ var Devices = createReactClass({
 			            onActive={tabHandler}
 			            style={style.tabStyle}>
 
-							<AcceptedDevices />
+							<AcceptedDevices count={this.state.acceptedCount} />
 					</Tab>
 					<Tab
 			            label={pendingLabel}
@@ -133,7 +204,7 @@ var Devices = createReactClass({
 			            onActive={tabHandler}
 			            style={style.tabStyle}>
 
-							<PendingDevices />
+							<PendingDevices snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} />
 					</Tab>
 				</Tabs>
 

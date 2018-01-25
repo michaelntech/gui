@@ -737,6 +737,12 @@ table thead.clickable tr>th:first-child {
   vertical-align: top;
 }
 
+#device-identity .list-horizontal-display > div {
+    float: left;
+    vertical-align: top;
+    margin-right: 30px;
+}
+
 .file-details {
   display: inline-block;
   width: 22%;
@@ -1090,10 +1096,8 @@ tr.expand {
   }
 
   #device-identity {
-    border: 1px solid @lightgrey;
-    padding: 0 15px;
     position:relative;
-    border-radius: 5px;
+    width: 100%;
   }
 
   div.waiting-inventory {
@@ -1118,7 +1122,7 @@ tr.expand {
       position: absolute;
       left: 0;
       margin-top: 45px;
-      padding: 0 45px 0 60px;
+      padding: 0 45px 0 84px;
       right: 0;
     }
 
@@ -1137,6 +1141,14 @@ tr.expand {
 
 #authorize > div {
   padding-bottom: 15px;
+}
+
+
+td.no-click-cell {
+  padding: 0 !important;
+  > div {
+    padding: 17px 24px;
+  }
 }
 
 

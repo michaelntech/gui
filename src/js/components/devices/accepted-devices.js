@@ -6,6 +6,10 @@ var Groups = require('./groups');
 var GroupSelector = require('./groupselector');
 var DeviceList = require('./devicelist');
 var Filters = require('./filters');
+var Pagination = require('rc-pagination');
+var _en_US = require('rc-pagination/lib/locale/en_US');
+var Loader = require('../common/loader');
+var pluralize = require('pluralize');
 
 import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils/retrytimer';
 

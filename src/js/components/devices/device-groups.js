@@ -1,13 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 var createReactClass = require('create-react-class');
 
 var Groups = require('./groups');
 var GroupSelector = require('./groupselector');
 var DeviceList = require('./devicelist');
 var Filters = require('./filters');
-var Pagination = require('rc-pagination');
-var _en_US = require('rc-pagination/lib/locale/en_US');
 var Loader = require('../common/loader');
 var pluralize = require('pluralize');
 
@@ -30,20 +27,22 @@ var AcceptedDevices = createReactClass({
       		selectedGroup: AppStore.getSelectedGroup(),
       		addGroup: false,
       		groupInvalid: true,
-      		selectedRows: [],
-      		snackbar: AppStore.getSnackbar(),
-      		devices: [],
-      		selectedRows:[],
       		filters: AppStore.getFilters(),
       		attributes: AppStore.getAttributes(),
+      		snackbar: AppStore.getSnackbar(),
 		};
 	},
 
+	componentDidMount() {
+		// Get groups
+	},
+
+
 	componentDidUpdate: function(prevProps, prevState) {
 	    if (prevState.selectedGroup !== this.state.selectedGroup) {
-	      clearInterval(this.deviceTimer);
+	      //clearInterval(this.deviceTimer);
 	      this._refreshGroups();
-	      this.deviceTimer = setInterval(this._refreshDevices, this.state.refreshDeviceLength);
+	      //this.deviceTimer = setInterval(this._refreshDevices, this.state.refreshDeviceLength);
 	    }
 	 },
 
@@ -92,30 +91,7 @@ var AcceptedDevices = createReactClass({
 	},
 
 
-	/*
-	* Devices to show
-	*/ 
-	_getDevices: function() {
-		var self = this;
-
-		var callback =  {
-			success: function(devices) {
-				self.setState({devices: devices});
-			},
-			error: function(error) {
-				console.log(err);
-		        var errormsg = err.error || "Please check your connection.";
-		        setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
-			}
-		};
-
-		AppActions.getDevices(callback, pageNo, perPage, self.state.selectedGroup);
-	},
-
-
-
 	render: function() {
-
 		// Add to group dialog 
 		var addActions = [
 	      <div style={{marginRight:"10px", display:"inline-block"}}>
@@ -143,12 +119,11 @@ var AcceptedDevices = createReactClass({
                       groupList={this.state.groups}
                       groupDevices={this.state.groupDevices}
                       selectedGroup={this.state.selectedGroup}
-                      allDevices={this.state.allDevices}
-                      totalDevices={this.state.totalDevices}
+                      acceptedDevices={this.props.acceptedDevices}
                       showHelptips={this.state.showHelptips} />
                 </div>
-                <div className="rightFixed">
-                	<DeviceList devices={this.state.devices} selectedRows={this.state.selectedRows} />
+                <div className="rightFluid">
+                	<DeviceList groupCount={this.props.acceptedDevices} acceptedDevices={this.props.acceptedDevices} styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
                 </div>
 
 
@@ -166,8 +141,6 @@ var AcceptedDevices = createReactClass({
 		          open={this.state.snackbar.open}
 		          message={this.state.snackbar.message}
 		          autoHideDuration={8000}
-		          bodyStyle={{maxWidth: this.state.snackbar.maxWidth}}
-		          onRequestClose={this.handleRequestClose}
 		        />
 			</div>
 

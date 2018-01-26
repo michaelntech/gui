@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 
 var createReactClass = require('create-react-class');
-var AcceptedDevices = require('./accepted-devices');
+var DeviceGroups = require('./device-groups');
 var PendingDevices = require('./pending-devices');
 var pluralize = require('pluralize');
 
@@ -22,6 +22,7 @@ var Devices = createReactClass({
 		return {
 			tabIndex: this._updateActive(),
 			acceptedCount: AppStore.getTotalAcceptedDevices(),
+			rejectedCount: AppStore.getTotalRejectedDevices(),
 			pendingCount: AppStore.getTotalPendingDevices(),
 			snackbar: AppStore.getSnackbar(),
 		};
@@ -46,6 +47,7 @@ var Devices = createReactClass({
 
   	_refreshAll: function() {
   		this._getAcceptedCount();
+  		this._getRejectedCount();
   		this._getPendingCount();
   	},
 
@@ -66,6 +68,18 @@ var Devices = createReactClass({
   			}
   		};
   		AppActions.getDeviceCount(callback, "accepted");
+  	},
+  	_getRejectedCount: function() {
+  		var self = this;
+  		var callback = {
+  			success: function(count) {
+  				self.setState(rejectedCount: count);
+  			},
+  			error: function(error) {
+
+  			}
+  		};
+  		AppActions.getDeviceCount(callback, "rejected");
   	},
   	_getPendingCount: function() {
   		var self = this;
@@ -90,9 +104,9 @@ var Devices = createReactClass({
 
   	_updateActive: function() {
 	    var self = this;
-	    return this.context.router.isActive({ pathname: '/devices' }, true) ? '/devices/accepted' :
-	      this.context.router.isActive('/devices/accepted') ? '/devices/accepted' :
-	      this.context.router.isActive('/devices/pending') ? '/devices/pending' : '/devices/accepted';
+	    return this.context.router.isActive({ pathname: '/devices' }, true) ? '/devices/groups' :
+	      this.context.router.isActive('/devices/groups') ? '/devices/groups' :
+	      this.context.router.isActive('/devices/pending') ? '/devices/pending' : '/devices/groups';
 	},
 	
 	_handleTabActive: function(tab) {
@@ -196,13 +210,19 @@ var Devices = createReactClass({
 	render: function() {
 		// nested tabs
 	    var tabHandler = this._handleTabActive;
-	    var style = {
+	    var styles = {
 	      tabStyle : {
 	        display:"block",
 	        width:"100%",
 	        color: "rgba(0, 0, 0, 0.8)",
 	        textTransform: "none"
-	      }
+	      },
+	      listStyle: {
+	        fontSize: "12px",
+	        paddingTop: "10px",
+	        paddingBottom: "10px",
+	        display: "inline"
+	      },
 	    };
 
 	    var pendingLabel = this.state.pendingCount ? "Pending (" + this.state.pendingCount + ")" : "Pending";
@@ -216,20 +236,20 @@ var Devices = createReactClass({
 		          tabItemContainerStyle={{background: "none", width:"280px"}}>
 
 		          	<Tab
-			            label="Accepted"
-			            value="/devices/accepted"
+			            label="Device groups"
+			            value="/devices/groups"
 			            onActive={tabHandler}
-			            style={style.tabStyle}>
+			            style={styles.tabStyle}>
 
-							<AcceptedDevices count={this.state.acceptedCount} />
+							<DeviceGroups styles={styles} acceptedDevices={this.state.acceptedCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} />
 					</Tab>
 					<Tab
 			            label={pendingLabel}
 			            value="/devices/pending"
 			            onActive={tabHandler}
-			            style={style.tabStyle}>
+			            style={styles.tabStyle}>
 
-							<PendingDevices currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._rejectDevice} />
+							<PendingDevices styles={styles} currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._rejectDevice} />
 					</Tab>
 				</Tabs>
 

@@ -26,7 +26,7 @@ var Groups = createReactClass({
     );
    
     var allLabel = (
-      <span>All devices<span className='float-right length'>{this.props.totalDevices}</span></span>
+      <span>Accepted devices<span className='float-right length'>{this.props.acceptedDevices}</span></span>
     );
 
     return (
@@ -64,7 +64,7 @@ var Groups = createReactClass({
         </List>
 
 
-        { this.props.showHelptips && this.props.totalDevices && !this.props.groupList.length ?
+        { this.props.showHelptips && this.props.acceptedDevices && !this.props.groupList.length ?
           <div>
             <div 
               id="onboard-5"

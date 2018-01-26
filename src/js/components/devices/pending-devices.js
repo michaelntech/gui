@@ -166,20 +166,11 @@ var Authorized =  createReactClass({
     var limitMaxed = this.props.deviceLimit && (this.props.deviceLimit <= this.props.totalDevices);
     var limitNear = this.props.deviceLimit && (this.props.deviceLimit < this.props.totalDevices + this.state.devices.length );
 
-    var styles = {
-      listStyle: {
-        fontSize: "12px",
-        paddingTop: "10px",
-        paddingBottom: "10px",
-        display: "inline"
-      },
-    };
-
     var devices = this.state.devices.map(function(device, index) {
       var self = this;
       var expanded = '';
       if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice disabled={limitMaxed} styles={styles} attributes={device.attributes} deviceId={self.state.deviceId} device={self.state.expandedDevice} unauthorized={true} selected={[device]}  />
+        expanded = <ExpandedDevice disabled={limitMaxed} styles={this.props.styles} attributes={device.attributes} deviceId={self.state.deviceId} device={self.state.expandedDevice} unauthorized={true} selected={[device]}  />
       }
       var checkIcon = (self.state.authLoading === index && self.props.disabled) ?
         (
@@ -452,7 +443,7 @@ var Authorized =  createReactClass({
           bodyStyle={{paddingTop:"0", fontSize:"13px"}}
           contentStyle={{overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}
           >
-          <ListItem className="margin-bottom-small" style={styles.listStyle} disabled={true} primaryText="Device ID" secondaryText={this.state.deviceToReject.device ? this.state.deviceToReject.device.id : null}  />
+          <ListItem className="margin-bottom-small" style={this.props.styles.listStyle} disabled={true} primaryText="Device ID" secondaryText={this.state.deviceToReject.device ? this.state.deviceToReject.device.id : null}  />
           <p>
             This device will be rejected and blocked from making authorization requests in the future.
           </p>

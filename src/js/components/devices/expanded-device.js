@@ -26,7 +26,7 @@ function getGroups() {
   return copy
 }
 
-var SelectedDevices = createReactClass({
+var ExpandedDevice = createReactClass({
   getInitialState: function() {
     return {
       showInput: false,
@@ -299,4 +299,4 @@ var SelectedDevices = createReactClass({
   }
 });
 
-module.exports = SelectedDevices;
+module.exports = ExpandedDevice;

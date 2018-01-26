@@ -106,11 +106,10 @@ var AppActions = {
     var per_page = per_page || default_per_page;
     var forGroup = group ? "&group="+group : "";
     var searchTerm = search_term ? "&"+search_term : "";
-    var devices = [];
     DevicesApi
       .get(inventoryApiUrl+"/devices?per_page="+per_page+"&page="+page+searchTerm+forGroup)
       .then(function(res) {
-        callback.success(devices,);
+        callback.success(res.body);
       })
       .catch(function(err) {
         callback.error(err);
@@ -142,6 +141,12 @@ var AppActions = {
           case "accepted":
             AppDispatcher.handleViewAction({
               actionType: AppConstants.SET_ACCEPTED_DEVICES,
+              count: res.body.count
+            });
+            break;
+          case "rejected":
+            AppDispatcher.handleViewAction({
+              actionType: AppConstants.SET_REJECTED_DEVICES,
               count: res.body.count
             });
             break;

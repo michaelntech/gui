@@ -17,7 +17,6 @@ import FontIcon from 'material-ui/FontIcon';
 function getState() {
   return {
     progress: AppStore.getDeploymentsInProgress(),
-    health: AppStore.getHealth(),
     devices: AppStore.getAllDevices(),
     recent: AppStore.getPastDeployments(),
     activity: AppStore.getActivity(),

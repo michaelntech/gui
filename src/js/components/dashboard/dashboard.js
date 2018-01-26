@@ -117,6 +117,9 @@ var Dashboard = createReactClass({
         var filters = params.status ? encodeURIComponent("status="+params.status) : '';
         this.context.router.push('/devices/'+filters);
         break;
+      case "devices/pending":
+        this.context.router.push('/devices/pending');
+        break;
     }
   },
 

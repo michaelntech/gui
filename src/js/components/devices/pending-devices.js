@@ -33,7 +33,7 @@ var Authorized =  createReactClass({
       pageNo: 1,
       pageLength: 20,
       selectedRows: [],
-      authLoading: null,
+      authLoading: "all",
     }
   },
 
@@ -44,6 +44,7 @@ var Authorized =  createReactClass({
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.count !== this.props.count) {
       this._getDevices();
+      this.setState({selectedRows:[]});
     }
   },
   /*
@@ -51,14 +52,20 @@ var Authorized =  createReactClass({
   */ 
   _getDevices: function() {
     var self = this;
-    self.setState({pageLoading: true});
+    self.setState({pageLoading: true, authLoading: "all"});
     var callback =  {
       success: function(devices) {
-        self.setState({devices: devices, pageLoading: false});
+        self.setState({devices: devices, pageLoading: false, authLoading: null});
+        if (!devices.length && self.props.count) {
+          //if devices empty but count not, put back to first page
+          self._handlePageChange(1);
+        }
+        self._adjustHeight();
       },
       error: function(error) {
         console.log(err);
         var errormsg = err.error || "Please check your connection.";
+        self.setState({pageLoading: false, authLoading: null});
         setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
       }
     };
@@ -76,7 +83,7 @@ var Authorized =  createReactClass({
     console.log("sort");
   },
   _expandRow: function(rowNumber) {
-
+    AppActions.setSnackbar("");
     var device = this.state.devices[rowNumber];
     if (this.state.expandRow === rowNumber) {
       rowNumber = null;
@@ -91,11 +98,8 @@ var Authorized =  createReactClass({
 
 
   _handlePageChange: function(pageNo) {
-    //clearInterval(this.admissionTimer);
     var self = this;
-    self.setState({currentPage: pageNo, authLoading:true, expandRow: null, pageNo: pageNo}, () => {self._getDevices()});
-    
-    //this.admissionTimer = setInterval(this._refreshAdmissions, this.state.refreshAdmissionLength);
+    self.setState({selectedRows:[], currentPage: pageNo, authLoading:true, expandRow: null, pageNo: pageNo}, () => {self._getDevices()});
   },
 
   _onRowSelection: function(selectedRows) {
@@ -114,18 +118,34 @@ var Authorized =  createReactClass({
     return this.state.selectedRows.indexOf(index) !== -1;
   },
 
+  _getDevicesFromSelectedRows: function() {
+    // use selected rows to get device from corresponding position in devices array
+    var devices = [];
+    for (var i=0; i<this.state.selectedRows.length; i++) {
+      devices.push(this.state.devices[this.state.selectedRows[i]]);
+    }
+    return devices;
+  },
+
   _authorizeDevices: function(devices, index) {
-    this.props.authorizeDevices(devices);
-    if (index !== null) {
+    if (Array.isArray(devices)) {
+      this.props.authorizeDevices(devices);
+    } else if (this.state.selectedRows) {
+      this.props.authorizeDevices(this._getDevicesFromSelectedRows());
+    }
+   
+    if (index) {
       this.setState({authLoading: index});
     } else {
       this.setState({authLoading: "all"});
     }
   },
+
   _blockDevice: function(device, index) {
     this.props.rejectDevice(device);
     this.setState({blockLoading: index});
   },
+
   render: function() {
     var limitMaxed = this.props.deviceLimit && (this.props.deviceLimit <= this.props.totalDevices);
     var limitNear = this.props.deviceLimit && (this.props.deviceLimit < this.props.totalDevices + this.state.devices.length );
@@ -246,8 +266,10 @@ var Authorized =  createReactClass({
 
 
     return (
-      <Collapse springConfig={{stiffness: 190, damping: 20}} style={{minHeight:minHeight}} isOpened={true} id="authorize" className="absolute authorize">
+      <Collapse springConfig={{stiffness: 190, damping: 20}} style={{minHeight:minHeight, width:"100%"}} isOpened={true} id="authorize" className="absolute authorize">
         
+      <Loader show={this.state.authLoading==="all"} />
+
         { this.props.showHelptips ?
           <div>
             <div 
@@ -273,7 +295,7 @@ var Authorized =  createReactClass({
 
         { this.state.devices.length ?
 
-          <div>
+          <div className="padding-bottom">
 
             {deviceLimitWarning}
 
@@ -309,7 +331,7 @@ var Authorized =  createReactClass({
 
           :
 
-          <div className="dashboard-placeholder">
+          <div className={this.state.authLoading ? "hidden" : "dashboard-placeholder"}>
             No devices pending (add help link for connecting devices)
           </div>
         }
@@ -350,11 +372,13 @@ var Authorized =  createReactClass({
      
 
         { this.state.selectedRows.length ? 
-          <div className="align-right margin-bottom">
-            {deviceLimitWarning}
-            <RaisedButton disabled={this.props.disabled || limitMaxed || limitNear} onClick={this._authorizeDevices} primary={true} label={"Authorize " + this.state.selectedRows.length +" " + pluralize("devices", this.state.selectedRows.length)} />
+          <div className="fixedButtons">
+            <div className="float-right">
+              <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
+              <RaisedButton disabled={this.props.disabled || limitMaxed || limitNear} onClick={this._authorizeDevices} primary={true} label={"Authorize " + this.state.selectedRows.length +" " + pluralize("devices", this.state.selectedRows.length)} />
+              {deviceLimitWarning}
+            </div>
           </div>
-
         : null }
 
           { this.props.showHelptips && this.state.devices.length ?

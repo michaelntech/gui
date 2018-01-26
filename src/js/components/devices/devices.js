@@ -95,6 +95,7 @@ var Devices = createReactClass({
 	},
 	
 	_handleTabActive: function(tab) {
+		AppActions.setSnackbar("");
 	    this.context.router.push(tab.props.value);
 	},
 
@@ -165,8 +166,7 @@ var Devices = createReactClass({
 	    devices.forEach( function(device, index) {
 	      AppActions.acceptDevice(device, singleCallback);
 	    });
-	  },
-
+	},
 
 	render: function() {
 		// nested tabs

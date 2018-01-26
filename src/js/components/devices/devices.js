@@ -72,6 +72,7 @@ var Devices = createReactClass({
   		var callback = {
   			success: function(count) {
   				self.setState(pendingCount: count);
+  				AppActions.setSnackbar("");
   			},
   			error: function(error) {
 
@@ -100,8 +101,6 @@ var Devices = createReactClass({
 	},
 
 
-
-
 	// authorize devices
 	_authorizeDevices: function(devices) {
 	    /*
@@ -127,11 +126,8 @@ var Devices = createReactClass({
 	        if (i < arr.length) {
 	          loopArrays(arr);
 	        } else {
-	          setTimeout(function() {
-	          	self.setState({pauseAdmisson: false});
-	            AppActions.setSnackbar(success + " " + pluralize("devices", success) + " " + pluralize("were", success) + " authorized");
-	          }, 2000);
-	          
+	          self.setState({pauseAdmisson: false});
+	          AppActions.setSnackbar(success + " " + pluralize("devices", success) + " " + pluralize("were", success) + " authorized");
 	          // refresh counts
 	          self._refreshAll();
 	        }
@@ -166,6 +162,34 @@ var Devices = createReactClass({
 	    devices.forEach( function(device, index) {
 	      AppActions.acceptDevice(device, singleCallback);
 	    });
+	},
+
+	_rejectDevice: function(device) {
+	    var self = this;
+	   	self.setState({pauseAdmisson: true});
+	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
+
+	    var callback = {
+	      success: function(data) {
+	        AppActions.setSnackbar("Device was rejected successfully");
+	        self._refreshAll();
+	        self.setState({pauseAdmisson: false});
+	        // if (device.status==="accepted") { self._setDeviceDetails(self.state.blockDevice) }
+	      },
+	      error: function(err) {
+	        var errMsg = err.res.body.error || "";
+	        self.setState({pauseAdmisson: false});
+	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem rejecting the device: "+errMsg));
+	      }
+	    };
+
+	    // if device **already accepted** use devauth api
+	    // otherwise use device admission api
+	    if (device.status==="accepted") {
+	      AppActions.blockDevice(device, callback);
+	    } else {
+	      AppActions.rejectDevice(device, callback);
+	    }
 	},
 
 	render: function() {
@@ -204,7 +228,7 @@ var Devices = createReactClass({
 			            onActive={tabHandler}
 			            style={style.tabStyle}>
 
-							<PendingDevices snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} />
+							<PendingDevices snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._rejectDevice} />
 					</Tab>
 				</Tabs>
 

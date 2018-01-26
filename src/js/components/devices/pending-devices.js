@@ -20,9 +20,12 @@ var mui = require('material-ui');
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
 import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import InfoIcon from 'react-material-icons/icons/action/info-outline';
 import Snackbar from 'material-ui/Snackbar';
+import Dialog from 'material-ui/Dialog';
+import { List, ListItem } from 'material-ui/List';
 
 var Authorized =  createReactClass({
   getInitialState: function() {
@@ -34,6 +37,8 @@ var Authorized =  createReactClass({
       pageLength: 20,
       selectedRows: [],
       authLoading: "all",
+      deviceToReject: {},
+      openReject: false,
     }
   },
 
@@ -55,7 +60,7 @@ var Authorized =  createReactClass({
     self.setState({pageLoading: true, authLoading: "all"});
     var callback =  {
       success: function(devices) {
-        self.setState({devices: devices, pageLoading: false, authLoading: null});
+        self.setState({devices: devices, pageLoading: false, authLoading: null, deviceToReject:{}, openReject: false, expandRow: null});
         if (!devices.length && self.props.count) {
           //if devices empty but count not, put back to first page
           self._handlePageChange(1);
@@ -65,7 +70,7 @@ var Authorized =  createReactClass({
       error: function(error) {
         console.log(err);
         var errormsg = err.error || "Please check your connection.";
-        self.setState({pageLoading: false, authLoading: null});
+        self.setState({pageLoading: false, authLoading: null, deviceToReject:{}, openReject: false });
         setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
       }
     };
@@ -141,9 +146,16 @@ var Authorized =  createReactClass({
     }
   },
 
-  _blockDevice: function(device, index) {
-    this.props.rejectDevice(device);
-    this.setState({blockLoading: index});
+  _openRejectDialog: function(device, index) {
+    AppActions.setSnackbar("");
+    var reject = {
+      device: device,
+      index: index
+    };
+    this.setState({deviceToReject: reject, openReject: true, rejectLoading: index});
+  },
+  _closeReject: function() {
+    this.setState({deviceToReject: {}, openReject: false});
   },
 
   render: function() {
@@ -181,14 +193,14 @@ var Authorized =  createReactClass({
           </IconButton>
         )
       ;
-      var deleteIcon = (self.state.blockLoading === index && self.props.disabled) ?
+      var deleteIcon = (self.state.rejectLoading === index && self.props.disabled) ?
         (
           <div className="inline-block">
             <Loader table={true} waiting={true} show={true} />
           </div>
         ) : 
         (
-          <IconButton disabled={self.props.disabled} onClick={this._blockDevice.bind(null, device, index)}>
+          <IconButton disabled={self.props.disabled} onClick={self._openRejectDialog.bind(null, device, index)}>
             <FontIcon className="material-icons red">cancel</FontIcon>
           </IconButton>
         )
@@ -263,6 +275,20 @@ var Authorized =  createReactClass({
     ) : null;
 
     var minHeight = deviceLimitWarning ? this.state.minHeight + 20 : this.state.minHeight;
+
+
+    var rejectActions =  [
+      <div style={{marginRight:"10px", display:"inline-block"}}>
+        <FlatButton
+          label="Cancel"
+          onClick={this._closeReject} />
+      </div>,
+      <RaisedButton
+        label="Reject device"
+        secondary={true}
+        onClick={this.props.rejectDevice.bind(null, this.state.deviceToReject.device)}
+        icon={<FontIcon style={{marginTop:"-4px"}} className="material-icons">cancel</FontIcon>} />
+    ];
 
 
     return (
@@ -411,6 +437,22 @@ var Authorized =  createReactClass({
           message={this.props.snackbar.message}
           autoHideDuration={8000}
         />
+
+
+
+        <Dialog
+          open={this.state.openReject}
+          title='Reject this device?'
+          actions={rejectActions}
+          autoDetectWindowHeight={true}
+          bodyStyle={{paddingTop:"0", fontSize:"13px"}}
+          contentStyle={{overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}
+          >
+          <ListItem className="margin-bottom-small" style={styles.listStyle} disabled={true} primaryText="Device ID" secondaryText={this.state.deviceToReject.device ? this.state.deviceToReject.device.id : null}  />
+          <p>
+            This device will be rejected and blocked from making authorization requests in the future.
+          </p>
+        </Dialog>
       </Collapse>
     );
   }

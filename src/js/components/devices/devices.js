@@ -97,6 +97,7 @@ var Devices = createReactClass({
 	
 	_handleTabActive: function(tab) {
 		AppActions.setSnackbar("");
+		this.setState({currentTab: tab.props.label});
 	    this.context.router.push(tab.props.value);
 	},
 
@@ -228,7 +229,7 @@ var Devices = createReactClass({
 			            onActive={tabHandler}
 			            style={style.tabStyle}>
 
-							<PendingDevices snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._rejectDevice} />
+							<PendingDevices currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._rejectDevice} />
 					</Tab>
 				</Tabs>
 

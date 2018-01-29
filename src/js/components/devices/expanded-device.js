@@ -60,8 +60,8 @@ var ExpandedDevice = createReactClass({
   _onScheduleSubmit: function() {
     var self = this;
     var newDeployment = {
-      devices: [this.props.device.id],
-      name: this.props.device.id,
+      devices: [this.props.device.device_id],
+      name: this.props.device.device_id,
       artifact_name: this.state.artifact.name
     }
     var callback = {
@@ -92,10 +92,10 @@ var ExpandedDevice = createReactClass({
       this.props.accept([this.props.device], accept);
     }
   },
-  _handleBlock: function(remove) {
+  _handleReject: function(status) {
     // if previously rejected, set 'remove' to true in order for device to be handled by devauth api
     // otherwise, handled by devadmn api
-    this.props.block(this.props.device, remove);
+    this.props.rejectOrDecomm(this.props.device, status);
   },
 
   _handleStopProp: function(e) {
@@ -127,7 +127,7 @@ var ExpandedDevice = createReactClass({
 
     var deviceIdentity = [];
     deviceIdentity.push(
-        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).id || ''} secondaryTextLines={2} />
+        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).device_id || ''} secondaryTextLines={2} />
     );
 
     if ((this.props.device || {}).id_data) {
@@ -138,17 +138,18 @@ var ExpandedDevice = createReactClass({
       };
     }
 
-    if ((this.props.device || {}).created_ts) {
+    if ((this.props.device || {}).request_time) {
       deviceIdentity.push(
         <div key="connectionTime">
-          <ListItem style={this.props.styles.listStyle} disabled={true} primaryText="First connection time" secondaryText={<div><Time value={this.props.device.created_ts} format="YYYY-MM-DD HH:mm" /></div>} />
+          <ListItem style={this.props.styles.listStyle} disabled={true} primaryText="First connection time" secondaryText={<div><Time value={this.props.device.request_time} format="YYYY-MM-DD HH:mm" /></div>} />
         </div>
       );
     }
 
     var deviceInventory = [];
 
-    var status = this.props.device.auth_sets ? this.props.device.auth_sets[0].status : this.props.device.status;
+    var status = this.props.device.status;
+    console.log(this.props.device);
 
     if (typeof this.props.device.attributes !== 'undefined' && this.props.device.attributes.length>0) {
       var sortedAttributes = this.props.device.attributes.sort(function (a, b) {
@@ -196,7 +197,7 @@ var ExpandedDevice = createReactClass({
       );
     }
 
-    var reauthButton = (
+    var reauthButton = (status === "rejected") ? (
       <ListItem
         key="reauthButton"
         style={this.props.styles.listButtonStyle}
@@ -204,7 +205,7 @@ var ExpandedDevice = createReactClass({
         secondaryText="Authorize this device?"
         onClick={this._handleAccept.bind(null, true)}
         leftIcon={<FontIcon className="material-icons red" style={{margin: "12px 0 12px 12px"}}>cancel</FontIcon>} />
-    );
+    ) : null;
 
     var deviceInventory2 = [];
     if (deviceInventory.length > deviceIdentity.length) {
@@ -215,9 +216,10 @@ var ExpandedDevice = createReactClass({
         <ListItem
           key="decommissionButton"
           style={this.props.styles.listButtonStyle}
-          primaryText={status === "accepted" ? "Reject or decommission this device" : "Decommission this device"}
-          onClick={this._handleBlock.bind(null, true)}
-          leftIcon={<FontIcon className="material-icons" style={{margin: "12px 0 12px 12px"}}>block</FontIcon>} />
+          primaryText={"Authorization status: " + status}
+          secondaryText={status === "accepted" ? "Reject or decommission this device?" : "Decommission this device?"}
+          onClick={this._handleReject.bind(null, status)}
+          leftIcon={<FontIcon className={status === "accepted" ? "material-icons green" : "material-icons"} style={{margin: "12px 0 12px 12px"}}>{status === "accepted" ? "check_circle" : "block" }</FontIcon>} />
     ) : null;
     deviceIdentity.push(decommission);
 
@@ -243,7 +245,6 @@ var ExpandedDevice = createReactClass({
           <div className={this.props.unauthorized ? "hidden" : "report-list"} >
             <List style={{marginTop:"34px"}}>
               {deviceInventory2}
-              {status !== "accepted" ? reauthButton : null}
             </List>
           </div>
 
@@ -252,7 +253,7 @@ var ExpandedDevice = createReactClass({
         { status==="accepted" ? 
           (
             <div className="report-list">
-              <List style={{marginTop:"12px", marginLeft:"-24px"}}>
+              <List style={{marginTop:"24px", marginLeft:"-24px"}}>
                 <ListItem
                 key="updateButton"
                 className={status === "accepted" ? null : "hidden"}

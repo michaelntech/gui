@@ -340,14 +340,6 @@ var AppActions = {
     DevicesApi
       .get(devicesApiUrl+"/devices?status="+ status +"&per_page="+per_page+"&page="+page)
       .then(function(res) {
-        switch (status) {
-          case "pending":
-            AppDispatcher.handleViewAction({
-              actionType: AppConstants.RECEIVE_ADMISSION_DEVICES,
-              count: res.body
-            });
-            break;
-        }
         callback.success(res.body, parse(res.headers['link']));
       })
       .catch(function(err) {
@@ -357,7 +349,7 @@ var AppActions = {
   
   getDeviceIdentity: function (id, callback) {
     DevicesApi
-      .get(devAuthApiUrl+"/devices/" + id)
+      .get(devicesApiUrl+"/devices/" + id)
       .then(function(res) {
         callback.success(res.body);
       })
@@ -366,10 +358,10 @@ var AppActions = {
       })
   },
 
-  acceptDevice: function (device, callback) {
+  acceptDevice: function (id, callback) {
     // accept single device through dev admn api
     DevicesApi
-      .put(devicesApiUrl+"/devices/"+device.id +"/status", {"status":"accepted"})
+      .put(devicesApiUrl+"/devices/"+id +"/status", {"status":"accepted"})
       .then(function(data) {
         callback.success(data);
       })
@@ -377,10 +369,10 @@ var AppActions = {
         callback.error(err);
       });
   },
-  reacceptDevice: function (device, callback) {
-    // accept single device by changing status in dev auth api
+  
+  rejectDevice: function (id, callback) {
     DevicesApi
-      .put(devAuthApiUrl+"/devices/"+device.id + "/auth/" + device.auth_sets[0].id +"/status", {"status":"accepted"})
+      .put(devicesApiUrl+"/devices/"+ id +"/status", {"status":"rejected"})
       .then(function(data) {
         callback.success(data);
       })
@@ -388,9 +380,9 @@ var AppActions = {
         callback.error(err);
       });
   },
-  rejectDevice: function (device, callback) {
+  decommissionDevice: function(id, callback) {
     DevicesApi
-      .put(devicesApiUrl+"/devices/"+device.id +"/status", {"status":"rejected"})
+      .delete(devAuthApiUrl+"/devices/"+ id)
       .then(function(data) {
         callback.success(data);
       })
@@ -398,28 +390,6 @@ var AppActions = {
         callback.error(err);
       });
   },
-  blockDevice: function (device, callback) {
-    DevicesApi
-      .put(devAuthApiUrl+"/devices/"+device.id + "/auth/" + device.auth_sets[0].id +"/status", {"status":"rejected"})
-      .then(function(data) {
-        callback.success(data);
-      })
-      .catch(function(err) {
-        callback.error(err);
-      });
-  },
-  decommissionDevice: function(device, callback) {
-    DevicesApi
-      .delete(devAuthApiUrl+"/devices/"+device.id)
-      .then(function(data) {
-        callback.success(data);
-      })
-      .catch(function(err) {
-        callback.error(err);
-      });
-  },
-
-
 
 
   /* Artifacts */

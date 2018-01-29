@@ -48,11 +48,11 @@ var Authorized =  createReactClass({
   componentDidUpdate(prevProps, prevState) {
     if ((prevProps.groupCount !== this.props.groupCount) || (prevProps.acceptedCount !== this.props.acceptedCount) || (prevProps.rejectedCount !== this.props.rejectedCount) ) {
       this._getDevices();
-      this.setState({selectedRows:[]});
+      this.setState({selectedRows:[], expandRow: null});
     }
 
     if (prevProps.currentTab !== this.props.currentTab) {
-      this.setState({selectedRows:[]});
+      this.setState({selectedRows:[], expandRow: null});
     }
   },
 
@@ -87,15 +87,13 @@ var Authorized =  createReactClass({
     var self = this;
     var callback =  {
       success: function(devices) {
-
         self.setState({devices: devices}, self._adjustHeight());
         if (devices.length) {
-
           // for each device get inventory
           devices.forEach( function(dev, index) {
             self._getInventoryForDevice(dev, function(device) {
-
-              devices[index] = device;
+              devices[index].attributes = device.attributes;
+              devices[index].updated_ts = devices.updated_ts;
               if (index===devices.length-1) {
                 self.setState({devices:devices, loading: false, pageLoading: false});
               }
@@ -162,12 +160,14 @@ var Authorized =  createReactClass({
   */
   _setDeviceDetails: function(device) {
     var self = this;
+
     var callback = {
       success: function(data) {
-        device.auth_sets = data.auth_sets;
-        device.id_data = JSON.parse(data.id_data);
-        device.id = data.id;
-        device.created_ts = data.created_ts;
+        console.log(data);
+        device.id_data = data.attributes;
+        device.device_id = data.device_id;
+        device.request_time = data.request_time;
+        device.status = data.status;
         self.setState({expandedDevice: device});
       },
       error: function(err) {
@@ -184,6 +184,7 @@ var Authorized =  createReactClass({
   },
 
   _onRowSelection: function(selectedRows) {
+
     if (selectedRows === "all") {
       var rows = Array.apply(null, {length: this.state.devices.length}).map(Number.call, Number);
       this.setState({selectedRows: rows});
@@ -208,8 +209,13 @@ var Authorized =  createReactClass({
     return devices;
   },
 
-
   render: function() {
+
+    var pluralized = pluralize("devices", this.state.selectedRows.length); 
+
+    var addLabel = this.props.selectedGroup ? "Move selected " + pluralized +" to another group" : "Add selected " + pluralized +" to a group";
+    var removeLabel =  "Remove selected " + pluralized +" from this group";
+    var groupLabel = this.props.selectedGroup ? decodeURIComponent(this.props.selectedGroup) : "Accepted devices";
 
     var styles = {
       exampleFlatButtonIcon: {
@@ -270,7 +276,7 @@ var Authorized =  createReactClass({
     var devices = this.state.devices.map(function(device, index) {
       var self = this;
       var expanded = '';
-
+      
       var attrs = {
         device_type: "",
         artifact_name: ""
@@ -281,14 +287,14 @@ var Authorized =  createReactClass({
       }
       
       if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} device={device} selectedGroup={this.props.selectedGroup} groups={this.props.groups} />
+        expanded = <ExpandedDevice rejectOrDecomm={this.props.rejectOrDecomm} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} device={device} selectedGroup={this.props.selectedGroup} groups={this.props.groups} />
       }
      
       return (
         <TableRow 
           hoverable={!expanded}
           className={expanded ? "expand" : null}
-          key={device.id}
+          key={device.device_id || device.id}
           selected={this._isSelected(index)}>
           <TableRowColumn style={expanded ? {height: this.state.divHeight, padding: 0} : {padding: 0}}>
             <div style={styles.paddedCell} onClick={(e) => {
@@ -296,7 +302,7 @@ var Authorized =  createReactClass({
               e.stopPropagation();
               this._expandRow(index,0);
             }}>
-            {device.id}
+            {device.device_id || device.id}
             </div>
           </TableRowColumn>
           <TableRowColumn style={{padding: 0}}>
@@ -351,10 +357,6 @@ var Authorized =  createReactClass({
     }, this);
 
 
-
-    // editing group name
-    var groupLabel = this.props.selectedGroup ? decodeURIComponent(this.props.selectedGroup) : "Accepted devices";
-
     var groupNameInputs = (
       <TextField 
         id="groupNameInput"
@@ -373,6 +375,8 @@ var Authorized =  createReactClass({
     if (this.state.errorText1) {
       correctIcon = "close";
     }
+
+
 
     return (
       <Collapse springConfig={{stiffness: 190, damping: 20}} style={{minHeight:this.state.minHeight, width:"100%"}} isOpened={true}>
@@ -468,13 +472,15 @@ var Authorized =  createReactClass({
         { this.state.selectedRows.length ? 
           
           <div className="fixedButtons">
-            <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
-            <RaisedButton disabled={disableAction} label={addLabel} secondary={true} onClick={this.dialogToggle.bind(null, 'addGroup')}>
-              <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
-            </RaisedButton>
-            <FlatButton disabled={disableAction} style={{marginLeft: "4px"}} className={this.props.selectedGroup ? null : 'hidden'} label={removeLabel} secondary={true} onClick={this._removeSelectedDevices}>
-              <FontIcon style={styles.buttonIcon} className="material-icons">remove_circle_outline</FontIcon>
-            </FlatButton>
+            <div className="float-right">
+              <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
+              <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this.dialogToggle.bind(null, 'addGroup')}>
+                <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
+              </RaisedButton>
+              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.selectedGroup ? null : 'hidden'} label={removeLabel} secondary={true} onClick={this._removeSelectedDevices}>
+                <FontIcon style={styles.buttonIcon} className="material-icons">remove_circle_outline</FontIcon>
+              </FlatButton>
+            </div>
           </div>
 
         : null }
@@ -501,6 +507,7 @@ var Authorized =  createReactClass({
             </div>
           : null }
         </div>
+
 
       </Collapse>
     );

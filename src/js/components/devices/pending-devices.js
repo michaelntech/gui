@@ -49,11 +49,11 @@ var Authorized =  createReactClass({
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.count !== this.props.count) {
       this._getDevices();
-      this.setState({selectedRows:[]});
+      this.setState({selectedRows:[], expandRow: null});
     }
 
     if (prevProps.currentTab !== this.props.currentTab) {
-      this.setState({selectedRows:[]});
+      this.setState({selectedRows:[], expandRow: null});
     }
   },
   /*
@@ -208,7 +208,7 @@ var Authorized =  createReactClass({
               e.stopPropagation();
               self._expandRow(index);
             }}>
-              {device.id}
+              {device.device_id}
             </div>
           </TableRowColumn>
           <TableRowColumn className="no-click-cell">

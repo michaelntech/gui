@@ -123,7 +123,7 @@ var AcceptedDevices = createReactClass({
                       showHelptips={this.state.showHelptips} />
                 </div>
                 <div className="rightFluid">
-                	<DeviceList groupCount={this.props.acceptedDevices} acceptedDevices={this.props.acceptedDevices} rejectedDevices={this.props.rejectedDevices} styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
+                	<DeviceList rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} groupCount={this.props.acceptedDevices} acceptedDevices={this.props.acceptedDevices} rejectedDevices={this.props.rejectedDevices} styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
                 </div>
 
 

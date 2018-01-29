@@ -148,7 +148,7 @@ var ExpandedDevice = createReactClass({
 
     var deviceInventory = [];
 
-    var status = this.props.device.auth_sets ? this.props.device.auth_sets[0].status : "";
+    var status = this.props.device.auth_sets ? this.props.device.auth_sets[0].status : this.props.device.status;
 
     if (typeof this.props.device.attributes !== 'undefined' && this.props.device.attributes.length>0) {
       var sortedAttributes = this.props.device.attributes.sort(function (a, b) {

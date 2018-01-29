@@ -3,6 +3,7 @@ var createReactClass = require('create-react-class');
 
 var Groups = require('./groups');
 var GroupSelector = require('./groupselector');
+var CreateGroup = require('./create-group');
 var DeviceList = require('./devicelist');
 var Filters = require('./filters');
 var Loader = require('../common/loader');
@@ -30,11 +31,13 @@ var AcceptedDevices = createReactClass({
       		filters: AppStore.getFilters(),
       		attributes: AppStore.getAttributes(),
       		snackbar: AppStore.getSnackbar(),
+      		createGroupDialog: false,
 		};
 	},
 
 	componentDidMount() {
 		// Get groups
+		this._refreshGroups();
 	},
 
 
@@ -67,6 +70,7 @@ var AcceptedDevices = createReactClass({
 	          groupDevices[groups[i]] = 0;
 	          setNum(groups[i], i);
 	          function setNum(group, idx) {
+	            
 	            AppActions.getNumberOfDevicesInGroup(function(noDevs) {
 	              groupDevices[group] = noDevs;
 	              self.setState({groupDevices: groupDevices});
@@ -82,14 +86,15 @@ var AcceptedDevices = createReactClass({
 	    AppActions.getGroups(callback);
 	},
 
-	_handleGroupChange: function() {
-
+	_handleGroupChange: function(group) {
+		console.log("changeGroup");
 	},
 
-	_handleGroupDialog: function() {
-
+	_toggleDialog: function(ref) {
+		var state = {};
+    	state[ref] = !this.state[ref];
+    	this.setState(state);
 	},
-
 
 	render: function() {
 		// Add to group dialog 
@@ -102,7 +107,7 @@ var AcceptedDevices = createReactClass({
 	      <RaisedButton
 	        label="Add to group"
 	        primary={true}
-	        onClick={this._addGroupHandler}
+	        onClick={this._addToGroupDialog}
 	        ref="save" 
 	        disabled={this.state.groupInvalid} />
 	    ];
@@ -114,9 +119,9 @@ var AcceptedDevices = createReactClass({
 				
 				<div className="leftFixed">
                     <Groups
-                      openGroupDialog={this._handleGroupDialog}
+                      openGroupDialog={this._toggleDialog.bind(null, "createGroupDialog")}
                       changeGroup={this._handleGroupChange}
-                      groupList={this.state.groups}
+                      groups={this.state.groups}
                       groupDevices={this.state.groupDevices}
                       selectedGroup={this.state.selectedGroup}
                       acceptedDevices={this.props.acceptedDevices}
@@ -136,6 +141,15 @@ var AcceptedDevices = createReactClass({
 		          bodyStyle={{fontSize: "13px"}}>  
 		          <GroupSelector numDevices={(this.state.selectedRows||{}).length} willBeEmpty={this.state.willBeEmpty} tmpGroup={this.state.tmpGroup} selectedGroup={this.props.selectedGroup} changeSelect={this.props.changeSelect} validateName={this._validate} groups={this.props.groups} selectedField={this.props.selectedField} />
 		        </Dialog>
+
+
+		        <CreateGroup
+		        	ref="createGroupDialog"
+		        	toggleDialog={this._toggleDialog}
+			        open={this.state.createGroupDialog}
+			        groups={this.state.groups}
+			        changeGroup={this._handleGroupChange}
+		         />
 
 		        <Snackbar
 		          open={this.state.snackbar.open}

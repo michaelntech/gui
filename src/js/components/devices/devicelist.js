@@ -209,6 +209,10 @@ var Authorized =  createReactClass({
     return devices;
   },
 
+  _dialogToggle: function (ref) {
+    console.log("this will open add to group in parent, with list of devices");
+  },
+
   render: function() {
 
     var pluralized = pluralize("devices", this.state.selectedRows.length); 
@@ -474,7 +478,7 @@ var Authorized =  createReactClass({
           <div className="fixedButtons">
             <div className="float-right">
               <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
-              <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this.dialogToggle.bind(null, 'addGroup')}>
+              <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this._dialogToggle.bind(null, 'addGroup')}>
                 <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
               </RaisedButton>
               <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.selectedGroup ? null : 'hidden'} label={removeLabel} secondary={true} onClick={this._removeSelectedDevices}>

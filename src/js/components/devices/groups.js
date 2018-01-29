@@ -39,7 +39,7 @@ var Groups = createReactClass({
               style={!this.props.selectedGroup ? {backgroundColor: "#e7e7e7"} : {backgroundColor: "transparent"}}
               onClick={this._changeGroup.bind(null, "")} />
    
-          {this.props.groupList.map(function(group, index) {
+          {this.props.groups.map(function(group, index) {
             var isSelected = group===this.props.selectedGroup ? {backgroundColor: "#e7e7e7"} : {backgroundColor: "transparent"};
             var boundClick = this._changeGroup.bind(null, group);
             var numDevs;
@@ -64,7 +64,7 @@ var Groups = createReactClass({
         </List>
 
 
-        { this.props.showHelptips && this.props.acceptedDevices && !this.props.groupList.length ?
+        { this.props.showHelptips && this.props.acceptedDevices && !this.props.groups.length ?
           <div>
             <div 
               id="onboard-5"

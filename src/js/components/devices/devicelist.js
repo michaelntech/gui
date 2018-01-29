@@ -46,7 +46,7 @@ var Authorized =  createReactClass({
   },
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.count !== this.props.count) {
+    if ((prevProps.groupCount !== this.props.groupCount) || (prevProps.acceptedCount !== this.props.acceptedCount) || (prevProps.rejectedCount !== this.props.rejectedCount) ) {
       this._getDevices();
       this.setState({selectedRows:[]});
     }
@@ -83,25 +83,28 @@ var Authorized =  createReactClass({
     }
   },
   
-
   _getAllAccepted: function() {
     var self = this;
     var callback =  {
       success: function(devices) {
 
         self.setState({devices: devices}, self._adjustHeight());
+        if (devices.length) {
 
-        // for each device get inventory
-        devices.forEach( function(dev, index) {
-          self._getInventoryForDevice(dev, function(device) {
+          // for each device get inventory
+          devices.forEach( function(dev, index) {
+            self._getInventoryForDevice(dev, function(device) {
 
-            devices[index] = device;
-            if (index===devices.length-1) {
-              self.setState({devices:devices, loading: false, pageLoading: false});
-            }
-          });
-        });   
+              devices[index] = device;
+              if (index===devices.length-1) {
+                self.setState({devices:devices, loading: false, pageLoading: false});
+              }
+            });
+          });   
 
+        } else {
+           self.setState({loading: false});
+        }
       },
       error: function(error) {
         console.log(err);
@@ -145,12 +148,33 @@ var Authorized =  createReactClass({
     if (this.state.expandRow === rowNumber) {
       rowNumber = null;
     }
-    device.id_data = device.attributes;
-    this.setState({expandedDevice: device, expandRow: rowNumber});
+    
+    this._setDeviceDetails(device);
+    this.setState({expandRow: rowNumber});
     
   },
   _adjustCellHeight: function(height) {
-    this.setState({divHeight: height+65});
+    this.setState({divHeight: height+85});
+  },
+
+   /*
+  * Get full device identity details for single selected device
+  */
+  _setDeviceDetails: function(device) {
+    var self = this;
+    var callback = {
+      success: function(data) {
+        device.auth_sets = data.auth_sets;
+        device.id_data = JSON.parse(data.id_data);
+        device.id = data.id;
+        device.created_ts = data.created_ts;
+        self.setState({expandedDevice: device});
+      },
+      error: function(err) {
+        console.log("Error: " + err);
+      }
+    };
+    AppActions.getDeviceIdentity(device.id, callback);
   },
 
 
@@ -329,7 +353,7 @@ var Authorized =  createReactClass({
 
 
     // editing group name
-    var groupLabel = this.props.selectedGroup ? decodeURIComponent(this.props.selectedGroup) : "All devices";
+    var groupLabel = this.props.selectedGroup ? decodeURIComponent(this.props.selectedGroup) : "Accepted devices";
 
     var groupNameInputs = (
       <TextField 
@@ -440,15 +464,6 @@ var Authorized =  createReactClass({
         : null }
 
         <div>
-          {
-            (this.state.authLoading === "all" && this.props.disabled) ?
-                 <div style={{width:"150px", position: "absolute", left: "-150px", top: "15px"}} className="inline-block">
-                    <Loader table={true} waiting={true} show={true} />
-                </div>
-            :
-            null
-          }
-     
 
         { this.state.selectedRows.length ? 
           

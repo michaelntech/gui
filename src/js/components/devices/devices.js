@@ -221,7 +221,12 @@ var Devices = createReactClass({
 	        fontSize: "12px",
 	        paddingTop: "10px",
 	        paddingBottom: "10px",
-	        display: "inline"
+	      },
+	      listButtonStyle: {
+	      	fontSize: "12px",
+	      	marginTop: "6px",
+	      	paddingRight: "12px",
+	      	marginLeft: "24px",
 	      },
 	    };
 
@@ -241,7 +246,7 @@ var Devices = createReactClass({
 			            onActive={tabHandler}
 			            style={styles.tabStyle}>
 
-							<DeviceGroups styles={styles} acceptedDevices={this.state.acceptedCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} />
+							<DeviceGroups styles={styles} rejectedDevices={this.state.rejectedCount} acceptedDevices={this.state.acceptedCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} />
 					</Tab>
 					<Tab
 			            label={pendingLabel}

@@ -147,7 +147,6 @@ var ExpandedDevice = createReactClass({
     }
 
     var deviceInventory = [];
-    var createDeployment;
 
     var status = this.props.device.auth_sets ? this.props.device.auth_sets[0].status : "";
 
@@ -165,18 +164,6 @@ var ExpandedDevice = createReactClass({
           </div>
         );
       };
-
-      createDeployment = (
-        <div key="updateButton">
-          <ListItem
-            className={status === "accepted" ? null : "hidden"}
-            style={this.props.styles.listStyle}
-            primaryText="Create a deployment for this device"
-            onClick={this._clickListItem}
-            leftIcon={<FontIcon style={{marginTop:6, marginBottom:6}} className="material-icons update">replay</FontIcon>} />
-            <Divider />
-        </div>
-      );
 
     } else {
       deviceInventory.push(
@@ -210,32 +197,30 @@ var ExpandedDevice = createReactClass({
     }
 
     var reauthButton = (
-      <div key="reauthButton">
-        <ListItem
-          style={this.props.styles.listStyle}
-          primaryText={"Authorization status: " + status}
-          secondaryText="Authorize this device?"
-          onClick={this._handleAccept.bind(null, true)}
-          leftIcon={<FontIcon className="material-icons red auth" style={{marginTop:6, marginBottom:6}}>cancel</FontIcon>} />
-         <Divider />
-      </div>
+      <ListItem
+        key="reauthButton"
+        style={this.props.styles.listButtonStyle}
+        primaryText={"Authorization status: " + status}
+        secondaryText="Authorize this device?"
+        onClick={this._handleAccept.bind(null, true)}
+        leftIcon={<FontIcon className="material-icons red" style={{margin: "12px 0 12px 12px"}}>cancel</FontIcon>} />
     );
 
     var deviceInventory2 = [];
     if (deviceInventory.length > deviceIdentity.length) {
-      deviceInventory2 = deviceInventory.splice((deviceInventory.length/2)+(deviceInventory.length%2)+1,deviceInventory.length);
+      deviceInventory2 = deviceInventory.splice((deviceInventory.length/2)+(deviceInventory.length%2),deviceInventory.length);
     }
 
-    var decommission = (
-      <div key="decommissionButton">
+    var decommission = (status !== "pending") ? (
         <ListItem
-          style={this.props.styles.listStyle}
+          key="decommissionButton"
+          style={this.props.styles.listButtonStyle}
           primaryText={status === "accepted" ? "Reject or decommission this device" : "Decommission this device"}
           onClick={this._handleBlock.bind(null, true)}
-          leftIcon={<FontIcon className="material-icons auth" style={{marginTop:6, marginBottom:6}}>block</FontIcon>} />
-        <Divider />
-      </div>
-    );
+          leftIcon={<FontIcon className="material-icons" style={{margin: "12px 0 12px 12px"}}>block</FontIcon>} />
+    ) : null;
+    deviceIdentity.push(decommission);
+
 
     var deviceInfo = (
       <div key="deviceinfo">
@@ -246,21 +231,40 @@ var ExpandedDevice = createReactClass({
           </List>
         </div>
 
-        <div className={this.props.unauthorized ? "hidden" : "report-list"} >
-          <h4 className="margin-bottom-none">Device inventory</h4>
-          <List>
-            {deviceInventory}
-          </List>
+        <div id="device-inventory">
+          <div className={this.props.unauthorized ? "hidden" : "report-list"} >
+            <h4 className="margin-bottom-none">Device inventory</h4>
+            <List>
+              {deviceInventory}
+            </List>
+          </div>
+    
+
+          <div className={this.props.unauthorized ? "hidden" : "report-list"} >
+            <List style={{marginTop:"34px"}}>
+              {deviceInventory2}
+              {status !== "accepted" ? reauthButton : null}
+            </List>
+          </div>
+
         </div>
 
-        <div className={this.props.unauthorized ? "hidden" : "report-list"} >
-          <List style={{marginTop:"34px"}}>
-            {deviceInventory2}
-            {status !== "accepted" ? reauthButton : null}
-            {decommission}
-            {createDeployment}
-          </List>
-        </div>
+        { status==="accepted" ? 
+          (
+            <div className="report-list">
+              <List style={{marginTop:"12px", marginLeft:"-24px"}}>
+                <ListItem
+                key="updateButton"
+                className={status === "accepted" ? null : "hidden"}
+                style={this.props.styles.listButtonStyle}
+                primaryText="Create a deployment for this device"
+                onClick={this._clickListItem}
+                leftIcon={<FontIcon className="material-icons update" style={{margin: "12px 0 12px 12px"}}>replay</FontIcon>} />
+              </List>
+            </div>
+          ) : null
+        }
+      
       </div>
     );
 

@@ -216,6 +216,28 @@ var Devices = createReactClass({
 	    AppActions.rejectDevice(self.state.deviceToReject.id, callback);
 	},
 
+	_decommissionDevice: function() {
+		 var self = this;
+
+	   	//self.setState({pauseAdmisson: true});
+	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
+
+	    var callback = {
+	      success: function(data) {
+	        AppActions.setSnackbar("Device was decommissioned successfully");
+	        self._refreshAll();
+	        // self.setState({pauseAdmisson: false});
+	        // if (device.status==="accepted") { self._setDeviceDetails(self.state.blockDevice) }
+	      },
+	      error: function(err) {
+	        var errMsg = err.res.body.error || "";
+	        // self.setState({pauseAdmisson: false});
+	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem decommissioning the device: "+errMsg));
+	      }
+	    };
+	    AppActions.decommissionDevice(self.state.deviceToReject.device_id, callback);
+	},
+
 	dialogToggle: function (ref) {
 	    var state = {};
 	    state[ref] = !this.state[ref];

@@ -68,7 +68,7 @@ var Devices = createReactClass({
   		var self = this;
   		var callback = {
   			success: function(count) {
-  				self.setState(acceptedCount: count);
+  				self.setState({acceptedCount: count});
   			},
   			error: function(error) {
 
@@ -80,7 +80,7 @@ var Devices = createReactClass({
   		var self = this;
   		var callback = {
   			success: function(count) {
-  				self.setState(rejectedCount: count);
+  				self.setState({rejectedCount: count});
   			},
   			error: function(error) {
 
@@ -92,7 +92,7 @@ var Devices = createReactClass({
   		var self = this;
   		var callback = {
   			success: function(count) {
-  				self.setState(pendingCount: count);
+  				self.setState({pendingCount: count});
   				AppActions.setSnackbar("");
   			},
   			error: function(error) {

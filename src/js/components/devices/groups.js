@@ -12,8 +12,8 @@ import Subheader from 'material-ui/Subheader';
 require('../common/prototype/Array.prototype.equals');
 
 var Groups = createReactClass({
-  _changeGroup: function(group) {
-    this.props.changeGroup(group);
+  _changeGroup: function(group, numDevs) {
+    this.props.changeGroup(group, numDevs);
   },
 
   dialogToggle: function() {
@@ -37,15 +37,15 @@ var Groups = createReactClass({
               key="All" 
               primaryText={allLabel}
               style={!this.props.selectedGroup ? {backgroundColor: "#e7e7e7"} : {backgroundColor: "transparent"}}
-              onClick={this._changeGroup.bind(null, "")} />
+              onClick={this._changeGroup.bind(null, "", this.props.acceptedDevices)} />
    
           {this.props.groups.map(function(group, index) {
             var isSelected = group===this.props.selectedGroup ? {backgroundColor: "#e7e7e7"} : {backgroundColor: "transparent"};
-            var boundClick = this._changeGroup.bind(null, group);
             var numDevs;
             if (this.props.groupDevices) {
               numDevs = this.props.groupDevices[group] || null;
             }
+            var boundClick = this._changeGroup.bind(null, group, numDevs);
             var groupLabel = (
                 <span>{decodeURIComponent(group)}<span className='float-right length'>{numDevs}</span></span>
             );

@@ -100,6 +100,7 @@ var CreateGroup = createReactClass({
       var device = this.state.devices[row].device_id;
       this._addDeviceToGroup(i, group, device);
     }
+    this.setState({showWarning: false});
   },
 
   _addDeviceToGroup(idx, group, device) {
@@ -109,7 +110,7 @@ var CreateGroup = createReactClass({
         if (idx===self.state.selectedRows.length-1) {
           // reached end of list
           self.props.changeGroup(group);
-          self.props.toggleDialog("createGroupDialog");
+          self.toggleDialog("createGroupDialog");
 
           if (self.state.isChecked) {
             cookie.save(self.props.user.id+'-groupHelpText', true);

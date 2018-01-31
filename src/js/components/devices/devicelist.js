@@ -10,8 +10,6 @@ var Loader = require('../common/loader');
 var AppActions = require('../../actions/app-actions');
 var ExpandedDevice = require('./expanded-device');
 var createReactClass = require('create-react-class');
-var Pagination = require('rc-pagination');
-var _en_US = require('rc-pagination/lib/locale/en_US');
 var pluralize = require('pluralize');
 
 
@@ -33,108 +31,30 @@ var Authorized =  createReactClass({
     return {
       minHeight: 200,
       divHeight: 178,
-      devices: [],
-      pageNo: 1,
-      pageLength: 20,
-      selectedRows: [],
-      loading: true,
+      selectedRows: []
     }
   },
 
-  componentDidMount() {
-    this._getDevices();
-  },
-
   componentDidUpdate(prevProps, prevState) {
-    if ((prevProps.groupCount !== this.props.groupCount) || (prevProps.acceptedCount !== this.props.acceptedCount) || (prevProps.rejectedCount !== this.props.rejectedCount) ) {
-      this._getDevices();
+    if ((prevProps.acceptedCount !== this.props.acceptedCount) 
+        || (prevProps.rejectedCount !== this.props.rejectedCount) 
+        || (prevProps.group !== this.props.group) ) {
       this.setState({selectedRows:[], expandRow: null});
     }
 
     if (prevProps.currentTab !== this.props.currentTab) {
       this.setState({selectedRows:[], expandRow: null});
     }
-  },
 
-  
-  /*
-  * Devices to show
-  */ 
-  _getDevices: function() {
-    var self = this;
-    if (!this.props.selectedGroup) {
-      // no group selected, get all accepted
-      this._getAllAccepted();
-    } else {
-       var callback =  {
-        success: function(devices) {
-          self.setState({devices: devices, loading: false, pageLoading: false}, self._adjustHeight());
-        },
-        error: function(error) {
-          console.log(err);
-          var errormsg = err.error || "Please check your connection.";
-          self.setState({loading: false});
-             // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
-        }
-      };
-
-      self.setState({loading: true});
-      AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.props.selectedGroup);
+    if (prevProps.devices.length !== this.props.devices.length) {
+       this._adjustHeight()
     }
-  },
-  
-  _getAllAccepted: function() {
-    var self = this;
-    var callback =  {
-      success: function(devices) {
-        self.setState({devices: devices}, self._adjustHeight());
-        if (devices.length) {
-          // for each device get inventory
-          devices.forEach( function(dev, index) {
-            self._getInventoryForDevice(dev, function(device) {
-              devices[index].attributes = device.attributes;
-              devices[index].updated_ts = devices.updated_ts;
-              if (index===devices.length-1) {
-                self.setState({devices:devices, loading: false, pageLoading: false});
-              }
-            });
-          });   
-
-        } else {
-           self.setState({loading: false});
-        }
-      },
-      error: function(error) {
-        console.log(err);
-        var errormsg = err.error || "Please check your connection.";
-        self.setState({loading: false});
-           // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
-      }
-    };
-
-    self.setState({loading: true});
-    AppActions.getDevicesByStatus(callback, "accepted", this.state.pageNo, this.state.pageLength);
-  },
-
-
-  _getInventoryForDevice: function(device, originCallback) {
-    // get inventory for single device
-    var callback = {
-      success: function(device) {
-        originCallback(device);
-      },
-      error: function(err) {
-        console.log(err);
-        originCallback(null);
-      }
-    };
-    AppActions.getDeviceById(device.device_id, callback);
   },
 
 
   _adjustHeight: function () {
     // do this when number of devices changes
-    var h = this.state.devices.length * 55;
+    var h = this.props.devices.length * 55;
     this.setState({minHeight: h});
   },
   _sortColumn: function(col) {
@@ -142,7 +62,7 @@ var Authorized =  createReactClass({
   },
   _expandRow: function(rowNumber) {
     AppActions.setSnackbar("");
-    var device = this.state.devices[rowNumber];
+    var device = this.props.devices[rowNumber];
     if (this.state.expandRow === rowNumber) {
       rowNumber = null;
     }
@@ -178,15 +98,10 @@ var Authorized =  createReactClass({
   },
 
 
-  _handlePageChange: function(pageNo) {
-    var self = this;
-    self.setState({pageLoading: true, selectedRows:[], currentPage: pageNo, authLoading:true, expandRow: null, pageNo: pageNo}, () => {self._getDevices()});
-  },
 
   _onRowSelection: function(selectedRows) {
-
     if (selectedRows === "all") {
-      var rows = Array.apply(null, {length: this.state.devices.length}).map(Number.call, Number);
+      var rows = Array.apply(null, {length: this.props.devices.length}).map(Number.call, Number);
       this.setState({selectedRows: rows});
     } else if (selectedRows === "none") {
       this.setState({selectedRows: []});
@@ -204,7 +119,7 @@ var Authorized =  createReactClass({
     // use selected rows to get device from corresponding position in devices array
     var devices = [];
     for (var i=0; i<this.state.selectedRows.length; i++) {
-      devices.push(this.state.devices[this.state.selectedRows[i]]);
+      devices.push(this.props.devices[this.state.selectedRows[i]]);
     }
     return devices;
   },
@@ -217,9 +132,9 @@ var Authorized =  createReactClass({
 
     var pluralized = pluralize("devices", this.state.selectedRows.length); 
 
-    var addLabel = this.props.selectedGroup ? "Move selected " + pluralized +" to another group" : "Add selected " + pluralized +" to a group";
+    var addLabel = this.props.group ? "Move selected " + pluralized +" to another group" : "Add selected " + pluralized +" to a group";
     var removeLabel =  "Remove selected " + pluralized +" from this group";
-    var groupLabel = this.props.selectedGroup ? decodeURIComponent(this.props.selectedGroup) : "Accepted devices";
+    var groupLabel = this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices";
 
     var styles = {
       exampleFlatButtonIcon: {
@@ -276,8 +191,7 @@ var Authorized =  createReactClass({
       }
     };
 
-
-    var devices = this.state.devices.map(function(device, index) {
+    var devices = this.props.devices.map(function(device, index) {
       var self = this;
       var expanded = '';
       
@@ -291,7 +205,7 @@ var Authorized =  createReactClass({
       }
       
       if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice rejectOrDecomm={this.props.rejectOrDecomm} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} device={device} selectedGroup={this.props.selectedGroup} groups={this.props.groups} />
+        expanded = <ExpandedDevice rejectOrDecomm={this.props.rejectOrDecomm} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} device={device} selectedGroup={this.props.group} groups={this.props.groups} />
       }
      
       return (
@@ -383,28 +297,28 @@ var Authorized =  createReactClass({
 
 
     return (
-      <Collapse springConfig={{stiffness: 190, damping: 20}} style={{minHeight:this.state.minHeight, width:"100%"}} isOpened={true}>
+      <div>
         
-      <Loader show={this.state.loading} />
+      <Loader show={this.props.loading} />
 
         <div style={{marginLeft:"26px"}}>
           <h2 style={{marginTop:"15px"}}>
            
               {groupNameInputs}
               <span className={this.state.nameEdit ? "hidden" : null}>{groupLabel}</span>
-              <span className={this.props.selectedGroup ? "hidden" : 'hidden'}>
+              <span className={this.props.group ? "hidden" : 'hidden'}>
                 <IconButton iconStyle={styles.editButton} onClick={this._nameEdit} iconClassName="material-icons" className={this.state.errorText1 ? "align-top" : null}>
                   {correctIcon}
                 </IconButton>
               </span>
 
-              <FlatButton onClick={this._removeCurrentGroup} style={styles.exampleFlatButton} className={this.props.selectedGroup ? null : 'hidden' } secondary={true} label="Remove group" labelPosition="after">
+              <FlatButton onClick={this._removeCurrentGroup} style={styles.exampleFlatButton} className={this.props.group ? null : 'hidden' } secondary={true} label="Remove group" labelPosition="after">
                 <FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
               </FlatButton>
           </h2>
         </div>
 
-        { this.state.devices.length ?
+        { this.props.devices.length ?
 
           <div className="padding-bottom">
 
@@ -431,16 +345,11 @@ var Authorized =  createReactClass({
               </TableBody>
             </Table>
 
-            <div className="margin-top">
-              <Pagination locale={_en_US} simple pageSize={20} current={this.state.currentPage || 1} total={this.props.groupCount} onChange={this._handlePageChange} />
-               {this.state.pageLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
-            </div>
           </div>
 
           :
-
        
-          <div className={(this.state.devices.length || this.state.loading) ? 'hidden' : 'dashboard-placeholder'}>
+          <div className={(this.props.devices.length || this.props.loading) ? 'hidden' : 'dashboard-placeholder'}>
             <p>
               No devices found
             </p>
@@ -448,7 +357,7 @@ var Authorized =  createReactClass({
         }
 
 
-        { this.props.showHelptips && this.state.devices.length ?
+        { this.props.showHelptips && this.props.devices.length ?
           <div>
             <div 
               id="onboard-3"
@@ -481,7 +390,7 @@ var Authorized =  createReactClass({
               <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this._dialogToggle.bind(null, 'addGroup')}>
                 <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
               </RaisedButton>
-              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.selectedGroup ? null : 'hidden'} label={removeLabel} secondary={true} onClick={this._removeSelectedDevices}>
+              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.group ? null : 'hidden'} label={removeLabel} secondary={true} onClick={this._removeSelectedDevices}>
                 <FontIcon style={styles.buttonIcon} className="material-icons">remove_circle_outline</FontIcon>
               </FlatButton>
             </div>
@@ -489,7 +398,7 @@ var Authorized =  createReactClass({
 
         : null }
 
-          { this.props.showHelptips && this.state.devices.length ?
+          { this.props.showHelptips && this.props.devices.length ?
             <div>
               <div 
                 id="onboard-4"
@@ -506,14 +415,14 @@ var Authorized =  createReactClass({
                 type="light"
                 effect="solid"
                 className="react-tooltip">
-                <AuthButton devices={this.state.devices.length} />
+                <AuthButton devices={this.props.devices.length} />
               </ReactTooltip>
             </div>
           : null }
         </div>
 
 
-      </Collapse>
+      </div>
     );
   }
 });

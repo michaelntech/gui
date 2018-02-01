@@ -22,29 +22,30 @@ import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
+import FontIcon from 'material-ui/FontIcon';
 
 var AcceptedDevices = createReactClass({
 	getInitialState() {
 		return {
 			groups: AppStore.getGroups(),
-      		selectedGroup: AppStore.getSelectedGroup(),
-      		addGroup: false,
-      		groupInvalid: true,
-      		filters: AppStore.getFilters(),
-      		attributes: AppStore.getAttributes(),
-      		snackbar: AppStore.getSnackbar(),
-      		createGroupDialog: false,
-      		devices: [],
-      		pageNo: 1,
-      		pageLength: 20,
-      		loading: true,
+  		selectedGroup: AppStore.getSelectedGroup(),
+  		addGroup: false,
+  		removeGroup: false,
+  		groupInvalid: true,
+  		filters: AppStore.getFilters(),
+  		attributes: AppStore.getAttributes(),
+  		snackbar: AppStore.getSnackbar(),
+  		createGroupDialog: false,
+  		devices: [],
+  		pageNo: 1,
+  		pageLength: 20,
+  		loading: true,
 		};
 	},
 
 	componentDidMount() {
 		// Get groups
-		this._refreshGroups();
-    	this._getDevices();
+		this._refreshAll();
 	},
 
 	componentDidUpdate: function(prevProps, prevState) {
@@ -53,6 +54,11 @@ var AcceptedDevices = createReactClass({
 	      this._refreshGroups();
 	      //this.deviceTimer = setInterval(this._refreshDevices, this.state.refreshDeviceLength);
 	    }
+	},
+
+	_refreshAll: function() {
+		this._refreshGroups();
+    this._getDevices();
 	},
 
 
@@ -88,7 +94,7 @@ var AcceptedDevices = createReactClass({
 
 	_handleGroupChange: function(group, numDev) {
 		var self = this;
-		this.setState({selectedGroup: group, groupCount: numDev, pageNo:1}, function() {
+		this.setState({loading: true, selectedGroup: group, groupCount: numDev, pageNo:1}, function() {
 			self._getDevices();
 		});
 	},
@@ -99,6 +105,62 @@ var AcceptedDevices = createReactClass({
     	this.setState(state);
 	},
 
+	_removeCurrentGroup: function() {
+    var self = this;
+    //self.props.pauseRefresh(true);
+    var callback = {
+      success: function(devices, link) {
+      	// should handle "next page"
+        // returns all group devices ids
+        for (var i=0;i<devices.length; i++) {
+          self._removeSingleDevice(i, devices.length, devices[i].id, i===devices.length-1 ? finalCallback : null);
+        }
+      },
+      error: function(err) {
+        console.log(err);
+        //self.props.pauseRefresh(false);
+      }
+    };
+
+    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null, true);
+    var finalCallback = function() {
+
+      //self.props.pauseRefresh(false);
+      AppActions.setSnackbar("Group was removed successfully");
+     	self._toggleDialog("removeGroup");
+     	self.setState({selectedGroup: null, pageNo:1}, function() {
+     			self._refreshAll();
+     	});
+    };
+  },
+
+ 	_removeSingleDevice: function(idx, length, device, parentCallback) {
+ 		// remove single device from group
+    var self = this;
+    var callback = {
+      success: function(result) {
+        if (idx===length-1) {
+          // if parentcallback, whole group is being removed
+          if (parentCallback && typeof parentCallback === "function") {
+            // whole group removed
+            parentCallback();
+          } else if (length === self.props.devices.length) {
+            // else if all in group were selected and deleted, refresh group
+            self.props.groupsChanged();
+            self.setState({openSnack: true, snackMessage: "Group was removed", selectedRows: []});
+          } else {
+            self.props.groupsChanged(self.state.selectedGroup);
+            self.setState({openSnack: true, snackMessage: "Device was removed from the group", selectedRows: []});
+            self.setState({ selectedRows: [] });
+          }
+        }
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    };
+    AppActions.removeDeviceFromGroup(device, this.state.selectedGroup, callback);
+  },
 
 
 	/*
@@ -123,7 +185,6 @@ var AcceptedDevices = createReactClass({
 	        }
 	      };
 
-	      self.setState({loading: true});
 	      AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
 	    }
 	},
@@ -188,7 +249,7 @@ var AcceptedDevices = createReactClass({
 	      <div style={{marginRight:"10px", display:"inline-block"}}>
 	        <FlatButton
 	          label="Cancel"
-	          onClick={this._cancelAdd} />
+	          onClick={this._toggleDialog.bind(null, "addGroup")} />
 	      </div>,
 	      <RaisedButton
 	        label="Add to group"
@@ -198,40 +259,88 @@ var AcceptedDevices = createReactClass({
 	        disabled={this.state.groupInvalid} />
 	    ];
 
-	    var groupCount = this.state.groupCount ? this.state.groupCount : this.props.acceptedDevices;
+	  var removeActions = [
+	      <div style={{marginRight:"10px", display:"inline-block"}}>
+	        <FlatButton
+	          label="Cancel"
+	          onClick={this._toggleDialog.bind(null, "removeGroup")} />
+	      </div>,
+	      <RaisedButton
+	        label="Remove group"
+	        primary={true}
+	        onClick={this._removeCurrentGroup} />
+	    ];
+
+	  var groupCount = this.state.groupCount ? this.state.groupCount : this.props.acceptedDevices;
+
+    var styles = {
+      exampleFlatButtonIcon: {
+        height: '100%',
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        float: 'left',
+        paddingLeft: '12px',
+        lineHeight: '36px',
+        marginRight: "-6px",
+        color:"#679BA5",
+        fontSize:'16px'
+      },
+      exampleFlatButton: {
+        fontSize:'12px',
+        marginLeft:"10px",
+        float:"right",
+        marginTop: "-10px",
+      },
+	  };
 
 		return (
 			<div className="margin-top">
 				<Filters attributes={this.state.attributes} filters={this.state.filters} onFilterChange={this._onFilterChange} />
 				
 				<div className="leftFixed">
-                    <Groups
-                      openGroupDialog={this._toggleDialog.bind(null, "createGroupDialog")}
-                      changeGroup={this._handleGroupChange}
-                      groups={this.state.groups}
-                      groupDevices={this.state.groupDevices}
-                      selectedGroup={this.state.selectedGroup}
-                      acceptedDevices={this.props.acceptedDevices}
-                      showHelptips={this.state.showHelptips} />
-                </div>
-                <div className="rightFluid">
-                	<DeviceList loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
-                	{this.state.devices.length ?
-                	<div className="margin-top">
-		             	<Pagination locale={_en_US} simple pageSize={this.state.pageLength} current={this.state.pageNo} total={groupCount} onChange={this._handlePageChange} />
-		               	{this.state.pageLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
-		            </div> : null }
-                </div>
+          <Groups
+            openGroupDialog={this._toggleDialog.bind(null, "createGroupDialog")}
+            changeGroup={this._handleGroupChange}
+            groups={this.state.groups}
+            groupDevices={this.state.groupDevices}
+            selectedGroup={this.state.selectedGroup}
+            acceptedDevices={this.props.acceptedDevices}
+            showHelptips={this.state.showHelptips} />
+        </div>
+        <div className="rightFluid">
+            <FlatButton onClick={this._toggleDialog.bind(null, "removeGroup")} style={styles.exampleFlatButton} className={this.state.selectedGroup ? null : 'hidden' } label="Remove group" labelPosition="after">
+          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
+        		</FlatButton>
+          	
+          	<DeviceList loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
+          	
+          	{this.state.devices.length && !this.state.loading ?
+          	<div className="margin-top">
+           		<Pagination locale={_en_US} simple pageSize={this.state.pageLength} current={this.state.pageNo} total={groupCount} onChange={this._handlePageChange} />
+             		{this.state.pageLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
+          	</div> : null }
+          </div>
 
 
 
 		        <Dialog
+		          ref="addGroup"
 		          open={this.state.addGroup}
 		          title="Add selected devices to group"
 		          actions={addActions}
 		          autoDetectWindowHeight={true}
 		          bodyStyle={{fontSize: "13px"}}>  
-		          <GroupSelector numDevices={(this.state.selectedRows||{}).length} willBeEmpty={this.state.willBeEmpty} tmpGroup={this.state.tmpGroup} selectedGroup={this.props.selectedGroup} changeSelect={this.props.changeSelect} validateName={this._validate} groups={this.props.groups} selectedField={this.props.selectedField} />
+		          <GroupSelector numDevices={(this.state.selectedRows||{}).length} willBeEmpty={this.state.willBeEmpty} tmpGroup={this.state.tmpGroup} selectedGroup={this.state.selectedGroup} changeSelect={this.props.changeSelect} validateName={this._validate} groups={this.props.groups} selectedField={this.props.selectedField} />
+		        </Dialog>
+
+		        <Dialog
+		        	ref="removeGroup"
+		          open={this.state.removeGroup}
+		          title="Remove this group?"
+		          actions={removeActions}
+		          autoDetectWindowHeight={true}
+		          bodyStyle={{fontSize: "13px"}}>  
+		          <p>This will remove the group from the list. Are you sure you want to continue?</p>
 		        </Dialog>
 
 

@@ -252,7 +252,7 @@ var ExpandedDevice = createReactClass({
         { status==="accepted" ? 
           (
             <div className="report-list">
-              <List style={{marginTop:"24px", marginLeft:"-24px"}}>
+              <List style={{marginTop:"24px", minWidth: "300px"}}>
                 <ListItem
                 key="updateButton"
                 className={status === "accepted" ? null : "hidden"}

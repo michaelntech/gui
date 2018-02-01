@@ -270,7 +270,7 @@ var Devices = createReactClass({
 	      	fontSize: "12px",
 	      	marginTop: "-10px",
 	      	paddingRight: "12px",
-	      	marginLeft: "24px",
+	      	marginLeft: "0px",
 	      },
 	    };
 

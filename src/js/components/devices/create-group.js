@@ -33,6 +33,12 @@ var CreateGroup = createReactClass({
     };
   },
 
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevProps.open!==this.props.open) {
+      this.getInitialState();
+    }
+  },
+
   _getAllAccepted: function() {
     var self = this;
     var callback =  {
@@ -109,12 +115,13 @@ var CreateGroup = createReactClass({
       success: function() {
         if (idx===self.state.selectedRows.length-1) {
           // reached end of list
-          self.props.changeGroup(group);
-          self.toggleDialog("createGroupDialog");
 
           if (self.state.isChecked) {
-            cookie.save(self.props.user.id+'-groupHelpText', true);
+            cookie.save(self.state.user.id+'-groupHelpText', true);
           }
+          self._handleClose();
+          self.props.changeGroup(group);
+      
         }
       },
       error: function(err) {

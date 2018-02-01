@@ -137,23 +137,6 @@ var Authorized =  createReactClass({
     var groupLabel = this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices";
 
     var styles = {
-      exampleFlatButtonIcon: {
-        height: '100%',
-        display: 'inline-block',
-        verticalAlign: 'middle',
-        float: 'left',
-        paddingLeft: '12px',
-        lineHeight: '36px',
-        marginRight: "-6px",
-        color:"#679BA5",
-        fontSize:'16px'
-      },
-      exampleFlatButton: {
-        fontSize:'12px',
-        marginLeft:"10px",
-        float:"right",
-        marginRight:"130px"
-      },
       editButton: {
         color: "rgba(0, 0, 0, 0.54)",
         fontSize: "20px" 
@@ -301,6 +284,9 @@ var Authorized =  createReactClass({
         
       <Loader show={this.props.loading} />
 
+
+    { this.props.devices.length && !this.props.loading ?
+      <div>
         <div style={{marginLeft:"26px"}}>
           <h2 style={{marginTop:"15px"}}>
            
@@ -311,14 +297,9 @@ var Authorized =  createReactClass({
                   {correctIcon}
                 </IconButton>
               </span>
-
-              <FlatButton onClick={this._removeCurrentGroup} style={styles.exampleFlatButton} className={this.props.group ? null : 'hidden' } secondary={true} label="Remove group" labelPosition="after">
-                <FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
-              </FlatButton>
           </h2>
         </div>
 
-        { this.props.devices.length ?
 
           <div className="padding-bottom">
 
@@ -345,6 +326,7 @@ var Authorized =  createReactClass({
               </TableBody>
             </Table>
 
+          </div>
           </div>
 
           :
@@ -390,7 +372,7 @@ var Authorized =  createReactClass({
               <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this._dialogToggle.bind(null, 'addGroup')}>
                 <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
               </RaisedButton>
-              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.group ? null : 'hidden'} label={removeLabel} secondary={true} onClick={this._removeSelectedDevices}>
+              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.group ? null : 'hidden'} label={removeLabel} onClick={this._removeSelectedDevices}>
                 <FontIcon style={styles.buttonIcon} className="material-icons">remove_circle_outline</FontIcon>
               </FlatButton>
             </div>

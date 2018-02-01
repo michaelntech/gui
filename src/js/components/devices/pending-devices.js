@@ -61,7 +61,6 @@ var Authorized =  createReactClass({
   */ 
   _getDevices: function() {
     var self = this;
-    self.setState({pageLoading: true, authLoading: "all"});
     var callback =  {
       success: function(devices) {
         self.setState({devices: devices, pageLoading: false, authLoading: null, deviceToReject:{}, openReject: false, expandRow: null});
@@ -108,7 +107,7 @@ var Authorized =  createReactClass({
 
   _handlePageChange: function(pageNo) {
     var self = this;
-    self.setState({selectedRows:[], currentPage: pageNo, authLoading:true, expandRow: null, pageNo: pageNo}, () => {self._getDevices()});
+    self.setState({selectedRows:[], currentPage: pageNo, pageLoading:true, expandRow: null, pageNo: pageNo}, () => {self._getDevices()});
   },
 
   _onRowSelection: function(selectedRows) {
@@ -314,7 +313,7 @@ var Authorized =  createReactClass({
         : null }
 
 
-        { this.state.devices.length ?
+        { this.state.devices.length && this.state.authLoading!=="all" ?
 
           <div className="padding-bottom">
 

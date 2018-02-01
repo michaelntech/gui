@@ -32,12 +32,12 @@ var Groups = createReactClass({
     return (
       <div>
         <List>
-          <Subheader>Groups</Subheader>
             <ListItem 
               key="All" 
               primaryText={allLabel}
               style={!this.props.selectedGroup ? {backgroundColor: "#e7e7e7"} : {backgroundColor: "transparent"}}
               onClick={this._changeGroup.bind(null, "", this.props.acceptedDevices)} />
+            <Subheader style={{marginTop:"20px"}}>Groups</Subheader>
    
           {this.props.groups.map(function(group, index) {
             var isSelected = group===this.props.selectedGroup ? {backgroundColor: "#e7e7e7"} : {backgroundColor: "transparent"};
@@ -57,6 +57,7 @@ var Groups = createReactClass({
                 onClick={boundClick} />
             )
           }, this)}
+
           <ListItem 
             leftIcon={createBtn}
             primaryText="Create a group"

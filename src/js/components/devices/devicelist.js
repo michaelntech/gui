@@ -80,12 +80,11 @@ var Authorized =  createReactClass({
   */
   _setDeviceDetails: function(device) {
     var self = this;
-
     var callback = {
       success: function(data) {
-        console.log(data);
-        device.id_data = data.attributes;
-        device.device_id = data.device_id;
+        device.id_data = data.id_data;
+        device.device_id = data.id;
+        device.id = data.id;
         device.request_time = data.request_time;
         device.status = data.status;
         self.setState({expandedDevice: device});
@@ -94,7 +93,7 @@ var Authorized =  createReactClass({
         console.log("Error: " + err);
       }
     };
-    AppActions.getDeviceIdentity(device.id, callback);
+    AppActions.getDeviceIdentity(device.device_id || device.id, callback);
   },
 
 

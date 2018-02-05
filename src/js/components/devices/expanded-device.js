@@ -60,8 +60,8 @@ var ExpandedDevice = createReactClass({
   _onScheduleSubmit: function() {
     var self = this;
     var newDeployment = {
-      devices: [this.props.device.device_id],
-      name: this.props.device.device_id,
+      devices: [this.props.device.id],
+      name: this.props.device.id,
       artifact_name: this.state.artifact.name
     }
     var callback = {
@@ -127,13 +127,14 @@ var ExpandedDevice = createReactClass({
 
     var deviceIdentity = [];
     deviceIdentity.push(
-        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).device_id || ''} secondaryTextLines={2} />
+        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).id || ''} secondaryTextLines={2} />
     );
 
     if ((this.props.device || {}).id_data) {
-      for (var k in this.props.device.id_data) {
+      var data = JSON.parse(this.props.device.id_data);
+      for (var k in data) {
         deviceIdentity.push(
-          <ListItem key={k} style={this.props.styles.listStyle} disabled={true} primaryText={k} secondaryText={ this.props.device.id_data[k]} />
+          <ListItem key={k} style={this.props.styles.listStyle} disabled={true} primaryText={k} secondaryText={ data[k] } />
         );
       };
     }

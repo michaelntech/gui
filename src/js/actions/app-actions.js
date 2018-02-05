@@ -349,7 +349,7 @@ var AppActions = {
   
   getDeviceIdentity: function (id, callback) {
     DevicesApi
-      .get(devicesApiUrl+"/devices/" + id)
+      .get(devAuthApiUrl+"/devices/" + id)
       .then(function(res) {
         callback.success(res.body);
       })

@@ -199,7 +199,7 @@ var AcceptedDevices = createReactClass({
 	          devices.forEach( function(dev, index) {
 	            self._getInventoryForDevice(dev, function(device) {
 	              devices[index].attributes = device.attributes;
-	              devices[index].updated_ts = devices.updated_ts;
+	              devices[index].updated_ts = device.updated_ts;
 	              if (index===devices.length-1) {
 	                self.setState({devices:devices, loading: false, pageLoading: false});
 	              }

@@ -12,6 +12,7 @@ var Pagination = require('rc-pagination');
 var _en_US = require('rc-pagination/lib/locale/en_US');
 
 import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils/retrytimer';
+import { preformatWithRequestID } from '../../helpers.js';
 
 var AppStore = require('../../stores/app-store');
 var AppActions = require('../../actions/app-actions');
@@ -289,11 +290,12 @@ var AcceptedDevices = createReactClass({
 	      },
 	      error: function(err) {
 	        console.log(err);
-	        var errMsg = err.res.body.error || ""
-	        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be created: " + errMsg));
+	        var errMsg = err.res.body.error || "";
+	        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be updated: " + errMsg));
 	      }
 	    };
-	    AppActions.addDeviceToGroup(group, device.id, callback);
+	    console.log(device);
+	    AppActions.addDeviceToGroup(group, device.device_id || device.id, callback);
 	},
 
 

@@ -84,9 +84,9 @@ var Authorized =  createReactClass({
       success: function(data) {
         device.id_data = data.id_data;
         device.device_id = data.id;
-        device.id = data.id;
+        device.id = data.auth_sets[0].id;
         device.request_time = data.request_time;
-        device.status = data.status;
+        device.status = data.auth_sets[0].status;
         self.setState({expandedDevice: device});
       },
       error: function(err) {
@@ -123,8 +123,11 @@ var Authorized =  createReactClass({
     return devices;
   },
 
-  _dialogToggle: function (ref) {
-    console.log("this will open add to group in parent, with list of devices");
+  _addToGroup: function (ref) {
+    this.props.addDevicesToGroup(this.state.selectedRows);
+  },
+  _removeFromGroup: function (ref) {
+    this.props.removeDevicesFromGroup(this.state.selectedRows);
   },
 
   render: function() {
@@ -302,7 +305,6 @@ var Authorized =  createReactClass({
 
           <div className="padding-bottom">
 
-
             <Table
               multiSelectable={true}
               onRowSelection={this._onRowSelection}>
@@ -368,7 +370,7 @@ var Authorized =  createReactClass({
           <div className="fixedButtons">
             <div className="float-right">
               <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
-              <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this._dialogToggle.bind(null, 'addGroup')}>
+              <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this._addToGroup}>
                 <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
               </RaisedButton>
               <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.group ? null : 'hidden'} label={removeLabel} onClick={this._removeSelectedDevices}>

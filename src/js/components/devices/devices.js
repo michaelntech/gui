@@ -129,7 +129,7 @@ var Devices = createReactClass({
 	    * function for authorizing group of devices via devadmn API
 	    */
 	    var self = this;
-	    self.setState({pauseAdmisson: true});
+	    //self.setState({pauseAdmisson: true});
 
 	    // make into chunks of 5 devices
 	    var arrays = [], size = 5;
@@ -186,6 +186,11 @@ var Devices = createReactClass({
 	    });
 	},
 
+  _authorizeDevice: function() {
+    // authorize single device from dialog
+    this._authorizeDevices([this.state.deviceToReject]);
+  },
+
 	_handleRejectDevice: function(device) {
 		var self = this;
 		this.setState({deviceToReject: device}, function() {
@@ -195,7 +200,6 @@ var Devices = createReactClass({
 
 	_rejectDevice: function() {
 	    var self = this;
-
 	   	//self.setState({pauseAdmisson: true});
 	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
 

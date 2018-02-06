@@ -28,18 +28,19 @@ var AcceptedDevices = createReactClass({
 	getInitialState() {
 		return {
 			groups: AppStore.getGroups(),
-  		selectedGroup: AppStore.getSelectedGroup(),
-  		addGroup: false,
-  		removeGroup: false,
-  		groupInvalid: true,
-  		filters: AppStore.getFilters(),
-  		attributes: AppStore.getAttributes(),
-  		snackbar: AppStore.getSnackbar(),
-  		createGroupDialog: false,
-  		devices: [],
-  		pageNo: 1,
-  		pageLength: 20,
-  		loading: true,
+	  		selectedGroup: AppStore.getSelectedGroup(),
+	  		addGroup: false,
+	  		removeGroup: false,
+	  		groupInvalid: true,
+	  		filters: AppStore.getFilters(),
+	  		attributes: AppStore.getAttributes(),
+	  		snackbar: AppStore.getSnackbar(),
+	  		createGroupDialog: false,
+	  		devices: [],
+	  		pageNo: 1,
+	  		pageLength: 20,
+	  		loading: true,
+	  		tmpDevices: [],
 		};
 	},
 
@@ -58,7 +59,7 @@ var AcceptedDevices = createReactClass({
 
 	_refreshAll: function() {
 		this._refreshGroups();
-    this._getDevices();
+    	this._getDevices();
 	},
 
 
@@ -106,33 +107,33 @@ var AcceptedDevices = createReactClass({
 	},
 
 	_removeCurrentGroup: function() {
-    var self = this;
-    //self.props.pauseRefresh(true);
-    var callback = {
-      success: function(devices, link) {
-      	// should handle "next page"
-        // returns all group devices ids
-        for (var i=0;i<devices.length; i++) {
-          self._removeSingleDevice(i, devices.length, devices[i].id, i===devices.length-1 ? finalCallback : null);
-        }
-      },
-      error: function(err) {
-        console.log(err);
-        //self.props.pauseRefresh(false);
-      }
+	    var self = this;
+	    //self.props.pauseRefresh(true);
+	    var callback = {
+	      success: function(devices, link) {
+	      	// should handle "next page"
+	        // returns all group devices ids
+	        for (var i=0;i<devices.length; i++) {
+	          self._removeSingleDevice(i, devices.length, devices[i].id, i===devices.length-1 ? finalCallback : null);
+	        }
+	      },
+	      error: function(err) {
+	        console.log(err);
+	        //self.props.pauseRefresh(false);
+	      }
     };
 
-    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null, true);
-    var finalCallback = function() {
+	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null, true);
+	    var finalCallback = function() {
 
-      //self.props.pauseRefresh(false);
-      AppActions.setSnackbar("Group was removed successfully");
-     	self._toggleDialog("removeGroup");
-     	self.setState({selectedGroup: null, pageNo:1}, function() {
-     			self._refreshAll();
-     	});
-    };
-  },
+	      //self.props.pauseRefresh(false);
+	      AppActions.setSnackbar("Group was removed successfully");
+	     	self._toggleDialog("removeGroup");
+	     	self.setState({selectedGroup: null, pageNo:1, groupCount: self.state.acceptedDevices}, function() {
+	     		self._refreshAll();
+	     	});
+	    };
+	},
 
  	_removeSingleDevice: function(idx, length, device, parentCallback) {
  		// remove single device from group
@@ -218,7 +219,6 @@ var AcceptedDevices = createReactClass({
 	      }
 	    };
 
-	    self.setState({loading: true});
 	    AppActions.getDevicesByStatus(callback, "accepted", this.state.pageNo, this.state.pageLength);
 	},
 
@@ -243,6 +243,60 @@ var AcceptedDevices = createReactClass({
   	},
 
 
+  	// Edit groups from device selection
+  	_addDevicesToGroup: function(devices) {
+  		console.log(devices);
+  		var self = this;
+  		// (save selected devices in state, open dialog)
+  		this.setState({tmpDevices: devices}, function() {
+  			self._toggleDialog("addGroup");
+  		});
+  	},
+
+  	_validate: function(invalid, group) {
+	    var name = invalid ? "" : group;
+	    this.setState({groupInvalid: invalid, tmpGroup: name});
+	},
+	_changeTmpGroup: function(group) {
+		var self = this;
+    	this.setState({selectedField: group, tmpGroup: group});
+  	},
+  	_addToGroup: function() {
+  		this._addListOfDevices(this.state.tmpDevices, this.state.selectedField || this.state.tmpGroup);
+  	},
+
+
+
+	_addListOfDevices: function(rows, group) {
+		console.log(rows, group);
+		var self = this;
+	    for (var i=0;i<rows.length;i++) {
+	      var group = encodeURIComponent(group);
+	      self._addDeviceToGroup(group, self.state.devices[rows[i]], i, rows.length);
+	    }
+	},
+
+	_addDeviceToGroup(group, device, idx, length) {
+	    var self = this;
+	    var callback = {
+	      success: function() {
+	        if (idx === length-1) {
+	          // reached end of list
+	          self.setState({createGroupDialog: false, addGroup: false, tmpGroup: "", selectedField:""});
+	          AppActions.setSnackbar("The group was updated successfully");
+	          self._handleGroupChange(group, length);
+	        }
+	      },
+	      error: function(err) {
+	        console.log(err);
+	        var errMsg = err.res.body.error || ""
+	        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be created: " + errMsg));
+	      }
+	    };
+	    AppActions.addDeviceToGroup(group, device.id, callback);
+	},
+
+
 	render: function() {
 		// Add to group dialog 
 		var addActions = [
@@ -254,12 +308,12 @@ var AcceptedDevices = createReactClass({
 	      <RaisedButton
 	        label="Add to group"
 	        primary={true}
-	        onClick={this._addToGroupDialog}
+	        onClick={this._addToGroup}
 	        ref="save" 
 	        disabled={this.state.groupInvalid} />
 	    ];
 
-	  var removeActions = [
+	  	var removeActions = [
 	      <div style={{marginRight:"10px", display:"inline-block"}}>
 	        <FlatButton
 	          label="Cancel"
@@ -271,55 +325,55 @@ var AcceptedDevices = createReactClass({
 	        onClick={this._removeCurrentGroup} />
 	    ];
 
-	  var groupCount = this.state.groupCount ? this.state.groupCount : this.props.acceptedDevices;
+	  	var groupCount = this.state.groupCount ? this.state.groupCount : this.props.acceptedDevices;
 
-    var styles = {
-      exampleFlatButtonIcon: {
-        height: '100%',
-        display: 'inline-block',
-        verticalAlign: 'middle',
-        float: 'left',
-        paddingLeft: '12px',
-        lineHeight: '36px',
-        marginRight: "-6px",
-        color:"#679BA5",
-        fontSize:'16px'
-      },
-      exampleFlatButton: {
-        fontSize:'12px',
-        marginLeft:"10px",
-        float:"right",
-        marginTop: "-10px",
-      },
-	  };
+	    var styles = {
+	      exampleFlatButtonIcon: {
+	        height: '100%',
+	        display: 'inline-block',
+	        verticalAlign: 'middle',
+	        float: 'left',
+	        paddingLeft: '12px',
+	        lineHeight: '36px',
+	        marginRight: "-6px",
+	        color:"#679BA5",
+	        fontSize:'16px'
+	      },
+	      exampleFlatButton: {
+	        fontSize:'12px',
+	        marginLeft:"10px",
+	        float:"right",
+	        marginTop: "-10px",
+	      },
+		};
 
-		return (
+		return (	
 			<div className="margin-top">
 				<Filters attributes={this.state.attributes} filters={this.state.filters} onFilterChange={this._onFilterChange} />
-				
+					
 				<div className="leftFixed">
-          <Groups
-            openGroupDialog={this._toggleDialog.bind(null, "createGroupDialog")}
-            changeGroup={this._handleGroupChange}
-            groups={this.state.groups}
-            groupDevices={this.state.groupDevices}
-            selectedGroup={this.state.selectedGroup}
-            acceptedDevices={this.props.acceptedDevices}
-            showHelptips={this.state.showHelptips} />
-        </div>
-        <div className="rightFluid">
-            <FlatButton onClick={this._toggleDialog.bind(null, "removeGroup")} style={styles.exampleFlatButton} className={this.state.selectedGroup ? null : 'hidden' } label="Remove group" labelPosition="after">
-          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
-        		</FlatButton>
-          	
-          	<DeviceList loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
-          	
-          	{this.state.devices.length && !this.state.loading ?
-          	<div className="margin-top">
-           		<Pagination locale={_en_US} simple pageSize={this.state.pageLength} current={this.state.pageNo} total={groupCount} onChange={this._handlePageChange} />
-             		{this.state.pageLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
-          	</div> : null }
-          </div>
+		          	<Groups
+		            openGroupDialog={this._toggleDialog.bind(null, "createGroupDialog")}
+		            changeGroup={this._handleGroupChange}
+		            groups={this.state.groups}
+		            groupDevices={this.state.groupDevices}
+		            selectedGroup={this.state.selectedGroup}
+		            acceptedDevices={this.props.acceptedDevices}
+		            showHelptips={this.state.showHelptips} />
+	        	</div>
+	        	<div className="rightFluid">
+		            <FlatButton onClick={this._toggleDialog.bind(null, "removeGroup")} style={styles.exampleFlatButton} className={this.state.selectedGroup ? null : 'hidden' } label="Remove group" labelPosition="after">
+		          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
+		        		</FlatButton>
+		          	
+		          	<DeviceList addDevicesToGroup={this._addDevicesToGroup} loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
+		          	
+		          	{this.state.devices.length && !this.state.loading ?
+		          	<div className="margin-top">
+		           		<Pagination locale={_en_US} simple pageSize={this.state.pageLength} current={this.state.pageNo} total={groupCount} onChange={this._handlePageChange} />
+		             		{this.state.pageLoading ?  <div className="smallLoaderContainer"><Loader show={true} /></div> : null}
+		          	</div> : null }
+	          	</div>
 
 
 
@@ -330,7 +384,7 @@ var AcceptedDevices = createReactClass({
 		          actions={addActions}
 		          autoDetectWindowHeight={true}
 		          bodyStyle={{fontSize: "13px"}}>  
-		          <GroupSelector numDevices={(this.state.selectedRows||{}).length} willBeEmpty={this.state.willBeEmpty} tmpGroup={this.state.tmpGroup} selectedGroup={this.state.selectedGroup} changeSelect={this.props.changeSelect} validateName={this._validate} groups={this.props.groups} selectedField={this.props.selectedField} />
+		          <GroupSelector devices={this.state.tmpDevices.length} willBeEmpty={this.state.willBeEmpty} tmpGroup={this.state.tmpGroup} selectedGroup={this.state.selectedGroup} changeSelect={this._changeTmpGroup} validateName={this._validate} groups={this.state.groups} selectedField={this.state.selectedField} />
 		        </Dialog>
 
 		        <Dialog
@@ -350,6 +404,7 @@ var AcceptedDevices = createReactClass({
 			        open={this.state.createGroupDialog}
 			        groups={this.state.groups}
 			        changeGroup={this._handleGroupChange}
+			        addListOfDevices={this._addListOfDevices}
 		         />
 
 		        <Snackbar

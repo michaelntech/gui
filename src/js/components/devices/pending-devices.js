@@ -104,7 +104,6 @@ var Authorized =  createReactClass({
     this.setState({divHeight: height+65});
   },
 
-
   _handlePageChange: function(pageNo) {
     var self = this;
     self.setState({selectedRows:[], currentPage: pageNo, pageLoading:true, expandRow: null, pageNo: pageNo}, () => {self._getDevices()});

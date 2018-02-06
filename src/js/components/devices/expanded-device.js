@@ -60,8 +60,8 @@ var ExpandedDevice = createReactClass({
   _onScheduleSubmit: function() {
     var self = this;
     var newDeployment = {
-      devices: [this.props.device.id],
-      name: this.props.device.id,
+      devices: [this.props.device.device_id],
+      name: this.props.device.device_id,
       artifact_name: this.state.artifact.name
     }
     var callback = {
@@ -127,7 +127,7 @@ var ExpandedDevice = createReactClass({
 
     var deviceIdentity = [];
     deviceIdentity.push(
-        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).id || ''} secondaryTextLines={2} />
+        <ListItem key="id_checksum" style={this.props.styles.listStyle} disabled={true} primaryText="ID" secondaryText={(this.props.device || {}).device_id || ''} secondaryTextLines={2} />
     );
 
     if ((this.props.device || {}).id_data) {
@@ -217,7 +217,7 @@ var ExpandedDevice = createReactClass({
           key="decommissionButton"
           style={this.props.styles.listButtonStyle}
           primaryText={"Authorization status: " + status}
-          secondaryText={status === "accepted" ? "Reject or decommission this device?" : "Decommission this device?"}
+          secondaryText={status === "accepted" ? "Reject or decommission this device?" : "Authorize or decommission this device?"}
           onClick={this._handleReject.bind(null, status)}
           leftIcon={<FontIcon className={status === "accepted" ? "material-icons green" : "material-icons"} style={{margin: "12px 0 12px 12px"}}>{status === "accepted" ? "check_circle" : "block" }</FontIcon>} />
     ) : null;

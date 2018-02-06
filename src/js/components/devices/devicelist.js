@@ -38,7 +38,8 @@ var Authorized =  createReactClass({
   componentDidUpdate(prevProps, prevState) {
     if ((prevProps.acceptedCount !== this.props.acceptedCount) 
         || (prevProps.rejectedCount !== this.props.rejectedCount) 
-        || (prevProps.group !== this.props.group) ) {
+        || (prevProps.group !== this.props.group)
+        || (prevProps.devices.length !== this.props.devices.length) ) {
       this.setState({selectedRows:[], expandRow: null});
     }
 
@@ -123,10 +124,10 @@ var Authorized =  createReactClass({
     return devices;
   },
 
-  _addToGroup: function (ref) {
+  _addToGroup: function () {
     this.props.addDevicesToGroup(this.state.selectedRows);
   },
-  _removeFromGroup: function (ref) {
+  _removeFromGroup: function () {
     this.props.removeDevicesFromGroup(this.state.selectedRows);
   },
 
@@ -373,7 +374,7 @@ var Authorized =  createReactClass({
               <RaisedButton disabled={!this.state.selectedRows.length} label={addLabel} secondary={true} onClick={this._addToGroup}>
                 <FontIcon style={styles.raisedButtonIcon} className="material-icons">add_circle</FontIcon>
               </RaisedButton>
-              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.group ? null : 'hidden'} label={removeLabel} onClick={this._removeSelectedDevices}>
+              <FlatButton disabled={!this.state.selectedRows.length} style={{marginLeft: "4px"}} className={this.props.group ? null : 'hidden'} label={removeLabel} onClick={this._removeFromGroup}>
                 <FontIcon style={styles.buttonIcon} className="material-icons">remove_circle_outline</FontIcon>
               </FlatButton>
             </div>

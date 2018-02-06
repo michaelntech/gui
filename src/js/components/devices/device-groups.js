@@ -111,18 +111,18 @@ var AcceptedDevices = createReactClass({
 	    var self = this;
 	    //self.props.pauseRefresh(true);
 	    var callback = {
-	      success: function(devices, link) {
-	      	// should handle "next page"
-	        // returns all group devices ids
-	        for (var i=0;i<devices.length; i++) {
-	          self._removeSingleDevice(i, devices.length, devices[i].id, i===devices.length-1 ? finalCallback : null);
-	        }
-	      },
-	      error: function(err) {
-	        console.log(err);
-	        //self.props.pauseRefresh(false);
-	      }
-    };
+		    success: function(devices, link) {
+		      	// should handle "next page"
+		        // returns all group devices ids
+		        for (var i=0;i<devices.length; i++) {
+		          self._removeSingleDevice(i, devices.length, devices[i].id, i===devices.length-1 ? finalCallback : null);
+		        }
+		    },
+		    error: function(err) {
+		        console.log(err);
+		        //self.props.pauseRefresh(false);
+		    }
+    	};
 
 	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null, true);
 	    var finalCallback = function() {
@@ -138,31 +138,28 @@ var AcceptedDevices = createReactClass({
 
  	_removeSingleDevice: function(idx, length, device, parentCallback) {
  		// remove single device from group
-    var self = this;
-    var callback = {
-      success: function(result) {
-        if (idx===length-1) {
-          // if parentcallback, whole group is being removed
-          if (parentCallback && typeof parentCallback === "function") {
-            // whole group removed
-            parentCallback();
-          } else if (length === self.props.devices.length) {
-            // else if all in group were selected and deleted, refresh group
-            self.props.groupsChanged();
-            self.setState({openSnack: true, snackMessage: "Group was removed", selectedRows: []});
-          } else {
-            self.props.groupsChanged(self.state.selectedGroup);
-            self.setState({openSnack: true, snackMessage: "Device was removed from the group", selectedRows: []});
-            self.setState({ selectedRows: [] });
-          }
-        }
-      },
-      error: function(err) {
-        console.log(err);
-      }
-    };
-    AppActions.removeDeviceFromGroup(device, this.state.selectedGroup, callback);
-  },
+	    var self = this;
+	    var callback = {
+	      success: function(result) {
+	      	console.log(result);
+	        if (idx===length-1) {
+	          // if parentcallback, whole group is being removed
+	          if (parentCallback && typeof parentCallback === "function") {
+	            // whole group removed
+	            parentCallback();
+	          } else {
+	           
+	           AppActions.setSnackbar("Devices removed from group");
+	           self._refreshAll();
+	          }
+	        }
+	      },
+	      error: function(err) {
+	        console.log(err);
+	      }
+	    };
+	    AppActions.removeDeviceFromGroup(device, this.state.selectedGroup, callback);
+	},
 
 
 	/*
@@ -246,7 +243,6 @@ var AcceptedDevices = createReactClass({
 
   	// Edit groups from device selection
   	_addDevicesToGroup: function(devices) {
-  		console.log(devices);
   		var self = this;
   		// (save selected devices in state, open dialog)
   		this.setState({tmpDevices: devices}, function() {
@@ -282,7 +278,7 @@ var AcceptedDevices = createReactClass({
 	    }
 	},
 
-	_addDeviceToGroup(group, device, idx, length) {
+	_addDeviceToGroup: function(group, device, idx, length) {
 	    var self = this;
 	    var callback = {
 	      success: function() {
@@ -302,6 +298,12 @@ var AcceptedDevices = createReactClass({
 	    AppActions.addDeviceToGroup(group, device.device_id || device.id, callback);
 	},
 
+	_removeDevicesFromGroup: function(rows) {
+		var self = this;
+		for (var i=0;i<rows.length;i++) {
+			self._removeSingleDevice(i, rows, this.state.devices[rows[i]].id);
+		}
+	},
 
 	render: function() {
 		// Add to group dialog 
@@ -372,7 +374,7 @@ var AcceptedDevices = createReactClass({
 		          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
 		        		</FlatButton>
 		          	
-		          	<DeviceList addDevicesToGroup={this._addDevicesToGroup} loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
+		          	<DeviceList addDevicesToGroup={this._addDevicesToGroup} removeDevicesFromGroup={this._removeDevicesFromGroup} loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
 		          	
 		          	{this.state.devices.length && !this.state.loading ?
 		          	<div className="margin-top">

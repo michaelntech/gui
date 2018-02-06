@@ -266,10 +266,15 @@ var AcceptedDevices = createReactClass({
   		this._addListOfDevices(this.state.tmpDevices, this.state.selectedField || this.state.tmpGroup);
   	},
 
-
+  	_createGroupFromDialog: function(devices, group) {
+  		var self = this;
+	    for (var i=0;i<devices.length;i++) {
+	      var group = encodeURIComponent(group);
+	      self._addDeviceToGroup(group, devices[i], i, devices.length);
+	    }
+  	},
 
 	_addListOfDevices: function(rows, group) {
-		console.log(rows, group);
 		var self = this;
 	    for (var i=0;i<rows.length;i++) {
 	      var group = encodeURIComponent(group);
@@ -294,7 +299,6 @@ var AcceptedDevices = createReactClass({
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be updated: " + errMsg));
 	      }
 	    };
-	    console.log(device);
 	    AppActions.addDeviceToGroup(group, device.device_id || device.id, callback);
 	},
 
@@ -406,7 +410,7 @@ var AcceptedDevices = createReactClass({
 			        open={this.state.createGroupDialog}
 			        groups={this.state.groups}
 			        changeGroup={this._handleGroupChange}
-			        addListOfDevices={this._addListOfDevices}
+			        addListOfDevices={this._createGroupFromDialog}
 		         />
 
 		        <Snackbar

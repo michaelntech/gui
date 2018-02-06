@@ -88,50 +88,26 @@ var CreateGroup = createReactClass({
 
 
   _createGroupHandler: function() {
+    var self = this;
     var seenWarning = cookie.load(this.state.user.id+'-groupHelpText');
     // if another group exists, check for warning message cookie
     if (this.props.groups.length && !seenWarning) {
         // if show warning message
         this.setState({showDeviceList: false, showWarning:true});
     } else {
-       // cookie exists || if no other groups exist, continue to create group
-      this.props.addListOfDevices(this.state.selectedRows, this.state.newGroup);
-    }
-  },
-
-  _addListOfDevices: function() {
-    for (var i=0;i<this.state.selectedRows.length;i++) {
-      var group = encodeURIComponent(this.state.newGroup);
-      var row = this.state.selectedRows[i];
-      var device = this.state.devices[row].device_id;
-      this.state._addDeviceToGroup(i, group, device);
-    }
-    this.setState({showWarning: false});
-  },
-
-  _addDeviceToGroup(idx, group, device) {
-    var self = this;
-    var callback = {
-      success: function() {
-        if (idx===self.state.selectedRows.length-1) {
-          // reached end of list
-
-          if (self.state.isChecked) {
-            cookie.save(self.state.user.id+'-groupHelpText', true);
-          }
-          self._handleClose();
-          self.props.changeGroup(group, self.state.selectedRows.length);
-      
-        }
-      },
-      error: function(err) {
-        console.log(err);
-        var errMsg = err.res.body.error || ""
-        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be created: " + errMsg));
+      var devices = [];
+      for (var i=0;i<this.state.selectedRows.length;i++) {
+        var device = this.state.devices[this.state.selectedRows[i]];
+        devices.push(device);
       }
-    };
-    AppActions.addDeviceToGroup(group, device, callback);
+       // cookie exists || if no other groups exist, continue to create group
+      this.props.addListOfDevices(devices, this.state.newGroup);
+      setTimeout(function() {
+        self._handleClose();
+      }, 100);
+    }
   },
+
 
   validateName: function(e) {
     var newName = e.target.value;
@@ -202,7 +178,6 @@ var CreateGroup = createReactClass({
 
   _handleClose: function() {
     this.setState({newGroup:'', showDeviceList: false, createInvalid: true, nextInvalid: true, showWarning: false, selectedRows:[], pageLength:0, errorText:''});
-    this.props.toggleDialog("createGroupDialog");
   },
 
   render: function() {

@@ -150,7 +150,7 @@ var ExpandedDevice = createReactClass({
     var deviceInventory = [];
 
     var status = this.props.device.status;
-
+    var waiting = false;
     if (typeof this.props.device.attributes !== 'undefined' && this.props.device.attributes.length>0) {
       var sortedAttributes = this.props.device.attributes.sort(function (a, b) {
           return a.name.localeCompare( b.name );
@@ -167,6 +167,7 @@ var ExpandedDevice = createReactClass({
       };
 
     } else {
+      waiting = true;
       deviceInventory.push(
         <div className="waiting-inventory" key="waiting-inventory">
           <div
@@ -250,7 +251,7 @@ var ExpandedDevice = createReactClass({
 
         </div>
 
-        { status==="accepted" ? 
+        { (status==="accepted" && !waiting) ? 
           (
             <div className="report-list">
               <List style={{marginTop:"24px", minWidth: "300px"}}>

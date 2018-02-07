@@ -56,6 +56,10 @@ var AcceptedDevices = createReactClass({
 	      this._refreshGroups();
 	      //this.deviceTimer = setInterval(this._refreshDevices, this.state.refreshDeviceLength);
 	    }
+
+	    if (prevProps.currentTab !== this.props.currentTab) {
+	    	this._refreshAll();
+	    }
 	},
 
 	_refreshAll: function() {

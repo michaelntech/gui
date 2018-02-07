@@ -131,7 +131,7 @@ var ExpandedDevice = createReactClass({
     );
 
     if ((this.props.device || {}).id_data) {
-      var data = JSON.parse(this.props.device.id_data);
+      var data = typeof this.props.device.id_data == "object" ? this.props.device.id_data : JSON.parse(this.props.device.id_data);
       for (var k in data) {
         deviceIdentity.push(
           <ListItem key={k} style={this.props.styles.listStyle} disabled={true} primaryText={k} secondaryText={ data[k] } />

@@ -102,9 +102,6 @@ var CreateGroup = createReactClass({
       }
        // cookie exists || if no other groups exist, continue to create group
       this.props.addListOfDevices(devices, this.state.newGroup);
-      setTimeout(function() {
-        self._handleClose();
-      }, 100);
     }
   },
 

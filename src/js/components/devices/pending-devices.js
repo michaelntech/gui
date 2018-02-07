@@ -6,6 +6,7 @@ import Collapse from 'react-collapse';
 import ReactHeight from 'react-height';
 import ReactTooltip from 'react-tooltip';
 import { AuthDevices, ExpandAuth, AuthButton } from '../helptips/helptooltips';
+import { Router, Link } from 'react-router';
 var Loader = require('../common/loader');
 var AppActions = require('../../actions/app-actions');
 var ExpandedDevice = require('./expanded-device');
@@ -351,7 +352,8 @@ var Authorized =  createReactClass({
           :
 
           <div className={this.state.authLoading ? "hidden" : "dashboard-placeholder"}>
-            No devices pending (add help link for connecting devices)
+            <p>No devices are pending authorization</p>
+            <p>Visit the <Link to={`/help/connecting-devices`}>Help section</Link> to learn how to connect devices to the Mender server.</p>
           </div>
         }
 

@@ -58,7 +58,9 @@ var Devices = createReactClass({
   		this._getPendingCount();
   	},
 
-
+    changeTab: function() {
+      this._refreshAll();
+    },
 
 
   	/*
@@ -93,7 +95,6 @@ var Devices = createReactClass({
   		var callback = {
   			success: function(count) {
   				self.setState({pendingCount: count});
-  				AppActions.setSnackbar("");
   			},
   			error: function(error) {
 
@@ -129,7 +130,7 @@ var Devices = createReactClass({
 	    * function for authorizing group of devices via devadmn API
 	    */
 	    var self = this;
-	    //self.setState({pauseAdmisson: true});
+	    self.setState({pauseAdmisson: true});
 
 	    // make into chunks of 5 devices
 	    var arrays = [], size = 5;
@@ -148,7 +149,7 @@ var Devices = createReactClass({
 	        if (i < arr.length) {
 	          loopArrays(arr);
 	        } else {
-	          // self.setState({pauseAdmisson: false});
+	          self.setState({pauseAdmisson: false});
 	          AppActions.setSnackbar(success + " " + pluralize("devices", success) + " " + pluralize("were", success) + " authorized");
 	          // refresh counts
 	          self._refreshAll();
@@ -200,19 +201,19 @@ var Devices = createReactClass({
 
 	_rejectDevice: function() {
 	    var self = this;
-	   	//self.setState({pauseAdmisson: true});
+	   	self.setState({pauseAdmisson: true});
 	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
 
 	    var callback = {
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was rejected successfully");
 	        self._refreshAll();
-	        // self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false});
 	        // if (device.status==="accepted") { self._setDeviceDetails(self.state.blockDevice) }
 	      },
 	      error: function(err) {
 	        var errMsg = err.res.body.error || "";
-	        // self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false});
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem rejecting the device: "+errMsg));
 	      }
 	    };
@@ -223,19 +224,19 @@ var Devices = createReactClass({
 	_decommissionDevice: function() {
 		 var self = this;
 
-	   	//self.setState({pauseAdmisson: true});
+	   	self.setState({pauseAdmisson: true});
 	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
 
 	    var callback = {
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was decommissioned successfully");
 	        self._refreshAll();
-	        // self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false});
 	        // if (device.status==="accepted") { self._setDeviceDetails(self.state.blockDevice) }
 	      },
 	      error: function(err) {
 	        var errMsg = err.res.body.error || "";
-	        // self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false});
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem decommissioning the device: "+errMsg));
 	      }
 	    };
@@ -293,7 +294,7 @@ var Devices = createReactClass({
 
 		        <Tabs
 		          value={this.state.tabIndex}
-		          onChange={this.changeTab}
+		          onChange={this._changeTab}
 		          tabItemContainerStyle={{background: "none", width:"280px"}}>
 
 		          	<Tab

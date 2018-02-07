@@ -362,6 +362,7 @@ var Authorized =  createReactClass({
             <p>
               No devices found
             </p>
+            {!this.props.acceptedDevices ? <p>No devices have been authorized to connect to the Mender server yet.</p> : null}
           </div>
         }
 

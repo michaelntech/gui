@@ -22,7 +22,7 @@ var Groups = createReactClass({
 
   render: function() {
     var createBtn = (
-      <FontIcon className="material-icons">add</FontIcon>
+      <FontIcon className="material-icons" style={this.props.acceptedDevices ? null : {color:"#d4e9e7"}}>add</FontIcon>
     );
    
     var allLabel = (
@@ -60,8 +60,10 @@ var Groups = createReactClass({
 
           <ListItem 
             leftIcon={createBtn}
+            disabled={!this.props.acceptedDevices}
             primaryText="Create a group"
-            onClick={this.dialogToggle} />
+            style={this.props.acceptedDevices ? null : {color:"#d4e9e7"}}
+            onClick={this.props.acceptedDevices ? this.dialogToggle : null} />
         </List>
 
 

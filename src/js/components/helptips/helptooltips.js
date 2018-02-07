@@ -104,7 +104,7 @@ var DevicesNav = createReactClass({
         <div>
         <p>There aren't any devices connected yet.</p>
         <p>The first step is to connect devices to the Mender server.</p>
-        <p>Go to the <Link to={`/devices`}>Devices tab</Link>.</p></div>
+        <p>Go to the <Link to={`/devices/pending`}>Pending devices tab</Link>.</p></div>
         }
         <p><a className="hidehelp" onClick={toggleHelptips}>Hide all help tips</a></p>
       </div>

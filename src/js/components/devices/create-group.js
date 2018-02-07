@@ -178,6 +178,7 @@ var CreateGroup = createReactClass({
 
   _handleClose: function() {
     this.setState({newGroup:'', showDeviceList: false, createInvalid: true, nextInvalid: true, showWarning: false, selectedRows:[], pageLength:0, errorText:''});
+    this.props.toggleDialog("createGroupDialog");
   },
 
   render: function() {

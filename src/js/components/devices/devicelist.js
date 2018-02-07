@@ -31,7 +31,8 @@ var Authorized =  createReactClass({
     return {
       minHeight: 200,
       divHeight: 178,
-      selectedRows: []
+      selectedRows: [],
+      textfield: this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices",
     }
   },
 
@@ -53,6 +54,11 @@ var Authorized =  createReactClass({
     if (prevProps.devices.length !== this.props.devices.length) {
        this._adjustHeight();
     }
+
+    if (prevProps.group !== this.props.group) {
+      this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices"});
+    }
+
   },
 
 
@@ -134,18 +140,36 @@ var Authorized =  createReactClass({
     this.props.removeDevicesFromGroup(this.state.selectedRows);
   },
 
+  _nameEdit: function() {
+    if (this.state.nameEdit) {
+      this._handleGroupNameSave();
+    }
+    this.setState({
+      nameEdit: !this.state.nameEdit,
+      errorText: null
+    });
+  },
+
+  _handleGroupNameSave: function() {
+    // to props - function to get all devices from group, update group one by one
+  },
+
+  _handleGroupNameChange: function(event) {
+    this.setState({textfield: event.target.value});
+  },
+
   render: function() {
 
     var pluralized = pluralize("devices", this.state.selectedRows.length); 
 
     var addLabel = this.props.group ? "Move selected " + pluralized +" to another group" : "Add selected " + pluralized +" to a group";
-    var removeLabel =  "Remove selected " + pluralized +" from this group";
+    var removeLabel =  "Remove selected " + pluralized + " from this group";
     var groupLabel = this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices";
 
     var styles = {
       editButton: {
         color: "rgba(0, 0, 0, 0.54)",
-        fontSize: "20px" 
+        fontSize: "18px" 
       },
       buttonIcon: {
         height: '100%',
@@ -268,7 +292,7 @@ var Authorized =  createReactClass({
       <TextField 
         id="groupNameInput"
         ref="editGroupName"
-        value={groupLabel}
+        value={this.state.textfield}
         onChange={this._handleGroupNameChange}
         onKeyDown={this._handleGroupNameSave}
         className={this.state.nameEdit ? "hoverText" : "hidden"}
@@ -279,11 +303,9 @@ var Authorized =  createReactClass({
     );
 
     var correctIcon = this.state.nameEdit ? "check" : "edit";
-    if (this.state.errorText1) {
+    if (this.state.errorText) {
       correctIcon = "close";
     }
-
-
 
     return (
       <div>
@@ -294,12 +316,11 @@ var Authorized =  createReactClass({
     { this.props.devices.length && !this.props.loading ?
       <div>
         <div style={{marginLeft:"26px"}}>
-          <h2 style={{marginTop:"15px"}}>
-           
+          <h2>
               {groupNameInputs}
               <span className={this.state.nameEdit ? "hidden" : null}>{groupLabel}</span>
-              <span className={this.props.group ? "hidden" : 'hidden'}>
-                <IconButton iconStyle={styles.editButton} onClick={this._nameEdit} iconClassName="material-icons" className={this.state.errorText1 ? "align-top" : null}>
+              <span className={this.props.group ? 'hidden' : 'hidden'}>
+                <IconButton iconStyle={styles.editButton} onClick={this._nameEdit} iconClassName="material-icons" className={this.state.errorText ? "align-top" : null}>
                   {correctIcon}
                 </IconButton>
               </span>

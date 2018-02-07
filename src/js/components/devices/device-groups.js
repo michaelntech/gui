@@ -377,8 +377,9 @@ var AcceptedDevices = createReactClass({
 
 		return (	
 			<div className="margin-top">
-				<Filters attributes={this.state.attributes} filters={this.state.filters} onFilterChange={this._onFilterChange} />
-					
+				{!this.state.selectedGroup ?
+				<Filters attributes={this.state.attributes} filters={this.state.filters} onFilterChange={this._onFilterChange} /> : null
+				}
 				<div className="leftFixed">
 		          	<Groups
 		            openGroupDialog={this._toggleDialog.bind(null, "createGroupDialog")}
@@ -394,7 +395,18 @@ var AcceptedDevices = createReactClass({
 		          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
 		        		</FlatButton>
 		          	
-		          	<DeviceList pageNo={this.state.pageNo} addDevicesToGroup={this._addDevicesToGroup} removeDevicesFromGroup={this._removeDevicesFromGroup} loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount} styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
+		          	<DeviceList
+		          		pageNo={this.state.pageNo}
+		          		addDevicesToGroup={this._addDevicesToGroup} 
+		          		removeDevicesFromGroup={this._removeDevicesFromGroup} 
+		          		loading={this.state.loading} 
+		          		rejectOrDecomm={this.props.rejectOrDecomm} 
+		          		currentTab={this.props.currentTab} 
+		          		acceptedDevices={this.props.acceptedDevices} 
+		          		groupCount={groupCount} 
+		          		styles={this.props.styles} 
+		          		group={this.state.selectedGroup} 
+		          		devices={this.state.devices} />
 		          	
 		          	{this.state.devices.length && !this.state.loading ?
 		          	<div className="margin-top">

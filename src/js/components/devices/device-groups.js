@@ -371,7 +371,7 @@ var AcceptedDevices = createReactClass({
 	        fontSize:'12px',
 	        marginLeft:"10px",
 	        float:"right",
-	        marginTop: "-10px",
+	        marginTop: "10px",
 	      },
 		};
 
@@ -393,7 +393,7 @@ var AcceptedDevices = createReactClass({
 	        	<div className="rightFluid">
 		            <FlatButton onClick={this._toggleDialog.bind(null, "removeGroup")} style={styles.exampleFlatButton} className={this.state.selectedGroup ? null : 'hidden' } label="Remove group" labelPosition="after">
 		          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
-		        		</FlatButton>
+		        	</FlatButton>
 		          	
 		          	<DeviceList
 		          		pageNo={this.state.pageNo}

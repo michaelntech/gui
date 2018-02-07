@@ -142,7 +142,7 @@ var Authorized =  createReactClass({
       this.props.authorizeDevices(this._getDevicesFromSelectedRows());
     }
    
-    if (index) {
+    if (index !== "undefined") {
       this.setState({authLoading: index});
     } else {
       this.setState({authLoading: "all"});

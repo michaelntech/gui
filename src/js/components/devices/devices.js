@@ -149,10 +149,13 @@ var Devices = createReactClass({
 	        if (i < arr.length) {
 	          loopArrays(arr);
 	        } else {
-	          self.setState({pauseAdmisson: false});
 	          AppActions.setSnackbar(success + " " + pluralize("devices", success) + " " + pluralize("were", success) + " authorized");
 	          // refresh counts
 	          self._refreshAll();
+            setTimeout(function() {
+              self.setState({pauseAdmisson: false});
+            }, 200);
+            
 	        }
 	      });
 	    }
@@ -292,26 +295,26 @@ var Devices = createReactClass({
 		return (
 			<div className="contentContainer" style={{marginTop: "10px"}}>
 
-		        <Tabs
-		          value={this.state.tabIndex}
-		          onChange={this._changeTab}
-		          tabItemContainerStyle={{background: "none", width:"280px"}}>
+		    <Tabs
+          value={this.state.tabIndex}
+          onChange={this._changeTab}
+          tabItemContainerStyle={{background: "none", width:"280px"}}>
 
-		          	<Tab
-			            label="Device groups"
-			            value="/devices/groups"
-			            onActive={tabHandler}
-			            style={styles.tabStyle}>
+          <Tab
+            label="Device groups"
+            value="/devices/groups"
+            onActive={tabHandler}
+            style={styles.tabStyle}>
 
-							<DeviceGroups rejectOrDecomm={this._openRejectDialog} styles={styles} rejectedDevices={this.state.rejectedCount} acceptedDevices={this.state.acceptedCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} rejectDevice={this._rejectDevice} />
-					</Tab>
-					<Tab
-			            label={pendingLabel}
-			            value="/devices/pending"
-			            onActive={tabHandler}
-			            style={styles.tabStyle}>
+				    <DeviceGroups rejectOrDecomm={this._openRejectDialog} styles={styles} rejectedDevices={this.state.rejectedCount} acceptedDevices={this.state.acceptedCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} rejectDevice={this._rejectDevice} />
+		      </Tab>
+			    <Tab
+            label={pendingLabel}
+            value="/devices/pending"
+            onActive={tabHandler}
+            style={styles.tabStyle}>
 
-							<PendingDevices styles={styles} currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._handleRejectDevice} />
+						<PendingDevices styles={styles} currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._handleRejectDevice} />
 					</Tab>
 				</Tabs>
 

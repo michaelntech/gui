@@ -36,11 +36,14 @@ var Authorized =  createReactClass({
   },
 
   componentDidUpdate(prevProps, prevState) {
+    var self = this;
     if ((prevProps.acceptedCount !== this.props.acceptedCount) 
         || (prevProps.rejectedCount !== this.props.rejectedCount) 
         || (prevProps.group !== this.props.group)
-        || (prevProps.devices.length !== this.props.devices.length) ) {
-      this.setState({selectedRows:[], expandRow: null});
+        || (prevProps.devices.length !== this.props.devices.length)
+        || (prevProps.groupCount !== this.props.groupCount)
+        || (prevProps.pageNo !== this.props.pageNo)) {
+      this.setState({selectedRows:[], expandRow: null, allRowsSelected: false});
     }
 
     if (prevProps.currentTab !== this.props.currentTab) {
@@ -48,7 +51,7 @@ var Authorized =  createReactClass({
     }
 
     if (prevProps.devices.length !== this.props.devices.length) {
-       this._adjustHeight()
+       this._adjustHeight();
     }
   },
 
@@ -102,11 +105,11 @@ var Authorized =  createReactClass({
   _onRowSelection: function(selectedRows) {
     if (selectedRows === "all") {
       var rows = Array.apply(null, {length: this.props.devices.length}).map(Number.call, Number);
-      this.setState({selectedRows: rows});
+      this.setState({selectedRows: rows, allRowsSelected: true});
     } else if (selectedRows === "none") {
-      this.setState({selectedRows: []});
+      this.setState({selectedRows: [], allRowsSelected: false});
     } else {
-      this.setState({selectedRows: selectedRows});
+      this.setState({selectedRows: selectedRows, allRowsSelected: false});
     }
     
   },
@@ -307,6 +310,7 @@ var Authorized =  createReactClass({
           <div className="padding-bottom">
 
             <Table
+              allRowsSelected={this.state.allRowsSelected}
               multiSelectable={true}
               onRowSelection={this._onRowSelection}>
               <TableHeader

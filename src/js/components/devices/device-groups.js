@@ -127,8 +127,8 @@ var AcceptedDevices = createReactClass({
 	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null, true);
 	    var finalCallback = function() {
 
-	      //self.props.pauseRefresh(false);
-	      AppActions.setSnackbar("Group was removed successfully");
+	      	//self.props.pauseRefresh(false);
+	      	AppActions.setSnackbar("Group was removed successfully");
 	     	self._toggleDialog("removeGroup");
 	     	self.setState({selectedGroup: null, pageNo:1, groupCount: self.state.acceptedDevices}, function() {
 	     		self._refreshAll();
@@ -141,14 +141,12 @@ var AcceptedDevices = createReactClass({
 	    var self = this;
 	    var callback = {
 	      success: function(result) {
-	      	console.log(result);
 	        if (idx===length-1) {
 	          // if parentcallback, whole group is being removed
 	          if (parentCallback && typeof parentCallback === "function") {
 	            // whole group removed
 	            parentCallback();
 	          } else {
-	           
 	           AppActions.setSnackbar("Devices removed from group");
 	           self._refreshAll();
 	          }
@@ -183,7 +181,6 @@ var AcceptedDevices = createReactClass({
 	             // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
 	        }
 	      };
-
 	      AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
 	    }
 	},
@@ -286,7 +283,7 @@ var AcceptedDevices = createReactClass({
 	          // reached end of list
 	          self.setState({createGroupDialog: false, addGroup: false, tmpGroup: "", selectedField:""});
 	          AppActions.setSnackbar("The group was updated successfully");
-	          self._handleGroupChange(group, length);
+	          self._handleGroupChange(group, self.state.groupDevices[group]+length);
 	        }
 	      },
 	      error: function(err) {
@@ -300,8 +297,31 @@ var AcceptedDevices = createReactClass({
 
 	_removeDevicesFromGroup: function(rows) {
 		var self = this;
+		var callback;
+
+		// if rows.length === groupCount
+		// group now empty, go to all devices 
+		if (rows.length >= self.state.groupCount) {
+			callback = function() {
+				AppActions.setSnackbar("Group was removed successfully");
+		     	self.setState({loading:true, selectedGroup: null, pageNo:1, groupCount: self.state.acceptedDevices}, function() {
+		     		self._refreshAll();
+		     	});
+			};
+		}
+
+		// if rows.length = number on page but < groupCount
+		// move page back to pageNO 1 in callback
+		else if (self.state.devices.length <= rows.length) {
+			callback = function() {
+				self.setState({pageNo:1, pageLoading:true, groupCount: self.state.groupCount-rows.length}, function() {
+			     	self._refreshAll();
+		     	});
+			};
+		}
+
 		for (var i=0;i<rows.length;i++) {
-			self._removeSingleDevice(i, rows, this.state.devices[rows[i]].id);
+			self._removeSingleDevice(i, rows.length, self.state.devices[rows[i]].id, callback);
 		}
 	},
 
@@ -374,7 +394,7 @@ var AcceptedDevices = createReactClass({
 		          		<FontIcon style={styles.exampleFlatButtonIcon} className="material-icons">delete</FontIcon>
 		        		</FlatButton>
 		          	
-		          	<DeviceList addDevicesToGroup={this._addDevicesToGroup} removeDevicesFromGroup={this._removeDevicesFromGroup} loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount}  styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
+		          	<DeviceList pageNo={this.state.pageNo} addDevicesToGroup={this._addDevicesToGroup} removeDevicesFromGroup={this._removeDevicesFromGroup} loading={this.state.loading} rejectOrDecomm={this.props.rejectOrDecomm} currentTab={this.props.currentTab} acceptedDevices={this.props.acceptedDevices} groupCount={groupCount} styles={this.props.styles} group={this.state.selectedGroup} devices={this.state.devices} />
 		          	
 		          	{this.state.devices.length && !this.state.loading ?
 		          	<div className="margin-top">
@@ -397,12 +417,12 @@ var AcceptedDevices = createReactClass({
 
 		        <Dialog
 		        	ref="removeGroup"
-		          open={this.state.removeGroup}
-		          title="Remove this group?"
-		          actions={removeActions}
-		          autoDetectWindowHeight={true}
-		          bodyStyle={{fontSize: "13px"}}>  
-		          <p>This will remove the group from the list. Are you sure you want to continue?</p>
+			        open={this.state.removeGroup}
+			        title="Remove this group?"
+			        actions={removeActions}
+			        autoDetectWindowHeight={true}
+			        bodyStyle={{fontSize: "13px"}}>  
+			        <p>This will remove the group from the list. Are you sure you want to continue?</p>
 		        </Dialog>
 
 

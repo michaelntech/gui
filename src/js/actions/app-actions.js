@@ -618,13 +618,6 @@ var AppActions = {
       });
   },
 
-  updateFilters: function(filters) {
-    AppDispatcher.handleViewAction({
-      actionType: AppConstants.UPDATE_FILTERS,
-      filters: filters
-    })
-  },
-
   updateDeviceTags: function(id, tags) {
     AppDispatcher.handleViewAction({
       actionType: AppConstants.UPDATE_DEVICE_TAGS,

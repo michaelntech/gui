@@ -134,11 +134,6 @@ var CreateGroup = createReactClass({
     }
   },
 
-  searchUpdated: function(term) {
-    var filter = [{key:'id', value:term}];
-    this.setState({searchTerm: filter}); // needed to force re-render
-  },
-
   _loadMoreDevs: function() {
     var self = this;
     var numberDevs = this.state.pageLength;
@@ -266,10 +261,6 @@ var CreateGroup = createReactClass({
           :
 
           <div className={this.state.showDeviceList===true ? "dialogTableContainer" : "dialogTableContainer zero"}>
-            <div className="fixedSearch">
-              <span>Select devices to include in the new group:</span>
-              <SearchInput className="search top-right" ref='search' onChange={this.searchUpdated} placeholder="Search devices" style={{margin:"10px"}} />
-            </div>
             <Table
               multiSelectable={true}
               className={deviceList.length ? null : "hidden"}
@@ -277,7 +268,7 @@ var CreateGroup = createReactClass({
               selectable={true}>
               <TableHeader>
                 <TableRow>
-                  <TableHeaderColumn>Name</TableHeaderColumn>
+                  <TableHeaderColumn>ID</TableHeaderColumn>
                   <TableHeaderColumn>Device type</TableHeaderColumn>
                 </TableRow>
               </TableHeader>

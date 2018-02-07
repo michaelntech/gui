@@ -55,16 +55,6 @@ function _getDeviceById(deviceId) {
   return _alldevices[index];
 }
 
-
-function updateDeviceTags(id, tags) {
-  var index = findWithAttr(_alldevices, "id", id);
-  _alldevices[index].tags = tags;
-}
-
-function  updateFilters(filters) {
-  _filters = filters;
-}
-
 function _matchFilters(device, filters) {
   /*
   * Match device attributes against _filters, return true or false
@@ -659,12 +649,6 @@ var AppStore = assign(EventEmitter.prototype, {
         break;
       case AppConstants.UPLOAD_PROGRESS:
         _uploadProgress(payload.action.inprogress);
-        break;
-      case AppConstants.UPDATE_FILTERS:
-         updateFilters(payload.action.filters);
-        break;
-      case AppConstants.UPDATE_DEVICE_TAGS:
-         updateDeviceTags(payload.action.id, payload.action.tags);
         break;
       case AppConstants.SORT_TABLE:
         _sortTable(payload.action.table, payload.action.column, payload.action.direction);

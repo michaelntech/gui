@@ -61,10 +61,12 @@ var AcceptedDevices = createReactClass({
 	      this._refreshGroups();
 	    }
 
-	    if ((prevProps.currentTab !== this.props.currentTab) && this.props.currentTab==="Device groups") {
+	    if (prevProps.currentTab !== this.props.currentTab) {
 	    	clearInterval(this.deviceTimer);
-	    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
-	    	this._refreshAll();
+	    	if (this.props.currentTab==="Device groups") {	
+	    		this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
+	    		this._refreshAll();
+	    	}
 	    }
 	},
 
@@ -189,7 +191,7 @@ var AcceptedDevices = createReactClass({
           console.log(err);
           var errormsg = err.error || "Please check your connection.";
           self.setState({loading: false});
-             // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
+          setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
         }
       };
       AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);

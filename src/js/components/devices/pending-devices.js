@@ -48,14 +48,12 @@ var Authorized =  createReactClass({
   },
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.count !== this.props.count) {
+    if ((prevProps.count !== this.props.count)
+      || (prevProps.currentTab !== this.props.currentTab)) {
       this._getDevices();
       this.setState({selectedRows:[], expandRow: null});
     }
 
-    if (prevProps.currentTab !== this.props.currentTab) {
-      this.setState({selectedRows:[], expandRow: null});
-    }
   },
   /*
   * Devices to show

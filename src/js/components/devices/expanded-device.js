@@ -151,8 +151,8 @@ var ExpandedDevice = createReactClass({
 
     var status = this.props.device.status;
     var waiting = false;
-    if (typeof this.props.device.attributes !== 'undefined' && this.props.device.attributes.length>0) {
-      var sortedAttributes = this.props.device.attributes.sort(function (a, b) {
+    if (typeof this.props.attrs !== 'undefined' && this.props.attrs.length>0) {
+      var sortedAttributes = this.props.attrs.sort(function (a, b) {
           return a.name.localeCompare( b.name );
       });
       for (var i=0;i<sortedAttributes.length;i++) {

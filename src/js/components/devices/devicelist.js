@@ -12,7 +12,6 @@ var ExpandedDevice = require('./expanded-device');
 var createReactClass = require('create-react-class');
 var pluralize = require('pluralize');
 
-
 // material ui
 var mui = require('material-ui');
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
@@ -57,7 +56,6 @@ var Authorized =  createReactClass({
     if (prevProps.group !== this.props.group) {
       this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices"});
     }
-
   },
 
 
@@ -70,14 +68,15 @@ var Authorized =  createReactClass({
     console.log("sort");
   },
   _expandRow: function(rowNumber) {
+    var self = this;
     AppActions.setSnackbar("");
     var device = this.props.devices[rowNumber];
     if (this.state.expandRow === rowNumber) {
       rowNumber = null;
     }
-    
-    this.setState({expandRow: rowNumber, expandedDevice: device});
-    this._setDeviceDetails(device);
+  
+    self.setState({expandRow: rowNumber, device: device});
+    self._setDeviceDetails(device);
     
   },
   _adjustCellHeight: function(height) {
@@ -217,7 +216,7 @@ var Authorized =  createReactClass({
       }
       
       if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice device={this.state.expandedDevice} rejectOrDecomm={this.props.rejectOrDecomm} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} selectedGroup={this.props.group} groups={this.props.groups} />
+        expanded = <ExpandedDevice device={this.state.expandedDevice || device} rejectOrDecomm={this.props.rejectOrDecomm} attrs={device.attributes} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} selectedGroup={this.props.group} groups={this.props.groups} />
       }
      
       return (

@@ -388,7 +388,8 @@ var AcceptedDevices = createReactClass({
 		          		groupCount={groupCount} 
 		          		styles={this.props.styles} 
 		          		group={this.state.selectedGroup} 
-		          		devices={this.state.devices} />
+		          		devices={this.state.devices}
+		          		paused={this.props.paused} />
 		          	
 		          	{this.state.devices.length && !this.state.loading ?
 		          	<div className="margin-top">

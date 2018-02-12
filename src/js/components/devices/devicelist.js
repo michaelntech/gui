@@ -56,6 +56,10 @@ var Authorized =  createReactClass({
     if (prevProps.group !== this.props.group) {
       this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices"});
     }
+
+    if (prevProps.paused !== this.props.paused) {
+      this._setDeviceDetails(this.state.device);
+    }
   },
 
 

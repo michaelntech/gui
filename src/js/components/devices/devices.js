@@ -33,6 +33,7 @@ var Devices = createReactClass({
 			snackbar: AppStore.getSnackbar(),
 			deviceToReject: {},
       rejectDialog: false,
+      refreshLength: 10000,
 		};
 	},
 
@@ -46,11 +47,13 @@ var Devices = createReactClass({
 
 
 	componentDidMount() {
-		this._refreshAll();
+    clearAllRetryTimers();
+    this._restartInterval();
 	},
 
 	componentWillUnmount() {
     clearAllRetryTimers();
+    clearInterval(this.interval);
 		AppStore.removeChangeListener(this._onChange);
 	},
 
@@ -60,8 +63,18 @@ var Devices = createReactClass({
 		this._getPendingCount();
 	},
 
+  _restartInterval: function() {
+    var self = this;
+    clearInterval(self.interval);
+    self.interval = setInterval(function() {
+      AppActions.setSnackbar("");
+      self._refreshAll()
+    }, self.state.refreshLength);
+    self._refreshAll();
+  },
+
   _changeTab: function() {
-    this._refreshAll();
+    this._restartInterval();
   },
 
 
@@ -139,6 +152,7 @@ var Devices = createReactClass({
 	    */
 	    var self = this;
 	    self.setState({pauseAdmisson: true});
+	    clearInterval(self.interval);
 
 	    // make into chunks of 5 devices
 	    var arrays = [], size = 5;
@@ -159,7 +173,7 @@ var Devices = createReactClass({
 	        } else {
 	          AppActions.setSnackbar(success + " " + pluralize("devices", success) + " " + pluralize("were", success) + " authorized");
 	          // refresh counts
-	          self._refreshAll();
+            self._restartInterval();
             setTimeout(function() {
               self.setState({pauseAdmisson: false});
             }, 200);
@@ -213,14 +227,13 @@ var Devices = createReactClass({
 	_rejectDevice: function() {
 	    var self = this;
 	   	self.setState({pauseAdmisson: true});
-	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
+	    clearInterval(self.interval);
 
 	    var callback = {
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was rejected successfully");
-	        self._refreshAll();
+	        self._restartInterval();
 	        self.setState({pauseAdmisson: false});
-	        // if (device.status==="accepted") { self._setDeviceDetails(self.state.blockDevice) }
 	      },
 	      error: function(err) {
 	        var errMsg = err.res.body.error || "";
@@ -236,14 +249,13 @@ var Devices = createReactClass({
 		 var self = this;
 
 	   	self.setState({pauseAdmisson: true});
-	    // self._pauseTimers(true); // pause periodic calls to device apis until finished authing devices
+	    clearInterval(self.interval); // pause periodic calls to device apis until finished authing devices
 
 	    var callback = {
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was decommissioned successfully");
-	        self._refreshAll();
+	        self._restartInterval();
 	        self.setState({pauseAdmisson: false});
-	        // if (device.status==="accepted") { self._setDeviceDetails(self.state.blockDevice) }
 	      },
 	      error: function(err) {
 	        var errMsg = err.res.body.error || "";
@@ -257,7 +269,6 @@ var Devices = createReactClass({
 	dialogToggle: function (ref) {
 	    var state = {};
 	    state[ref] = !this.state[ref];
-	    //this.props.pauseRefresh(state[ref]);
 	    this.setState(state);
 	},
 

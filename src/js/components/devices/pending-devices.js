@@ -14,6 +14,8 @@ var createReactClass = require('create-react-class');
 var Pagination = require('rc-pagination');
 var _en_US = require('rc-pagination/lib/locale/en_US');
 var pluralize = require('pluralize');
+import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils/retrytimer';
+import { preformatWithRequestID } from '../../helpers.js';
 
 
 // material ui
@@ -44,7 +46,12 @@ var Authorized =  createReactClass({
   },
 
   componentDidMount() {
+    clearAllRetryTimers();
     this._getDevices();
+  },
+
+  componentWillUnmount() {
+    clearAllRetryTimers();
   },
 
   componentDidUpdate(prevProps, prevState) {

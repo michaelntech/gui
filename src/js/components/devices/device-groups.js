@@ -48,11 +48,12 @@ var AcceptedDevices = createReactClass({
 
 	componentDidMount() {
 		clearAllRetryTimers();
-    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
-		this._refreshAll();
+	    this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
+	    this._refreshAll();
 	},
 
 	componentWillUnmount() {
+		clearInterval(this.deviceTimer);
 		clearAllRetryTimers();
 	},
 
@@ -156,6 +157,7 @@ var AcceptedDevices = createReactClass({
  	_removeSingleDevice: function(idx, length, device, parentCallback) {
  		// remove single device from group
 	    var self = this;
+	    clearInterval(self.deviceTimer);
 	    var callback = {
 	      success: function(result) {
 	        if (idx===length-1) {
@@ -278,7 +280,7 @@ var AcceptedDevices = createReactClass({
 	_removeDevicesFromGroup: function(rows) {
 		var self = this;
 		var callback;
-
+		clearInterval(self.deviceTimer);
 		// if rows.length === groupCount
 		// group now empty, go to all devices 
 		if (rows.length >= self.state.groupCount) {

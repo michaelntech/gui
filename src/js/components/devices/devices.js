@@ -58,7 +58,7 @@ var Devices = createReactClass({
   		this._getPendingCount();
   	},
 
-    changeTab: function() {
+    _changeTab: function() {
       this._refreshAll();
     },
 

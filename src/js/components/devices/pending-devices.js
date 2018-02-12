@@ -51,9 +51,8 @@ var Authorized =  createReactClass({
     if ((prevProps.count !== this.props.count)
       || (prevProps.currentTab !== this.props.currentTab)) {
       this._getDevices();
-      this.setState({selectedRows:[], expandRow: null});
+      this._clearSelected();
     }
-
   },
   /*
   * Devices to show
@@ -77,6 +76,10 @@ var Authorized =  createReactClass({
       }
     };
     AppActions.getDevicesByStatus(callback, "pending", this.state.pageNo, this.state.pageLength);
+  },
+
+  _clearSelected: function() {
+    this.setState({selectedRows:[], expandRow: null});
   },
 
 
@@ -139,11 +142,10 @@ var Authorized =  createReactClass({
     } else if (this.state.selectedRows) {
       this.props.authorizeDevices(this._getDevicesFromSelectedRows());
     }
-   
-    if (index !== "undefined") {
+    if (index !== undefined) {
       this.setState({authLoading: index});
     } else {
-      this.setState({authLoading: "all"});
+      this.setState({authLoading: "selected"});
     }
   },
 
@@ -153,7 +155,7 @@ var Authorized =  createReactClass({
       device: device,
       index: index
     };
-    this.setState({deviceToReject: reject, openReject: true, rejectLoading: index});
+    this.setState({deviceToReject: reject, openReject: true, rejectLoading: index, selectedRows:[]});
   },
   _closeReject: function() {
     this.setState({deviceToReject: {}, openReject: false});
@@ -179,6 +181,7 @@ var Authorized =  createReactClass({
           <IconButton disabled={self.props.disabled || limitMaxed} onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              self._clearSelected();
               self._authorizeDevices([device], index);
             }}>
               <FontIcon className="material-icons green">check_circle</FontIcon>
@@ -380,19 +383,16 @@ var Authorized =  createReactClass({
         : null }
 
         <div>
-          {
-            (this.state.authLoading === "all" && this.props.disabled) ?
-                 <div style={{width:"150px", position: "absolute", left: "-150px", top: "15px"}} className="inline-block">
-                    <Loader table={true} waiting={true} show={true} />
-                </div>
-            :
-            null
-          }
      
 
         { this.state.selectedRows.length ? 
           <div className="fixedButtons">
             <div className="float-right">
+
+              <div style={{width:"100px", top:"7px", position:"relative"}} className={this.props.disabled ? "inline-block" : "hidden"}>
+                <Loader table={true} waiting={true} show={true} />
+              </div>
+
               <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
               <RaisedButton disabled={this.props.disabled || limitMaxed || limitNear} onClick={this._authorizeDevices} primary={true} label={"Authorize " + this.state.selectedRows.length +" " + pluralize("devices", this.state.selectedRows.length)} />
               {deviceLimitWarning}

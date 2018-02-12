@@ -32,7 +32,7 @@ var Authorized =  createReactClass({
       minHeight: 200,
       divHeight: 178,
       selectedRows: [],
-      textfield: this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices",
+      textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices",
     }
   },
 
@@ -163,7 +163,7 @@ var Authorized =  createReactClass({
 
     var addLabel = this.props.group ? "Move selected " + pluralized +" to another group" : "Add selected " + pluralized +" to a group";
     var removeLabel =  "Remove selected " + pluralized + " from this group";
-    var groupLabel = this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices";
+    var groupLabel = this.props.group ? decodeURIComponent(this.props.group) : "All devices";
 
     var styles = {
       editButton: {

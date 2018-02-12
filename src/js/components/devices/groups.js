@@ -26,7 +26,7 @@ var Groups = createReactClass({
     );
    
     var allLabel = (
-      <span>All devices<span className='float-right length'>{this.props.allCount}</span></span>
+      <span>All devices</span>
     );
 
     return (
@@ -47,7 +47,7 @@ var Groups = createReactClass({
             }
             var boundClick = this._changeGroup.bind(null, group, numDevs);
             var groupLabel = (
-                <span>{decodeURIComponent(group)}<span className='float-right length'>{numDevs}</span></span>
+                <span>{decodeURIComponent(group)}</span>
             );
             return (
               <ListItem 

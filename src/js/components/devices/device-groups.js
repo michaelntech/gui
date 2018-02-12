@@ -184,38 +184,6 @@ var AcceptedDevices = createReactClass({
       AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
 	},
 	  
-	_getAllAccepted: function() {
-	    var self = this;
-	    var callback =  {
-	      success: function(devices) {
-	        self.setState({devices: devices});
-	        if (devices.length) {
-	          // for each device get inventory
-	          devices.forEach( function(dev, index) {
-	            self._getInventoryForDevice(dev, function(device) {
-	              devices[index].attributes = device.attributes;
-	              devices[index].updated_ts = device.updated_ts;
-	              if (index===devices.length-1) {
-	                self.setState({devices:devices, loading: false, pageLoading: false});
-	              }
-	            });
-	          });   
-
-	        } else {
-	           self.setState({loading: false});
-	        }
-	      },
-	      error: function(error) {
-	        console.log(err);
-	        var errormsg = err.error || "Please check your connection.";
-	        self.setState({loading: false});
-	           // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
-	      }
-	    };
-
-	    AppActions.getDevicesByStatus(callback, "accepted", this.state.pageNo, this.state.pageLength);
-	},
-
 
 	_getInventoryForDevice: function(device, originCallback) {
 	    // get inventory for single device
@@ -291,7 +259,6 @@ var AcceptedDevices = createReactClass({
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be updated: " + errMsg));
 	      }
 	    };
-	    console.log(device);
 	    AppActions.addDeviceToGroup(group, device.device_id || device.id, callback);
 	},
 

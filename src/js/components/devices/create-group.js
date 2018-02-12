@@ -39,53 +39,21 @@ var CreateGroup = createReactClass({
     }
   },
 
-  _getAllAccepted: function() {
-    var self = this;
-    var callback =  {
-      success: function(devices, links) {
-        self.setState({devices: devices});
-        if (devices.length) {
-          // for each device get inventory
-          devices.forEach( function(dev, index) {
-            self._getInventoryForDevice(dev, function(device) {
-              devices[index].attributes = device.attributes;
-              devices[index].updated_ts = devices.updated_ts;
-              if (index===devices.length-1) {
-                self.setState({devices:devices, loading: false, hasNext: (typeof links.next !== "undefined")}); 
-              }
-            });
-          });   
-
-        } else {
-           self.setState({loading: false});
+  _getDevices: function() {
+     var self = this;
+       var callback =  {
+        success: function(devices) {
+          self.setState({devices: devices, loading: false, pageLoading: false});
+        },
+        error: function(error) {
+          console.log(err);
+          var errormsg = err.error || "Please check your connection.";
+          self.setState({loading: false});
+             // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
         }
-      },
-      error: function(error) {
-        console.log(err);
-        var errormsg = err.error || "Please check your connection.";
-        self.setState({loading: false});
-           // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
-      }
-    };
-
-    self.setState({loading: true});
-    AppActions.getDevicesByStatus(callback, "accepted", this.state.pageNo, this.state.pageLength);
+      };
+      AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
   },
-
-  _getInventoryForDevice: function(device, originCallback) {
-    // get inventory for single device
-    var callback = {
-      success: function(device) {
-        originCallback(device);
-      },
-      error: function(err) {
-        console.log(err);
-        originCallback(null);
-      }
-    };
-    AppActions.getDeviceById(device.device_id, callback);
-  },
-
 
   _createGroupHandler: function() {
     var self = this;
@@ -137,7 +105,7 @@ var CreateGroup = createReactClass({
     numberDevs += 10;
 
     this.setState({showDeviceList: true, pageLength: numberDevs}, function() {
-        self._getAllAccepted();
+        self._getDevices();
     });
   },
 
@@ -188,7 +156,7 @@ var CreateGroup = createReactClass({
       return (
         <TableRow selected={this._isSelected(index)} key={index}>
           <TableRowColumn>
-            {device.device_id}
+            {device.id}
           </TableRowColumn>
           <TableRowColumn>
             {attrs.device_type}

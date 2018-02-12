@@ -57,7 +57,7 @@ var AcceptedDevices = createReactClass({
 	      //this.deviceTimer = setInterval(this._refreshDevices, this.state.refreshDeviceLength);
 	    }
 
-	    if (prevProps.currentTab !== this.props.currentTab) {
+	    if ((prevProps.currentTab !== this.props.currentTab) && this.props.currentTab==="Device groups") {
 	    	this._refreshAll();
 	    }
 	},
@@ -134,7 +134,7 @@ var AcceptedDevices = createReactClass({
 	      	//self.props.pauseRefresh(false);
 	      	AppActions.setSnackbar("Group was removed successfully");
 	     	self._toggleDialog("removeGroup");
-	     	self.setState({selectedGroup: null, pageNo:1, groupCount: self.state.acceptedDevices}, function() {
+	     	self.setState({selectedGroup: null, pageNo:1, groupCount: self.props.allCount}, function() {
 	     		self._refreshAll();
 	     	});
 	    };
@@ -169,24 +169,19 @@ var AcceptedDevices = createReactClass({
 	*/ 
 	
 	_getDevices: function() {
-	    var self = this;
-	    if (!this.state.selectedGroup) {
-	      // no group selected, get all accepted
-	      this._getAllAccepted();
-	    } else {
-	       var callback =  {
-	        success: function(devices) {
-	          self.setState({devices: devices, loading: false, pageLoading: false});
-	        },
-	        error: function(error) {
-	          console.log(err);
-	          var errormsg = err.error || "Please check your connection.";
-	          self.setState({loading: false});
-	             // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
-	        }
-	      };
-	      AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
-	    }
+	   var self = this;
+       var callback =  {
+        success: function(devices) {
+          self.setState({devices: devices, loading: false, pageLoading: false});
+        },
+        error: function(error) {
+          console.log(err);
+          var errormsg = err.error || "Please check your connection.";
+          self.setState({loading: false});
+             // setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
+        }
+      };
+      AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
 	},
 	  
 	_getAllAccepted: function() {
@@ -296,6 +291,7 @@ var AcceptedDevices = createReactClass({
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "Group could not be updated: " + errMsg));
 	      }
 	    };
+	    console.log(device);
 	    AppActions.addDeviceToGroup(group, device.device_id || device.id, callback);
 	},
 
@@ -308,7 +304,7 @@ var AcceptedDevices = createReactClass({
 		if (rows.length >= self.state.groupCount) {
 			callback = function() {
 				AppActions.setSnackbar("Group was removed successfully");
-		     	self.setState({loading:true, selectedGroup: null, pageNo:1, groupCount: self.state.acceptedDevices}, function() {
+		     	self.setState({loading:true, selectedGroup: null, pageNo:1, groupCount: self.props.allCount}, function() {
 		     		self._refreshAll();
 		     	});
 			};
@@ -357,7 +353,7 @@ var AcceptedDevices = createReactClass({
 	        onClick={this._removeCurrentGroup} />
 	    ];
 
-	  	var groupCount = this.state.groupCount ? this.state.groupCount : this.props.acceptedDevices;
+	  	var groupCount = this.state.groupCount ? this.state.groupCount : this.props.allCount;
 
 	    var styles = {
 	      exampleFlatButtonIcon: {
@@ -391,7 +387,7 @@ var AcceptedDevices = createReactClass({
 		            groups={this.state.groups}
 		            groupDevices={this.state.groupDevices}
 		            selectedGroup={this.state.selectedGroup}
-		            acceptedDevices={this.props.acceptedDevices}
+		            allCount={this.props.allCount}
 		            showHelptips={this.state.showHelptips} />
 	        	</div>
 	        	<div className="rightFluid">
@@ -406,7 +402,7 @@ var AcceptedDevices = createReactClass({
 		          		loading={this.state.loading} 
 		          		rejectOrDecomm={this.props.rejectOrDecomm} 
 		          		currentTab={this.props.currentTab} 
-		          		acceptedDevices={this.props.acceptedDevices} 
+		          		allCount={this.props.allCount} 
 		          		groupCount={groupCount} 
 		          		styles={this.props.styles} 
 		          		group={this.state.selectedGroup} 

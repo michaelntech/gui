@@ -38,8 +38,7 @@ var Authorized =  createReactClass({
 
   componentDidUpdate(prevProps, prevState) {
     var self = this;
-    if ((prevProps.acceptedCount !== this.props.acceptedCount) 
-        || (prevProps.rejectedCount !== this.props.rejectedCount) 
+    if ((prevProps.allCount !== this.props.allCount) 
         || (prevProps.group !== this.props.group)
         || (prevProps.devices.length !== this.props.devices.length)
         || (prevProps.groupCount !== this.props.groupCount)
@@ -47,7 +46,7 @@ var Authorized =  createReactClass({
       this.setState({selectedRows:[], expandRow: null, allRowsSelected: false});
     }
 
-    if (prevProps.currentTab !== this.props.currentTab) {
+    if ((prevProps.currentTab !== this.props.currentTab) && this.props.currentTab==="Device groups") {
       this.setState({selectedRows:[], expandRow: null});
     }
 
@@ -56,7 +55,7 @@ var Authorized =  createReactClass({
     }
 
     if (prevProps.group !== this.props.group) {
-      this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "Accepted devices"});
+      this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices"});
     }
 
   },

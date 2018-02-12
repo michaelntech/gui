@@ -48,8 +48,9 @@ var Authorized =  createReactClass({
   },
 
   componentDidUpdate(prevProps, prevState) {
+
     if ((prevProps.count !== this.props.count)
-      || (prevProps.currentTab !== this.props.currentTab)) {
+      || ((prevProps.currentTab !== this.props.currentTab)&& this.props.currentTab.indexOf("Pending")) ) {
       this._getDevices();
       this._clearSelected();
     }

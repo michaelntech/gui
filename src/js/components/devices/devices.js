@@ -31,7 +31,7 @@ var Devices = createReactClass({
 			pendingCount: AppStore.getTotalPendingDevices(),
 			snackbar: AppStore.getSnackbar(),
 			deviceToReject: {},
-      		rejectDialog: false,
+      rejectDialog: false,
 		};
 	},
 
@@ -70,7 +70,7 @@ var Devices = createReactClass({
   		var self = this;
   		var callback = {
   			success: function(count) {
-  				self.setState({acceptedCount: count});
+  				self.setState({acceptedCount: count}, self._getAllCount());
   			},
   			error: function(error) {
 
@@ -82,7 +82,7 @@ var Devices = createReactClass({
   		var self = this;
   		var callback = {
   			success: function(count) {
-  				self.setState({rejectedCount: count});
+  				self.setState({rejectedCount: count}, self._getAllCount());
   			},
   			error: function(error) {
 
@@ -102,6 +102,12 @@ var Devices = createReactClass({
   		};
   		AppActions.getDeviceCount(callback, "pending");
   	},
+    _getAllCount: function() {
+      var self = this;
+      var accepted = self.state.acceptedCount ? self.state.acceptedCount : 0;
+      var rejected = self.state.rejectedCount ? self.state.rejectedCount : 0;
+      self.setState({allCount: accepted + rejected});
+    },
 
 
 
@@ -306,7 +312,7 @@ var Devices = createReactClass({
             onActive={tabHandler}
             style={styles.tabStyle}>
 
-				    <DeviceGroups rejectOrDecomm={this._openRejectDialog} styles={styles} rejectedDevices={this.state.rejectedCount} acceptedDevices={this.state.acceptedCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} rejectDevice={this._rejectDevice} />
+				    <DeviceGroups rejectOrDecomm={this._openRejectDialog} styles={styles} rejectedDevices={this.state.rejectedCount} acceptedDevices={this.state.acceptedCount} allCount={this.state.allCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} rejectDevice={this._rejectDevice} />
 		      </Tab>
 			    <Tab
             label={pendingLabel}

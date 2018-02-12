@@ -42,22 +42,28 @@ var AcceptedDevices = createReactClass({
 	  		pageLength: 20,
 	  		loading: true,
 	  		tmpDevices: [],
+	  		refreshDeviceLength: 10000,
 		};
 	},
 
 	componentDidMount() {
-		// Get groups
+		clearAllRetryTimers();
+    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
 		this._refreshAll();
+	},
+
+	componentWillUnmount() {
+		clearAllRetryTimers();
 	},
 
 	componentDidUpdate: function(prevProps, prevState) {
 	    if (prevState.selectedGroup !== this.state.selectedGroup) {
-	      //clearInterval(this.deviceTimer);
 	      this._refreshGroups();
-	      //this.deviceTimer = setInterval(this._refreshDevices, this.state.refreshDeviceLength);
 	    }
 
 	    if ((prevProps.currentTab !== this.props.currentTab) && this.props.currentTab==="Device groups") {
+	    	clearInterval(this.deviceTimer);
+	    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
 	    	this._refreshAll();
 	    }
 	},
@@ -100,7 +106,12 @@ var AcceptedDevices = createReactClass({
 
 	_handleGroupChange: function(group, numDev) {
 		var self = this;
+		clearInterval(self.deviceTimer);
+		setTimeout(function() {
+			AppActions.setSnackbar("");
+		}, 4000);
 		this.setState({loading: true, selectedGroup: group, groupCount: numDev, pageNo:1}, function() {
+	    	self.deviceTimer = setInterval(self._getDevices, self.state.refreshDeviceLength);
 			self._getDevices();
 		});
 	},
@@ -113,7 +124,7 @@ var AcceptedDevices = createReactClass({
 
 	_removeCurrentGroup: function() {
 	    var self = this;
-	    //self.props.pauseRefresh(true);
+	    clearInterval(self.deviceTimer);
 	    var callback = {
 		    success: function(devices, link) {
 		      	// should handle "next page"
@@ -124,7 +135,6 @@ var AcceptedDevices = createReactClass({
 		    },
 		    error: function(err) {
 		        console.log(err);
-		        //self.props.pauseRefresh(false);
 		    }
     	};
 
@@ -135,6 +145,7 @@ var AcceptedDevices = createReactClass({
 	      	AppActions.setSnackbar("Group was removed successfully");
 	     	self._toggleDialog("removeGroup");
 	     	self.setState({selectedGroup: null, pageNo:1, groupCount: self.props.allCount}, function() {
+	     		self.deviceTimer = setInterval(self._getDevices, self.state.refreshDeviceLength);
 	     		self._refreshAll();
 	     	});
 	    };
@@ -151,7 +162,7 @@ var AcceptedDevices = createReactClass({
 	            // whole group removed
 	            parentCallback();
 	          } else {
-	           AppActions.setSnackbar("Devices removed from group");
+	           AppActions.setSnackbar("The " + pluralize("devices", length) + " " + pluralize("were", length) + " removed from the group");
 	           self._refreshAll();
 	          }
 	        }

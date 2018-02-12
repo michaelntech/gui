@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
+import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils/retrytimer';
 
 var createReactClass = require('create-react-class');
 var DeviceGroups = require('./device-groups');
@@ -36,91 +37,92 @@ var Devices = createReactClass({
 	},
 
 	componentWillMount: function() {
-    	AppStore.changeListener(this._onChange);
-  	},
+  	AppStore.changeListener(this._onChange);
+	},
 
-  	_onChange: function() {
-    	this.setState(this.getInitialState());
-  	},
-
-
-  	componentDidMount() {
-  		this._refreshAll();
-  	},
-
-  	componentWillUnmount() {
-  		AppStore.removeChangeListener(this._onChange);
-  	},
-
-  	_refreshAll: function() {
-  		this._getAcceptedCount();
-  		this._getRejectedCount();
-  		this._getPendingCount();
-  	},
-
-    _changeTab: function() {
-      this._refreshAll();
-    },
+	_onChange: function() {
+  	this.setState(this.getInitialState());
+	},
 
 
-  	/*
-  	* Get counts of devices
-  	*/
-  	_getAcceptedCount: function() {
-  		var self = this;
-  		var callback = {
-  			success: function(count) {
-  				self.setState({acceptedCount: count}, self._getAllCount());
-  			},
-  			error: function(error) {
+	componentDidMount() {
+		this._refreshAll();
+	},
 
-  			}
-  		};
-  		AppActions.getDeviceCount(callback, "accepted");
-  	},
-  	_getRejectedCount: function() {
-  		var self = this;
-  		var callback = {
-  			success: function(count) {
-  				self.setState({rejectedCount: count}, self._getAllCount());
-  			},
-  			error: function(error) {
+	componentWillUnmount() {
+    clearAllRetryTimers();
+		AppStore.removeChangeListener(this._onChange);
+	},
 
-  			}
-  		};
-  		AppActions.getDeviceCount(callback, "rejected");
-  	},
-  	_getPendingCount: function() {
-  		var self = this;
-  		var callback = {
-  			success: function(count) {
-  				self.setState({pendingCount: count});
-  			},
-  			error: function(error) {
+	_refreshAll: function() {
+		this._getAcceptedCount();
+		this._getRejectedCount();
+		this._getPendingCount();
+	},
 
-  			}
-  		};
-  		AppActions.getDeviceCount(callback, "pending");
-  	},
-    _getAllCount: function() {
-      var self = this;
-      var accepted = self.state.acceptedCount ? self.state.acceptedCount : 0;
-      var rejected = self.state.rejectedCount ? self.state.rejectedCount : 0;
-      self.setState({allCount: accepted + rejected});
-    },
+  _changeTab: function() {
+    this._refreshAll();
+  },
+
+
+	/*
+	* Get counts of devices
+	*/
+	_getAcceptedCount: function() {
+		var self = this;
+		var callback = {
+			success: function(count) {
+				self.setState({acceptedCount: count});
+			},
+			error: function(error) {
+
+			}
+		};
+		AppActions.getDeviceCount(callback, "accepted");
+	},
+	_getRejectedCount: function() {
+		var self = this;
+		var callback = {
+			success: function(count) {
+				self.setState({rejectedCount: count}, self._getAllCount());
+			},
+			error: function(error) {
+
+			}
+		};
+		AppActions.getDeviceCount(callback, "rejected");
+	},
+	_getPendingCount: function() {
+		var self = this;
+		var callback = {
+			success: function(count) {
+				self.setState({pendingCount: count});
+			},
+			error: function(error) {
+
+			}
+		};
+		AppActions.getDeviceCount(callback, "pending");
+	},
+  _getAllCount: function() {
+    var self = this;
+    var accepted = self.state.acceptedCount ? self.state.acceptedCount : 0;
+    var rejected = self.state.rejectedCount ? self.state.rejectedCount : 0;
+    self.setState({allCount: accepted + rejected});
+  },
 
 
 
 	// nested tabs
-  	componentWillReceiveProps: function(nextProps) {
-    	this.setState({tabIndex: this._updateActive()});
-  	},
+	componentWillReceiveProps: function(nextProps) {
+  	this.setState({tabIndex: this._updateActive()});
+	},
 
-  	_updateActive: function() {
-	    var self = this;
-	    return this.context.router.isActive({ pathname: '/devices' }, true) ? '/devices/groups' :
-	      this.context.router.isActive('/devices/groups') ? '/devices/groups' :
-	      this.context.router.isActive('/devices/pending') ? '/devices/pending' : '/devices/groups';
+  _updateActive: function() {
+    var self = this;
+    return this.context.router.isActive({ pathname: '/devices' }, true) ? '/devices/groups' :
+      this.context.router.isActive('/devices/groups') ? '/devices/groups' :
+      this.context.router.isActive('/devices/pending') ? '/devices/pending' : '/devices/groups';
 	},
 	
 	_handleTabActive: function(tab) {

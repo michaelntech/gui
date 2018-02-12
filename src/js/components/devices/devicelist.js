@@ -76,8 +76,8 @@ var Authorized =  createReactClass({
       rowNumber = null;
     }
     
+    this.setState({expandRow: rowNumber, expandedDevice: device});
     this._setDeviceDetails(device);
-    this.setState({expandRow: rowNumber});
     
   },
   _adjustCellHeight: function(height) {
@@ -217,7 +217,7 @@ var Authorized =  createReactClass({
       }
       
       if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice rejectOrDecomm={this.props.rejectOrDecomm} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} device={device} selectedGroup={this.props.group} groups={this.props.groups} />
+        expanded = <ExpandedDevice device={this.state.expandedDevice} rejectOrDecomm={this.props.rejectOrDecomm} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} selectedGroup={this.props.group} groups={this.props.groups} />
       }
      
       return (

@@ -30,7 +30,7 @@ import Snackbar from 'material-ui/Snackbar';
 import Dialog from 'material-ui/Dialog';
 import { List, ListItem } from 'material-ui/List';
 
-var Authorized =  createReactClass({
+var Pending =  createReactClass({
   getInitialState: function() {
     return {
       minHeight: 200,
@@ -460,4 +460,4 @@ var Authorized =  createReactClass({
 });
 
 
-module.exports = Authorized;
+module.exports = Pending;

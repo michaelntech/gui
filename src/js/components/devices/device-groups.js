@@ -25,7 +25,7 @@ import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 
-var AcceptedDevices = createReactClass({
+var DeviceGroups = createReactClass({
 	getInitialState() {
 		return {
 			groups: AppStore.getGroups(),
@@ -443,4 +443,4 @@ var AcceptedDevices = createReactClass({
 
 });
 
-module.exports = AcceptedDevices;
+module.exports = DeviceGroups;

@@ -51,13 +51,14 @@ var Authorized =  createReactClass({
       if (prevProps.devices.length !== this.props.devices.length) {
          this._adjustHeight();
       }
-      if (prevProps.paused !== this.props.paused) {
-        this._setDeviceDetails(this.state.device);
-      }
     }
 
     if (prevProps.group !== this.props.group) {
       this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices"});
+    }
+
+    if (prevProps.paused !== this.props.paused) {
+      this._setDeviceDetails(this.state.device);
     }
 
  

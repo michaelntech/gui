@@ -8,7 +8,7 @@ var DeviceGroups = require('./device-groups');
 var PendingDevices = require('./pending-devices');
 var RejectedDevices = require('./rejected-devices');
 var pluralize = require('pluralize');
-
+var Loader = require('../common/loader');
 
 var AppStore = require('../../stores/app-store');
 var AppActions = require('../../actions/app-actions');
@@ -151,7 +151,7 @@ var Devices = createReactClass({
 	    * function for authorizing group of devices via devadmn API
 	    */
 	    var self = this;
-	    self.setState({pauseAdmisson: true});
+	    self.setState({pauseAdmisson: true, reject_request_pending: true});
 	    clearInterval(self.interval);
 
 	    // make into chunks of 5 devices
@@ -175,7 +175,7 @@ var Devices = createReactClass({
 	          // refresh counts
             self._restartInterval();
             setTimeout(function() {
-              self.setState({pauseAdmisson: false, rejectDialog: false});
+              self.setState({pauseAdmisson: false, rejectDialog: false, reject_request_pending:false});
             }, 200);
             
 	        }
@@ -226,18 +226,18 @@ var Devices = createReactClass({
 
 	_rejectDevice: function() {
 	    var self = this;
-	   	self.setState({pauseAdmisson: true});
+	   	self.setState({pauseAdmisson: true, reject_request_pending: true});
 	    clearInterval(self.interval);
 
 	    var callback = {
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was rejected successfully");
 	        self._restartInterval();
-	        self.setState({pauseAdmisson: false, rejectDialog: false});
+	        self.setState({pauseAdmisson: false, rejectDialog: false, reject_request_pending: false});
 	      },
 	      error: function(err) {
 	        var errMsg = err.res.body.error || "";
-	        self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false, reject_request_pending: false});
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem rejecting the device: "+errMsg));
 	      }
 	    };
@@ -263,7 +263,7 @@ var Devices = createReactClass({
           self.setState({pauseAdmisson: false, decommission_request_pending: false});
 	      }
 	    };
-	    AppActions.decommissionDevice((this.state.deviceToReject||{}).device_id, callback);
+	   AppActions.decommissionDevice((this.state.deviceToReject||{}).device_id, callback);
 	},
 
 	dialogToggle: function (ref) {
@@ -365,11 +365,12 @@ var Devices = createReactClass({
 		                  <FontIcon className="material-icons" style={{marginTop:6, marginBottom:6, marginRight:6, verticalAlign: "middle", color:"#c7c7c7"}}>cancel</FontIcon>
 		                  <h3 className="inline align-middle">Reject</h3>
 		                </div>
-		                <p>
+		                <p style={{minHeight:"32px"}}>
 		                  De-authorize this device and block it from making authorization requests in the future.
 		                </p>
 		                <RaisedButton onClick={this._rejectDevice} className="margin-top-small" secondary={true} label={"Reject device"} icon={<FontIcon style={{marginTop:"-4px"}} className="material-icons">cancel</FontIcon>} />
-		              </div>
+		                {this.state.reject_request_pending ?  <div className="dialogLoaderContainer"><Loader table={true} show={true} /></div> : null}
+                  </div>
 		            </div> 
 		          : 
 		          	<div className="split-dialog">
@@ -378,11 +379,12 @@ var Devices = createReactClass({
 			                  <FontIcon className="material-icons" style={{marginTop:6, marginBottom:6, marginRight:6, verticalAlign: "middle", color:"#c7c7c7"}}>check_circle</FontIcon>
 			                  <h3 className="inline align-middle">Authorize</h3>
 			                </div>
-			                <p>
+			                <p style={{minHeight:"32px"}}>
 			                 	Authorize this device and allow it to connect to the server.
 			                </p>
 			                <RaisedButton onClick={this._authorizeDevice} className="margin-top-small" secondary={true} label={"Authorize device"} icon={<FontIcon style={{marginTop:"-4px"}} className="material-icons">check_circle</FontIcon>} />
-			              </div>
+			               {this.state.reject_request_pending ?  <div className="dialogLoaderContainer"><Loader table={true} show={true} /></div> : null}
+                    </div>
 		            </div>
 		          }
 
@@ -392,11 +394,13 @@ var Devices = createReactClass({
 		                <FontIcon className="material-icons" style={{marginTop:6, marginBottom:6, marginRight:6, verticalAlign: "middle", color:"#c7c7c7"}}>delete_forever</FontIcon>
 		                <h3 className="inline align-middle">Decommission</h3>
 		              </div>
-		              <p>
+		              <p style={{minHeight:"32px"}}>
 		                Decommission this device and remove all device data. This action is not reversible.
 		              </p>
-		              <RaisedButton onClick={this._decommissionDevice} className="margin-top-small" secondary={true} label={"Decommission device"} icon={<FontIcon style={{marginTop:"-4px"}} className="material-icons">delete_forever</FontIcon>} />
-		            </div>
+		              
+                  <RaisedButton onClick={this._decommissionDevice} className="margin-top-small" secondary={true} label={"Decommission device"} icon={<FontIcon style={{marginTop:"-4px"}} className="material-icons">delete_forever</FontIcon>} />
+		              {this.state.decommission_request_pending ?  <div className="dialogLoaderContainer"><Loader table={true} show={true} /></div> : null}
+                </div>
 		          </div>
 		        </Dialog>
 

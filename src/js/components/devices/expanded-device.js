@@ -4,6 +4,7 @@ import Time from 'react-time';
 import Collapse from 'react-collapse';
 var createReactClass = require('create-react-class');
 import ReactTooltip from 'react-tooltip';
+import PropTypes from 'prop-types';
 
 var AppStore = require('../../stores/app-store');
 var AppActions = require('../../actions/app-actions');
@@ -35,7 +36,28 @@ var ExpandedDevice = createReactClass({
         text: ''
       },
       schedule: false,
+      artifacts: AppStore.getArtifactsRepo(),
     };
+  },
+
+  componentDidMount: function() {
+    this._getArtifacts();
+  },
+
+  _getArtifacts: function() {
+    var self = this;
+    var callback = {
+      success: function(artifacts) {
+        
+        setTimeout(function() {
+          self.setState({artifacts:artifacts});
+        }, 300);
+      },
+      error: function(err) {
+        var errormsg = err.error || "Please check your connection";
+      }
+    };
+    AppActions.getArtifacts(callback);
   },
 
   dialogToggle: function (ref) {
@@ -70,7 +92,7 @@ var ExpandedDevice = createReactClass({
         var params = {};
         params.route="deployments";
         setTimeout(function() {
-          self.props.redirect(params);
+          self.context.router.push(params.route);
         }, 1200)
       },
       error: function(err) {
@@ -297,7 +319,7 @@ var ExpandedDevice = createReactClass({
           bodyStyle={{paddingTop:"0", fontSize:"13px"}}
           contentStyle={{overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}
           >
-          <ScheduleForm deploymentDevices={[this.props.device]} filteredDevices={this.state.filterByArtifact} deploymentSettings={this._deploymentParams} artifact={this.state.artifact} artifacts={this.props.artifacts} device={this.props.device} deploymentSchedule={this._updateParams} groups={this.props.groups} />
+          <ScheduleForm deploymentDevices={[this.props.device]} filteredDevices={this.state.filterByArtifact} deploymentSettings={this._deploymentParams} artifact={this.state.artifact} artifacts={this.state.artifacts} device={this.props.device} deploymentSchedule={this._updateParams} groups={this.props.groups} />
 
         </Dialog>
 
@@ -305,5 +327,9 @@ var ExpandedDevice = createReactClass({
     );
   }
 });
+
+ExpandedDevice.contextTypes = {
+  router: PropTypes.object
+};
 
 module.exports = ExpandedDevice;

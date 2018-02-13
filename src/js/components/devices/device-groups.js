@@ -64,6 +64,7 @@ var DeviceGroups = createReactClass({
 
 	    if (prevProps.currentTab !== this.props.currentTab) {
 	    	clearInterval(this.deviceTimer);
+	    	this.setState({filters: [{key:'', value:''}]});
 	    	if (this.props.currentTab==="Device groups") {	
 	    		this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
 	    		this._refreshAll();
@@ -113,7 +114,7 @@ var DeviceGroups = createReactClass({
 		setTimeout(function() {
 			AppActions.setSnackbar("");
 		}, 4000);
-		this.setState({loading: true, selectedGroup: group, groupCount: numDev, pageNo:1}, function() {
+		this.setState({loading: true, selectedGroup: group, groupCount: numDev, pageNo:1, filters: [{key:'', value:''}]}, function() {
 	    	self.deviceTimer = setInterval(self._getDevices, self.state.refreshDeviceLength);
 			self._getDevices();
 		});
@@ -141,7 +142,7 @@ var DeviceGroups = createReactClass({
 		    }
     	};
 
-	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null, true);
+	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, self.state.filters);
 	    var finalCallback = function() {
 
 	      	//self.props.pauseRefresh(false);
@@ -190,7 +191,7 @@ var DeviceGroups = createReactClass({
           self.setState({devices: devices, loading: false, pageLoading: false});
         },
         error: function(error) {
-          console.log(err);
+          console.log(error);
           var errormsg = err.error || "Please check your connection.";
           self.setState({loading: false});
           setRetryTimer(err, "devices", "Devices couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
@@ -198,7 +199,25 @@ var DeviceGroups = createReactClass({
       };
       AppActions.getDevices(callback, this.state.pageNo, this.state.pageLength, this.state.selectedGroup);
 	},
-	  
+	 
+	_getDeviceById: function(id) {
+		var self = this;
+		var callback =  {
+        success: function(device) {
+          self.setState({devices: [device], loading: false, pageLoading: false});
+        },
+        error: function(error) {
+          if (error.res.statusCode === 404) {
+          	 self.setState({loading: false, devices: []});
+          } else {
+          	var errormsg = err.error || "Please check your connection.";
+	          self.setState({loading: false});
+	          setRetryTimer(err, "devices", "Device couldn't be loaded. " + errormsg, self.state.refreshDeviceLength);
+          }
+        }
+      };
+		AppActions.getDeviceById(id, callback);
+	},
 
 	_getInventoryForDevice: function(device, originCallback) {
 	    // get inventory for single device
@@ -306,6 +325,32 @@ var DeviceGroups = createReactClass({
 			self._removeSingleDevice(i, rows.length, self.state.devices[rows[i]].id, callback);
 		}
 	},
+
+	_onFilterChange: function(filters) {
+    var self = this;
+    clearInterval(self.deviceTimer);
+    var id;
+    // check filters for ID, this is temporary until full filtering functionality
+    for (var i=0;i<filters.length;i++) {
+      if (filters[i].key === "id") {
+        id = filters[i].value;
+        break;
+      }
+    }
+
+    if (id) {
+    	// get single device by id
+    	self.setState({filters: filters}, function() {
+    		self._getDeviceById(id);
+    	});
+    } else {
+    	self.setState({filters: filters}, function() {
+    		self.deviceTimer = setInterval(self._getDevices, self.state.refreshDeviceLength);
+      	self._getDevices();
+    	});
+    }
+   
+  },
 
 	render: function() {
 		// Add to group dialog 

@@ -6,6 +6,7 @@ import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils
 var createReactClass = require('create-react-class');
 var DeviceGroups = require('./device-groups');
 var PendingDevices = require('./pending-devices');
+var RejectedDevices = require('./rejected-devices');
 var pluralize = require('pluralize');
 
 
@@ -31,8 +32,6 @@ var Devices = createReactClass({
 			rejectedCount: AppStore.getTotalRejectedDevices(),
 			pendingCount: AppStore.getTotalPendingDevices(),
 			snackbar: AppStore.getSnackbar(),
-			deviceToReject: {},
-      rejectDialog: false,
       refreshLength: 10000,
 		};
 	},
@@ -74,7 +73,7 @@ var Devices = createReactClass({
   },
 
   _changeTab: function() {
-    this._restartInterval();
+    //this._restartInterval();
   },
 
 
@@ -135,7 +134,8 @@ var Devices = createReactClass({
     var self = this;
     return this.context.router.isActive({ pathname: '/devices' }, true) ? '/devices/groups' :
       this.context.router.isActive('/devices/groups') ? '/devices/groups' :
-      this.context.router.isActive('/devices/pending') ? '/devices/pending' : '/devices/groups';
+      this.context.router.isActive('/devices/pending') ? '/devices/pending' :
+      this.context.router.isActive('/devices/rejected') ? '/devices/rejected' : '/devices/groups';
 	},
 	
 	_handleTabActive: function(tab) {
@@ -175,7 +175,7 @@ var Devices = createReactClass({
 	          // refresh counts
             self._restartInterval();
             setTimeout(function() {
-              self.setState({pauseAdmisson: false});
+              self.setState({pauseAdmisson: false, rejectDialog: false});
             }, 200);
             
 	        }
@@ -233,7 +233,7 @@ var Devices = createReactClass({
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was rejected successfully");
 	        self._restartInterval();
-	        self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false, rejectDialog: false});
 	      },
 	      error: function(err) {
 	        var errMsg = err.res.body.error || "";
@@ -242,28 +242,28 @@ var Devices = createReactClass({
 	      }
 	    };
 
-	    AppActions.rejectDevice(self.state.deviceToReject.id, callback);
+	    AppActions.rejectDevice((this.state.deviceToReject||{}).id, callback);
 	},
 
 	_decommissionDevice: function() {
 		 var self = this;
 
-	   	self.setState({pauseAdmisson: true});
+	   	self.setState({pauseAdmisson: true, decommission_request_pending: true});
 	    clearInterval(self.interval); // pause periodic calls to device apis until finished authing devices
-
 	    var callback = {
 	      success: function(data) {
 	        AppActions.setSnackbar("Device was decommissioned successfully");
 	        self._restartInterval();
-	        self.setState({pauseAdmisson: false});
+	        self.setState({pauseAdmisson: false, decommission_request_pending: false, rejectDialog: false});
 	      },
 	      error: function(err) {
-	        var errMsg = err.res.body.error || "";
-	        self.setState({pauseAdmisson: false});
+	        var errMsg = err.res.error.message || "";
+          console.log(errMsg);
 	        AppActions.setSnackbar(preformatWithRequestID(err.res, "There was a problem decommissioning the device: "+errMsg));
+          self.setState({pauseAdmisson: false, decommission_request_pending: false});
 	      }
 	    };
-	    AppActions.decommissionDevice(self.state.deviceToReject.device_id, callback);
+	    AppActions.decommissionDevice((this.state.deviceToReject||{}).device_id, callback);
 	},
 
 	dialogToggle: function (ref) {
@@ -292,6 +292,7 @@ var Devices = createReactClass({
 	        fontSize: "12px",
 	        paddingTop: "10px",
 	        paddingBottom: "10px",
+          whiteSpace: "normal",
 	      },
 	      listButtonStyle: {
 	      	fontSize: "12px",
@@ -317,7 +318,7 @@ var Devices = createReactClass({
 		    <Tabs
           value={this.state.tabIndex}
           onChange={this._changeTab}
-          tabItemContainerStyle={{background: "none", width:"280px"}}>
+          tabItemContainerStyle={{background: "none", width:"420px"}}>
 
           <Tab
             label="Device groups"
@@ -335,19 +336,29 @@ var Devices = createReactClass({
 
 						<PendingDevices styles={styles} currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._handleRejectDevice} />
 					</Tab>
+
+
+          <Tab
+            label="Rejected"
+            value="/devices/rejected"
+            onActive={tabHandler}
+            style={styles.tabStyle}>
+
+            <RejectedDevices rejectOrDecomm={this._openRejectDialog} styles={styles} currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.rejectedCount} rejectDevice={this._handleRejectDevice} />
+          </Tab>
 				</Tabs>
 
 				 <Dialog
 		          ref="rejectDialog"
-		          open={this.state.rejectDialog}
-		          title={this.state.deviceToReject.status!=="rejected" ? 'Reject or decommission device?' : "Authorize or decommission device?"}
+		          open={this.state.rejectDialog || false}
+		          title={(this.state.deviceToReject||{}).status!=="rejected" ? 'Reject or decommission device?' : "Authorize or decommission device?"}
 		          actions={rejectActions}
 		          autoDetectWindowHeight={true}
 		          bodyStyle={{paddingTop:"0", fontSize:"13px"}}
 		          contentStyle={{overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}
 		          >
 		          {this.state.deviceToReject ? <ListItem className="margin-bottom-small" style={styles.listStyle} disabled={true} primaryText="Device ID" secondaryText={this.state.deviceToReject.device_id}  />: null}
-		          {this.state.deviceToReject.status==="accepted" ?
+		          {(this.state.deviceToReject||{}).status==="accepted" ?
 		            <div className="split-dialog">
 		              <div className="align-center">
 		                <div>

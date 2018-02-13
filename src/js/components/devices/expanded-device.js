@@ -152,12 +152,13 @@ var ExpandedDevice = createReactClass({
     var status = this.props.device.status;
     var waiting = false;
     if (typeof this.props.attrs !== 'undefined' && this.props.attrs.length>0) {
+
       var sortedAttributes = this.props.attrs.sort(function (a, b) {
           return a.name.localeCompare( b.name );
       });
       for (var i=0;i<sortedAttributes.length;i++) {
         var secondaryText = (sortedAttributes[i].value instanceof Array) ? sortedAttributes[i].value.toString() : sortedAttributes[i].value;
-        var secondaryTextLines = (sortedAttributes[i].value instanceof Array) ? 2 : 1;
+        var secondaryTextLines = (sortedAttributes[i].value instanceof Array) || (secondaryText.length>50 ) ? 2 : 1;
         deviceInventory.push(
           <div key={i}>
             <ListItem style={this.props.styles.listStyle} disabled={true} primaryText={sortedAttributes[i].name} secondaryText={secondaryText} secondaryTextLines={secondaryTextLines} />

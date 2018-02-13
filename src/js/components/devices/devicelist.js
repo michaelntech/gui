@@ -47,19 +47,20 @@ var Authorized =  createReactClass({
 
     if ((prevProps.currentTab !== this.props.currentTab) && this.props.currentTab==="Device groups") {
       this.setState({selectedRows:[], expandRow: null});
-    }
 
-    if (prevProps.devices.length !== this.props.devices.length) {
-       this._adjustHeight();
+      if (prevProps.devices.length !== this.props.devices.length) {
+         this._adjustHeight();
+      }
+      if (prevProps.paused !== this.props.paused) {
+        this._setDeviceDetails(this.state.device);
+      }
     }
 
     if (prevProps.group !== this.props.group) {
       this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices"});
     }
 
-    if (prevProps.paused !== this.props.paused) {
-      this._setDeviceDetails(this.state.device);
-    }
+ 
   },
 
 
@@ -105,7 +106,8 @@ var Authorized =  createReactClass({
         console.log("Error: " + err);
       }
     };
-    AppActions.getDeviceIdentity(device.device_id || device.id, callback);
+    var id = device.device_id ? device.device_id : device.id;
+    AppActions.getDeviceIdentity(id, callback);
   },
 
 
@@ -218,7 +220,7 @@ var Authorized =  createReactClass({
       for (var i=0;i<attributesLength;i++) {
         attrs[device.attributes[i].name] = device.attributes[i].value;
       }
-      
+
       if ( self.state.expandRow === index ) {
         expanded = <ExpandedDevice device={this.state.expandedDevice || device} rejectOrDecomm={this.props.rejectOrDecomm} attrs={device.attributes} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} selectedGroup={this.props.group} groups={this.props.groups} />
       }

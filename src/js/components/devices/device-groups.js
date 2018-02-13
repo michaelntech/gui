@@ -157,15 +157,16 @@ var DeviceGroups = createReactClass({
 		    }
     	};
 
-	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, self.state.filters);
+	    AppActions.getDevices(callback, 1, 100, this.state.selectedGroup, null);
 	    var finalCallback = function() {
 
-	      	//self.props.pauseRefresh(false);
-	      	AppActions.setSnackbar("Group was removed successfully");
 	     	self._toggleDialog("removeGroup");
+	     	AppActions.setSnackbar("Group was removed successfully");
 	     	self.setState({selectedGroup: null, pageNo:1, groupCount: self.props.allCount}, function() {
-	     		self.deviceTimer = setInterval(self._getDevices, self.state.refreshDeviceLength);
-	     		self._refreshAll();
+	     		setTimeout(function() {
+	     			self.deviceTimer = setInterval(self._getDevices, self.state.refreshDeviceLength);
+	     			self._refreshAll();
+	     		}, 100);
 	     	});
 	    };
 	},

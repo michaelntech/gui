@@ -52,7 +52,7 @@ var DeviceGroups = createReactClass({
 		clearAllRetryTimers();
 		var self = this;
 		var filters = [];
-    if (!isEmpty(self.props.params)) {
+    
       if (self.props.params.filters) {
         var str = decodeURIComponent(self.props.params.filters);
         var obj = str.split("&");
@@ -61,12 +61,10 @@ var DeviceGroups = createReactClass({
           filters.push({key:f[0], value:f[1]});
         }
         self._onFilterChange(filters);
-      }
-
-    } else {
-    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
-	    this._refreshAll();
-    }
+      } else {
+	    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
+		    this._refreshAll();
+    	}
 	},
 
 	componentWillUnmount() {

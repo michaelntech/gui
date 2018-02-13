@@ -111,7 +111,7 @@ var ScheduleForm = createReactClass({
         singleFilter = encodeURIComponent(singleFilter);
         return (
           <div className="hint--bottom hint--medium" style={{width:"100%"}} aria-label={item.id} key={index}>
-            <p className="text-overflow"><Link to={`/devices/${this.state.group}/${singleFilter}`}>{item.id}</Link></p>
+            <p className="text-overflow"><Link to={`/devices/groups/${this.state.group}/${singleFilter}`}>{item.id}</Link></p>
           </div>
         )
       }, this);

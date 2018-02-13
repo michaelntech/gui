@@ -11,8 +11,10 @@ var pluralize = require('pluralize');
 var Pagination = require('rc-pagination');
 var _en_US = require('rc-pagination/lib/locale/en_US');
 
+import PropTypes from 'prop-types';
+import { Router, Route } from 'react-router';
 import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils/retrytimer';
-import { preformatWithRequestID } from '../../helpers.js';
+import { isEmpty, preformatWithRequestID } from '../../helpers.js';
 
 var AppStore = require('../../stores/app-store');
 var AppActions = require('../../actions/app-actions');
@@ -48,8 +50,23 @@ var DeviceGroups = createReactClass({
 
 	componentDidMount() {
 		clearAllRetryTimers();
-	    this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
+		var self = this;
+		var filters = [];
+    if (!isEmpty(self.props.params)) {
+      if (self.props.params.filters) {
+        var str = decodeURIComponent(self.props.params.filters);
+        var obj = str.split("&");
+        for (var i=0;i<obj.length;i++) {
+          var f = obj[i].split("=");
+          filters.push({key:f[0], value:f[1]});
+        }
+        self._onFilterChange(filters);
+      }
+
+    } else {
+    	this.deviceTimer = setInterval(this._getDevices, this.state.refreshDeviceLength);
 	    this._refreshAll();
+    }
 	},
 
 	componentWillUnmount() {
@@ -487,5 +504,9 @@ var DeviceGroups = createReactClass({
 	}
 
 });
+
+DeviceGroups.contextTypes = {
+  router: PropTypes.object
+};
 
 module.exports = DeviceGroups;

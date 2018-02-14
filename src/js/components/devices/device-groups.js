@@ -435,7 +435,8 @@ var DeviceGroups = createReactClass({
 		            groupDevices={this.state.groupDevices}
 		            selectedGroup={this.state.selectedGroup}
 		            allCount={this.props.allCount}
-		            showHelptips={this.state.showHelptips} />
+		            acceptedCount={this.props.acceptedDevices}
+		            showHelptips={this.props.showHelptips} />
 	        	</div>
 	        	<div className="rightFluid">
 		            <FlatButton onClick={this._toggleDialog.bind(null, "removeGroup")} style={styles.exampleFlatButton} className={this.state.selectedGroup ? null : 'hidden' } label="Remove group" labelPosition="after">
@@ -454,7 +455,8 @@ var DeviceGroups = createReactClass({
 		          		styles={this.props.styles} 
 		          		group={this.state.selectedGroup} 
 		          		devices={this.state.devices}
-		          		paused={this.props.paused} />
+		          		paused={this.props.paused}
+		          		showHelptips={this.props.showHelptips} />
 		          	
 		          	{this.state.devices.length && !this.state.loading ?
 		          	<div className="margin-top">

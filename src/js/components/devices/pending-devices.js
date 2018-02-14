@@ -299,14 +299,15 @@ var Pending =  createReactClass({
         
       <Loader show={this.state.authLoading==="all"} />
 
-        { this.props.showHelptips ?
+        { this.props.showHelptips && this.state.devices.length ?
           <div>
             <div 
               id="onboard-2"
               className={this.props.highlightHelp ? "tooltip help highlight" : "tooltip help"}
               data-tip
               data-for='review-devices-tip'
-              data-event='click focus'>
+              data-event='click focus'
+              style={{left:"59%",top:"5px"}}>
               <FontIcon className="material-icons">help</FontIcon>
             </div>
             <ReactTooltip
@@ -316,7 +317,7 @@ var Pending =  createReactClass({
               type="light"
               effect="solid"
               className="react-tooltip">
-              <AuthDevices devices={devices.length} />
+              <AuthDevices devices={this.state.devices.length} />
             </ReactTooltip>
           </div>
         : null }
@@ -361,8 +362,8 @@ var Pending =  createReactClass({
           :
 
           <div className={this.state.authLoading ? "hidden" : "dashboard-placeholder"}>
-            <p>No devices are pending authorization</p>
-            <p>Visit the <Link to={`/help/connecting-devices`}>Help section</Link> to learn how to connect devices to the Mender server.</p>
+            <p>There are no devices pending authorization</p>
+            {this.props.highlightHelp ? <p>Visit the <Link to={`/help/connecting-devices`}>Help section</Link> to learn how to connect devices to the Mender server.</p> : null }
           </div>
         }
 
@@ -375,7 +376,7 @@ var Pending =  createReactClass({
               data-tip
               data-for='expand-auth-tip'
               data-event='click focus'
-              style={{left:"10%"}}>
+              style={{left:"10%", top:"140px"}}>
               <FontIcon className="material-icons">help</FontIcon>
             </div>
             <ReactTooltip
@@ -415,7 +416,8 @@ var Pending =  createReactClass({
                 className={this.props.highlightHelp ? "tooltip help highlight" : "tooltip help"}
                 data-tip
                 data-for='auth-button-tip'
-                data-event='click focus'>
+                data-event='click focus'
+                style={{left:"87%",top:"148px"}}>
                 <FontIcon className="material-icons">help</FontIcon>
               </div>
               <ReactTooltip

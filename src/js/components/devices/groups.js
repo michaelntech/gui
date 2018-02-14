@@ -60,14 +60,14 @@ var Groups = createReactClass({
 
           <ListItem 
             leftIcon={createBtn}
-            disabled={!this.props.allCount}
+            disabled={!this.props.acceptedCount}
             primaryText="Create a group"
-            style={this.props.allCount ? null : {color:"#d4e9e7"}}
-            onClick={this.props.allCount ? this.dialogToggle : null} />
+            style={this.props.acceptedCount ? null : {color:"#d4e9e7"}}
+            onClick={this.props.acceptedCount ? this.dialogToggle : null} />
         </List>
 
 
-        { this.props.showHelptips && this.props.allCount && !this.props.groups.length ?
+        { this.props.showHelptips && this.props.acceptedCount && !this.props.groups.length ?
           <div>
             <div 
               id="onboard-5"

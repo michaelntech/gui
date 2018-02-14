@@ -5,7 +5,7 @@ import { Motion, spring } from 'react-motion';
 import Collapse from 'react-collapse';
 import ReactHeight from 'react-height';
 import ReactTooltip from 'react-tooltip';
-import { AuthDevices, ExpandAuth, AuthButton } from '../helptips/helptooltips';
+import { ExpandDevice } from '../helptips/helptooltips';
 var Loader = require('../common/loader');
 var AppActions = require('../../actions/app-actions');
 var ExpandedDevice = require('./expanded-device');
@@ -57,11 +57,9 @@ var Authorized =  createReactClass({
       this.setState({textfield: this.props.group ? decodeURIComponent(this.props.group) : "All devices"});
     }
 
-    if (prevProps.paused !== this.props.paused) {
+    if ((prevProps.paused !== this.props.paused) && this.state.device) {
       this._setDeviceDetails(this.state.device);
     }
-
- 
   },
 
 
@@ -358,6 +356,29 @@ var Authorized =  createReactClass({
               </TableBody>
             </Table>
 
+            { this.props.showHelptips && this.props.devices.length ?
+              <div>
+                <div 
+                  id="onboard-6"
+                  className="tooltip help"
+                  data-tip
+                  data-for='expand-device-tip'
+                  data-event='click focus'
+                  style={{left: "inherit", right:"45px"}}>
+                  <FontIcon className="material-icons">help</FontIcon>
+                </div>
+                <ReactTooltip
+                  id="expand-device-tip"
+                  globalEventOff='click'
+                  place="left"
+                  type="light"
+                  effect="solid"
+                  className="react-tooltip">
+                  <ExpandDevice />
+                </ReactTooltip>
+              </div>
+            : null }
+
           </div>
           </div>
 
@@ -370,30 +391,6 @@ var Authorized =  createReactClass({
             {!this.props.allCount ? <p>No devices have been authorized to connect to the Mender server yet.</p> : null}
           </div>
         }
-
-
-        { this.props.showHelptips && this.props.devices.length ?
-          <div>
-            <div 
-              id="onboard-3"
-              className="tooltip help"
-              data-tip
-              data-for='expand-auth-tip'
-              data-event='click focus'
-              style={{left:"10%"}}>
-              <FontIcon className="material-icons">help</FontIcon>
-            </div>
-            <ReactTooltip
-              id="expand-auth-tip"
-              globalEventOff='click'
-              place="bottom"
-              type="light"
-              effect="solid"
-              className="react-tooltip">
-              <ExpandAuth />
-            </ReactTooltip>
-          </div>
-        : null }
 
         <div>
 
@@ -413,27 +410,6 @@ var Authorized =  createReactClass({
 
         : null }
 
-          { this.props.showHelptips && this.props.devices.length ?
-            <div>
-              <div 
-                id="onboard-4"
-                className={this.props.highlightHelp ? "tooltip help highlight" : "tooltip help"}
-                data-tip
-                data-for='auth-button-tip'
-                data-event='click focus'>
-                <FontIcon className="material-icons">help</FontIcon>
-              </div>
-              <ReactTooltip
-                id="auth-button-tip"
-                globalEventOff='click'
-                place="bottom"
-                type="light"
-                effect="solid"
-                className="react-tooltip">
-                <AuthButton devices={this.props.devices.length} />
-              </ReactTooltip>
-            </div>
-          : null }
         </div>
 
 

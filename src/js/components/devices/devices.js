@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import { setRetryTimer, clearRetryTimer, clearAllRetryTimers } from '../../utils/retrytimer';
+import { DevicesNav } from '../helptips/helptooltips';
 
 var createReactClass = require('create-react-class');
 var DeviceGroups = require('./device-groups');
@@ -33,6 +34,7 @@ var Devices = createReactClass({
 			pendingCount: AppStore.getTotalPendingDevices(),
 			snackbar: AppStore.getSnackbar(),
       refreshLength: 10000,
+      showHelptips: AppStore.showHelptips(),
 		};
 	},
 
@@ -326,7 +328,18 @@ var Devices = createReactClass({
             onActive={tabHandler}
             style={styles.tabStyle}>
 
-				    <DeviceGroups params={this.props.params} rejectOrDecomm={this._openRejectDialog} styles={styles} paused={this.state.pauseAdmisson} rejectedDevices={this.state.rejectedCount} acceptedDevices={this.state.acceptedCount} allCount={this.state.allCount} currentTab={this.state.currentTab} snackbar={this.state.snackbar} rejectDevice={this._rejectDevice} />
+				    <DeviceGroups 
+              params={this.props.params}
+              rejectOrDecomm={this._openRejectDialog}
+              styles={styles} 
+              paused={this.state.pauseAdmisson} 
+              rejectedDevices={this.state.rejectedCount} 
+              acceptedDevices={this.state.acceptedCount} 
+              allCount={this.state.allCount} 
+              currentTab={this.state.currentTab} 
+              snackbar={this.state.snackbar} 
+              rejectDevice={this._rejectDevice}
+              showHelptips={this.state.showHelptips} />
 		      </Tab>
 			    <Tab
             label={pendingLabel}
@@ -334,7 +347,16 @@ var Devices = createReactClass({
             onActive={tabHandler}
             style={styles.tabStyle}>
 
-						<PendingDevices styles={styles} currentTab={this.state.currentTab} snackbar={this.state.snackbar} disabled={this.state.pauseAdmisson} authorizeDevices={this._authorizeDevices} count={this.state.pendingCount} rejectDevice={this._handleRejectDevice} />
+						<PendingDevices 
+              styles={styles} 
+              currentTab={this.state.currentTab}
+              snackbar={this.state.snackbar} 
+              disabled={this.state.pauseAdmisson} 
+              authorizeDevices={this._authorizeDevices} 
+              count={this.state.pendingCount} 
+              rejectDevice={this._handleRejectDevice}
+              showHelptips={this.state.showHelptips}
+              highlightHelp={!this.state.acceptedCount} />
 					</Tab>
 
 
@@ -404,6 +426,28 @@ var Devices = createReactClass({
 		          </div>
 		        </Dialog>
 
+
+            { !this.state.acceptedCount && this.state.showHelptips && this.state.tabIndex!=="/devices/pending" ?
+            <div>
+              <div
+                id="onboard-15"
+                className="tooltip help highlight"
+                data-tip
+                data-for='devices-nav-tip'
+                data-event='click focus'
+                style={{left: "14%", top:"40px"}}>
+                <FontIcon className="material-icons">help</FontIcon>
+              </div>
+              <ReactTooltip
+                id="devices-nav-tip"
+                globalEventOff='click'
+                place="bottom"
+                type="light"
+                effect="solid"
+                className="react-tooltip">
+                <DevicesNav devices={this.state.pendingCount} />
+              </ReactTooltip>
+            </div> : null }
 
 			</div>
 

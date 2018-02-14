@@ -99,7 +99,7 @@ var DevicesNav = createReactClass({
         { this.props.devices ? 
           <div>
         <p>There {this.props.devices === 1 ? "is a device" : "are devices"} waiting to be connected to the Mender server. Before you can manage any deployments, you must first authorize devices that are requesting to join.</p>
-        <p>Go to the <Link to={`/devices/pending`}>Devices tab</Link> to add devices to the server.</p></div>
+        <p>Go to the <Link to={`/devices/pending`}>Pending devices tab</Link> to add devices to the server.</p></div>
         : 
         <div>
         <p>There aren't any devices connected yet.</p>
@@ -191,7 +191,7 @@ var CreateDeployment = createReactClass({
         : this.props.devices ? 
         <p>You're not quite ready to make your first deployment yet - you have {this.props.devices===1 ? "a device" : "devices"} connected to the server, but no Artifact uploaded. Go to the <Link to={`/artifacts`}>Artifacts tab</Link>.</p>
         :
-        <p>You're not quite ready to make your first deployment yet - there are no devices connected to the server. Go to the <Link to={`/devices`}>Devices tab</Link>.</p>
+        <p>You're not quite ready to make your first deployment yet - there are no devices connected to the server. Go to the <Link to={`/devices`}>Pending devices tab</Link>.</p>
         }
         <p><a className="hidehelp" onClick={toggleHelptips}>Hide all help tips</a></p>
       </div>

@@ -35,7 +35,7 @@ var CreateGroup = createReactClass({
 
   componentDidUpdate: function(prevProps, prevState) {
     if (prevProps.open!==this.props.open) {
-      this.getInitialState();
+      this.setState(this.getInitialState());
     }
   },
 
@@ -57,6 +57,9 @@ var CreateGroup = createReactClass({
 
   _createGroupHandler: function() {
     var self = this;
+    if (!this.state.user) {
+      this.setState({user: AppStore.getCurrentUser()});
+    }
     var seenWarning = cookie.load(this.state.user.id+'-groupHelpText');
     // if another group exists, check for warning message cookie
     if (this.props.groups.length && !seenWarning) {
@@ -126,6 +129,7 @@ var CreateGroup = createReactClass({
 
 
   _handleCheckBox: function(event, isChecked) {
+    var self = this;
     this.setState({isChecked: isChecked});
       if (isChecked) {
         cookie.save(self.state.user.id+'-groupHelpText', true);

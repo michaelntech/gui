@@ -300,7 +300,11 @@ var DeviceGroups = createReactClass({
 	          // reached end of list
 	          self.setState({createGroupDialog: false, addGroup: false, tmpGroup: "", selectedField:""});
 	          AppActions.setSnackbar("The group was updated successfully");
-	          self._handleGroupChange(group, self.state.groupDevices[group]+length);
+	          self._refreshGroups();
+	          setTimeout(function() {
+	          	self._handleGroupChange(group, self.state.groupDevices[group]+length);
+	          },300);
+	          
 	        }
 	      },
 	      error: function(err) {

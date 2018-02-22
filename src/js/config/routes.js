@@ -37,7 +37,7 @@ function noRequireAuth(nextState, replace) {
 module.exports = (
   <Route path="/" component={App}>
     <IndexRoute component={Dashboard} onEnter={requireAuth} />
-    <Route path="/devices" component={Devices} onEnter={requireAuth} >
+    <Route path="devices" component={Devices} onEnter={requireAuth} >
       <Route path="(:tab)">
         <Route path="(:group)">
           <Route path="(:filters)" />

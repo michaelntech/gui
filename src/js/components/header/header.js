@@ -203,7 +203,6 @@ var Header = createReactClass({
   },
   changeTab: function() {
     this._checkHeaderInfo();
-    //this.props.changeTab(this.context.location.pathname);
     AppActions.setSnackbar("");
   },
   _handleHeaderMenu: function(event, index, value) {

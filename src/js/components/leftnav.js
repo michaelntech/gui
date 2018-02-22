@@ -12,11 +12,21 @@ var listItems = [
 ];
 
 var LeftNav = createReactClass({
+	getInitialState() {
+		return {
+			currentTab: this.props.currentTab
+		};
+	},
+
+	_changeTab: function(route) {
+		this.setState({currentTab: route});
+		this.props.changeTab(route);
+	},
 
 	render: function() {
 		var self = this;
 
-		var tab = self.props.currentTab || "/";
+		var tab = self.state.currentTab || "/";
 	
     var list = listItems.map(function(item, index) {
     	var borderTop = index===0 ? "none !important" : "1px solid #eaf4f3"; 
@@ -27,7 +37,7 @@ var LeftNav = createReactClass({
             key={index}
             style={style}
             primaryText={item.text}
-            onClick={self.props.changeTab.bind(null, item.route)}
+            onClick={self._changeTab.bind(null, item.route)}
             innerDivStyle={{padding:"22px 16px 22px 42px"}} />
        )
     });

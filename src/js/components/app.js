@@ -16,16 +16,7 @@ var AppStore = require('../stores/app-store');
 var AppActions = require('../actions/app-actions');
 
 var createReactClass = require('create-react-class');
-var isDemoMode = true;
-
-
-function getState() {
-  return {
-    currentUser: AppStore.getCurrentUser(),
-    uploadInProgress: AppStore.getUploadInProgress(),
-    timeout: 900000, // 15 minutes idle time
-  }
-}
+var isDemoMode = false;
 
 var App = createReactClass({
   childContextTypes: {
@@ -40,7 +31,12 @@ var App = createReactClass({
     };
   },
   getInitialState: function() {
-    return getState();
+    return {
+      currentUser: AppStore.getCurrentUser(),
+      uploadInProgress: AppStore.getUploadInProgress(),
+      timeout: 900000, // 15 minutes idle time,
+      currentTab: this._updateActive(),
+    }
   },
   componentWillMount: function() {
     AppStore.changeListener(this._onChange);
@@ -53,7 +49,7 @@ var App = createReactClass({
     AppStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
-    this.setState(getState());
+    this.setState(this.getInitialState());
   },
   _onIdle: function() {
     if (expirySet()) {
@@ -68,9 +64,18 @@ var App = createReactClass({
   },
   _changeTab: function(tab) {
     this.context.router.push(tab);
+    this.setState({currentTab: this._updateActive()});
   },
-  render: function() {
+  _updateActive: function() {
+    return this.context.router.isActive({ pathname: '/' }, true) ? '/' :
+      this.context.router.isActive('/devices') ? '/devices' :
+      this.context.router.isActive('/artifacts') ? '/artifacts' :
+      this.context.router.isActive('/deployments') ? '/deployments' :
+      this.context.router.isActive('/help') ? '/help' :
+      this.context.router.isActive('/settings') ? '/settings' : '';
+  },
 
+  render: function() {
     return (
       <IdleTimer
         ref="idleTimer"
@@ -81,10 +86,10 @@ var App = createReactClass({
 
         <div className="wrapper">
           <div className="header">
-            <Header currentTab={this.props.location.pathname} demo={isDemoMode} history={this.props.history} isLoggedIn={(this.state.currentUser||{}).hasOwnProperty("email")} />
+            <Header currentTab={this.state.currentTab} demo={isDemoMode} history={this.props.history} isLoggedIn={(this.state.currentUser||{}).hasOwnProperty("email")} />
           </div>
           <div className="leftFixed leftNav">
-            <LeftNav currentTab={this.props.location.pathname} changeTab={this._changeTab} />
+            <LeftNav currentTab={this.state.currentTab} changeTab={this._changeTab} />
           </div>
           <div className="rightFluid container">
             {React.cloneElement(this.props.children, { isLoggedIn:(this.state.currentUser||{}).hasOwnProperty("email") })}

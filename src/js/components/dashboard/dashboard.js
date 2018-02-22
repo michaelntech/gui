@@ -173,9 +173,9 @@ var Dashboard = createReactClass({
 
           </div>
         </div>
-        <div className="leftDashboard">
-          <Deployments loadingActive={!this.state.doneActiveDepsLoading} loadingRecent={!this.state.donePastDepsLoading} clickHandle={this._handleClick} progress={this.state.progress} recent={this.state.recent} />
-        </div>
+      
+        <Deployments loadingActive={!this.state.doneActiveDepsLoading} loadingRecent={!this.state.donePastDepsLoading} clickHandle={this._handleClick} progress={this.state.progress} recent={this.state.recent} />
+        
         <Snackbar
           open={this.state.snackbar.open}
           message={this.state.snackbar.message}

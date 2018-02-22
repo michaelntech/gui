@@ -7,7 +7,16 @@ html {
   min-width: 1200px;
 }
 body {
-  min-height: 100%;
+  height: 100%;
+  background-color: #ffffff;
+}
+
+#main {
+  height: 100%;
+}
+
+.wrapper {
+  height: 100%;
 }
 
 * {
@@ -49,11 +58,13 @@ a.warning:hover {
 }
 
 .full-screen {
-  position: absolute;
+  position: fixed;
   top:0;
   bottom:0;
   left:0;
   right: 0;
+  z-index: 100;
+  background-color: #ffffff;
 }
 
 
@@ -233,9 +244,6 @@ a, span.link {
 
 #header-nav {
   position: relative;
-  border-top: 1px solid #e0e0e0;
-  padding-right: 30%;
-  background-color: @lightestgrey;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -347,6 +355,16 @@ a, span.link {
     margin-right: -260px;
     padding-top: 20px;
   }
+
+  &.leftNav {
+    width: 198px;
+    margin-right: -198px;
+    position: absolute;
+    top: 57px;
+    bottom: 0;
+    background-color: @lightestgrey;
+    border-right: 1px solid @lightergrey;
+  }
 }
 
 .rightFluid {
@@ -354,8 +372,13 @@ a, span.link {
   padding-bottom: 30px;
   padding-left: 30px;
   position: relative;
-  border-left: 1px solid @lightestgrey;
   min-height: 75vh;
+
+  &.container {
+    margin-left: 198px;
+    padding-top: 30px;
+    background-color: #ffffff;
+  }
 }
 
 .tableActions {
@@ -769,12 +792,6 @@ table thead.clickable tr>th:first-child {
   font-size: 13px;
   font-weight: 500;
 }
-
-.tabContainer, .contentContainer {
-  margin: 30px 45px 60px;
-  position: relative;
-}
-
 
 /*  hint.css tooltips */
 [class*=hint--] {

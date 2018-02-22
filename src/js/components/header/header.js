@@ -34,17 +34,12 @@ var styles = {
   tabs: {
     backgroundColor: "#f7f7f7",
     color: "#414141"
-  },
-  inkbar: {
-    backgroundColor: "#7D3F69",
-    marginTop: "0"
   }
 };
 
 var Header = createReactClass({
   getInitialState: function() {
     return {
-      tabIndex: this._updateActive(),
       sessionId: cookie.load('JWT'),
       user: AppStore.getCurrentUser(),
       showHelptips: AppStore.showHelptips(),
@@ -59,9 +54,6 @@ var Header = createReactClass({
   },
   componentWillMount: function() {
     AppStore.changeListener(this._onChange);
-  },
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({tabIndex: this._updateActive()});
   },
   componentWillUnmount: function() {
     AppStore.removeChangeListener(this._onChange);
@@ -209,19 +201,9 @@ var Header = createReactClass({
     }
 
   },
-  _updateActive: function() {
-    return this.context.router.isActive({ pathname: '/' }, true) ? '/' :
-      this.context.router.isActive('/devices') ? '/devices' :
-      this.context.router.isActive('/artifacts') ? '/artifacts' :
-      this.context.router.isActive('/deployments') ? '/deployments' :
-      this.context.router.isActive('/help') ? '/help' :
-      this.context.router.isActive('/settings') ? '/settings' : '';
-  },
-  _handleTabActive: function(tab) {
-    this.context.router.push(tab.props.value);
-  },
   changeTab: function() {
     this._checkHeaderInfo();
+    //this.props.changeTab(this.context.location.pathname);
     AppActions.setSnackbar("");
   },
   _handleHeaderMenu: function(event, index, value) {
@@ -382,10 +364,10 @@ var Header = createReactClass({
 
 
           <Tabs
-            value={this.state.tabIndex}
-            inkBarStyle={styles.inkbar}
+            value={this.props.currentTab}
             onChange={this.changeTab}
-            tabItemContainerStyle={{backgroundColor:"inherit"}}>
+            tabItemContainerStyle={{display: "none"}}
+            inkBarStyle={{display: "none"}}>
             {menu}
           </Tabs>
         </div>

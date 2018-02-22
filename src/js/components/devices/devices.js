@@ -315,7 +315,7 @@ var Devices = createReactClass({
 	    var pendingLabel = this.state.pendingCount ? "Pending (" + this.state.pendingCount + ")" : "Pending";
 
 		return (
-			<div className="contentContainer" style={{marginTop: "10px"}}>
+			<div style={{marginTop: "10px"}}>
 
 		    <Tabs
           value={this.state.tabIndex}

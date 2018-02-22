@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Router, Route, Link } from 'react-router';
 import Header from './header/header';
+import LeftNav from './leftnav';
 
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import RawTheme from '../themes/mender-theme.js';
@@ -14,7 +16,7 @@ var AppStore = require('../stores/app-store');
 var AppActions = require('../actions/app-actions');
 
 var createReactClass = require('create-react-class');
-var isDemoMode = false;
+var isDemoMode = true;
 
 
 function getState() {
@@ -64,7 +66,11 @@ var App = createReactClass({
       }
     }
   },
+  _changeTab: function(tab) {
+    this.context.router.push(tab);
+  },
   render: function() {
+
     return (
       <IdleTimer
         ref="idleTimer"
@@ -75,9 +81,12 @@ var App = createReactClass({
 
         <div className="wrapper">
           <div className="header">
-            <Header demo={isDemoMode} history={this.props.history} isLoggedIn={(this.state.currentUser||{}).hasOwnProperty("email")} />
+            <Header currentTab={this.props.location.pathname} demo={isDemoMode} history={this.props.history} isLoggedIn={(this.state.currentUser||{}).hasOwnProperty("email")} />
           </div>
-          <div className="container">
+          <div className="leftFixed leftNav">
+            <LeftNav currentTab={this.props.location.pathname} changeTab={this._changeTab} />
+          </div>
+          <div className="rightFluid container">
             {React.cloneElement(this.props.children, { isLoggedIn:(this.state.currentUser||{}).hasOwnProperty("email") })}
           </div>
         </div>
@@ -85,5 +94,11 @@ var App = createReactClass({
     )
   }
 });
+
+App.contextTypes = {
+  router: PropTypes.object,
+  location: PropTypes.object,
+};
+
 
 module.exports = App;

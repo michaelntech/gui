@@ -4,11 +4,13 @@ import Time from 'react-time';
 import Collapse from 'react-collapse';
 var createReactClass = require('create-react-class');
 import ReactTooltip from 'react-tooltip';
+import { AuthButton } from '../helptips/helptooltips';
 import PropTypes from 'prop-types';
 
 var AppStore = require('../../stores/app-store');
 var AppActions = require('../../actions/app-actions');
 var ScheduleForm = require('../deployments/scheduleform');
+var Authsets = require('./authsets');
 var Loader = require('../common/loader');
 import cookie from 'react-cookie';
 import copy from 'copy-to-clipboard';
@@ -37,6 +39,7 @@ var ExpandedDevice = createReactClass({
         text: ''
       },
       schedule: false,
+      authsets: false,
       artifacts: AppStore.getArtifactsRepo(),
       user: AppStore.getCurrentUser(),
     };
@@ -81,6 +84,11 @@ var ExpandedDevice = createReactClass({
     this.dialogToggle('schedule');
   },
 
+  _showAuthsets: function() {
+    AppActions.setSnackbar("");
+    this.dialogToggle('authsets');
+  },
+
   _onScheduleSubmit: function() {
     var self = this;
     var newDeployment = {
@@ -117,18 +125,6 @@ var ExpandedDevice = createReactClass({
     }
     AppActions.createDeployment(newDeployment, callback);
     this.dialogToggle('schedule');
-  },
-  _handleAccept: function(accept) {
-    // if previously rejected, set 'accept' to true in order for device to be handled by devauth api
-    // otherwise, handled by devadmn api
-    if (!this.props.disabled) {
-      this.props.accept([this.props.device], accept);
-    }
-  },
-  _handleReject: function(status) {
-    // if previously rejected, set 'remove' to true in order for device to be handled by devauth api
-    // otherwise, handled by devadmn api
-    this.props.rejectOrDecomm(this.props.device, status);
   },
 
   _handleStopProp: function(e) {
@@ -243,32 +239,50 @@ var ExpandedDevice = createReactClass({
       deviceInventory2 = deviceInventory.splice((deviceInventory.length/2)+(deviceInventory.length%2),deviceInventory.length);
     }
 
-    var decommission = (status === "accepted" || status === "rejected") ? (
-        <ListItem
-          key="decommissionButton"
-          style={this.props.styles.listButtonStyle}
-          primaryText={"Authorization status: " + status}
-          secondaryText={status === "accepted" ? "Reject or decommission this device?" : "Authorize or decommission this device?"}
-          onClick={this._handleReject.bind(null, status)}
-          leftIcon={<FontIcon className={status === "accepted" ? "material-icons green" : "material-icons"} style={{margin: "12px 0 12px 12px"}}>{status === "accepted" ? "check_circle" : "block" }</FontIcon>} />
-    ) : null;
-    deviceIdentity.push(decommission);
+    var statusIcon = "";
+    switch (status) {
+      case "accepted":
+        statusIcon = (<FontIcon className="material-icons green" style={{margin: "12px 0 12px 12px"}}>check_circle</FontIcon>)
+        break;
+      case "pending":
+        statusIcon = (<div className="pending-icon" style={{margin: "12px 0 12px 12px"}}></div>)
+        break;
+      case "rejected":
+        statusIcon = (<FontIcon className="material-icons red" style={{margin: "12px 0 12px 12px"}}>block</FontIcon>)
+        break;
+    }
+
+    var formatStatus = (
+      <span className="text-color">
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
 
     var deviceInfo = (
       <div key="deviceinfo">
 
-        <div id="device-key" className="report-list" style={{width:"100%", display: "block"}}>
-          <h4 className="margin-bottom-none">Device public key</h4>
-          <List className="list-horizontal-display">
-            <ListItem style={this.props.styles.listStyle} className={this.props.showKey ? "key" : ""} onClick={this.props._showKey} primaryText="Key" secondaryText={this.props.device.key} secondaryTextLines={1} />
-          </List>
-        </div>
-
-
-        <div id="device-identity" className="report-list">
+        <div id="device-identity" className="report-list bordered">
           <h4 className="margin-bottom-none">Device identity</h4>
           <List className="list-horizontal-display">
             {deviceIdentity}
+          </List>
+
+          <List className="block list-horizontal-display">
+            <ListItem
+              key="statusButton"
+              disabled={true}
+              style={this.props.styles.listButtonStyle}
+              primaryText={"Device status"}
+              secondaryText={formatStatus}
+              leftIcon={statusIcon} />
+
+            <ListItem
+              key="authsetsButton"
+              disabled={false}
+              style={this.props.styles.listButtonStyle}
+              primaryText={"Accept, reject or dismiss the device?"}
+              secondaryText={"Click to adjust authorization status for this device"}
+              onClick={this._showAuthsets} />
           </List>
         </div>
 
@@ -328,9 +342,83 @@ var ExpandedDevice = createReactClass({
         ref="save" />
     ];
 
+
+    var authsetActions =  [
+      <div style={{marginRight:"10px", display:"inline-block"}}>
+        <FlatButton
+          label="Cancel"
+          onClick={this.dialogToggle.bind(null, 'authsets')} />
+      </div>
+    ];
+
+    var fakeDevice = {
+      "id": "00001",
+      "identity_data": {
+        "application/json": {
+          "mac": "00:01:02:03:04:05",
+          "sku": "My Device 1",
+          "sn": "SN1234567890"
+        }
+      },
+      "status": "pending",
+      "created_ts": "2018-10-29T09:25:31.385Z",
+      "updated_ts": "2018-10-29T09:25:31.385Z",
+      "auth_sets": [
+        {
+          "id": "qwertyuiop",
+          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "identity_data": {
+            "application/json": {
+              "mac": "00:01:02:03:04:05",
+              "sku": "My Device 1",
+              "sn": "SN1234567890"
+            }
+          },
+          "status": "rejected",
+          "ts": "2018-10-29T09:25:31.385Z"
+        },
+        {
+          "id": "asdfghjkl",
+          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "identity_data": {
+            "application/json": {
+              "mac": "00:01:02:03:04:05",
+              "sku": "My Device 1",
+              "sn": "SN1234567890"
+            }
+          },
+          "status": "pending",
+          "ts": "2018-10-29T09:25:31.385Z"
+        }
+      ],
+    };
+
     return (
       <div>
         {deviceInfo}
+
+          { this.props.showHelptips && status==="pending" ?
+            <div>
+              <div 
+                id="onboard-4"
+                className={this.props.highlightHelp ? "tooltip help highlight" : "tooltip help"}
+                data-tip
+                data-for='auth-button-tip'
+                data-event='click focus'
+                style={{left:"44%",top:"178px"}}>
+                <FontIcon className="material-icons">help</FontIcon>
+              </div>
+              <ReactTooltip
+                id="auth-button-tip"
+                globalEventOff='click'
+                place="bottom"
+                type="light"
+                effect="solid"
+                className="react-tooltip">
+                <AuthButton devices={[this.props.device]} />
+              </ReactTooltip>
+            </div>
+          : null }
 
         <Dialog
           open={this.state.schedule}
@@ -343,6 +431,19 @@ var ExpandedDevice = createReactClass({
           <ScheduleForm deploymentDevices={[this.props.device]} filteredDevices={this.state.filterByArtifact} deploymentSettings={this._deploymentParams} artifact={this.state.artifact} artifacts={this.state.artifacts} device={this.props.device} deploymentSchedule={this._updateParams} groups={this.props.groups} />
 
         </Dialog>
+
+
+        <Dialog
+          open={this.state.authsets}
+          title='Device authentication sets'
+          autoDetectWindowHeight={true}
+          actions={authsetActions}
+          bodyStyle={{paddingTop:"0", fontSize:"13px"}}
+          contentStyle={{width: "80%", maxWidth: "1500px", overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}
+          >
+          <Authsets device={fakeDevice} id_attribute={this.props.id_attribute}  id_value={this.props.id_value} />
+        </Dialog>
+
 
       </div>
     );

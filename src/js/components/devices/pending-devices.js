@@ -5,7 +5,7 @@ import { Motion, spring } from 'react-motion';
 import Collapse from 'react-collapse';
 import ReactHeight from 'react-height';
 import ReactTooltip from 'react-tooltip';
-import { AuthDevices, ExpandAuth, AuthButton } from '../helptips/helptooltips';
+import { AuthDevices, ExpandAuth } from '../helptips/helptooltips';
 import { Router, Link } from 'react-router';
 var Loader = require('../common/loader');
 var AppActions = require('../../actions/app-actions');
@@ -189,44 +189,30 @@ var Pending =  createReactClass({
     var devices = this.state.devices.map(function(device, index) {
       var self = this;
       var expanded = '';
-      if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice id_attribute={(this.props.globalSettings || {}).id_attribute} _showKey={this._showKey} showKey={this.state.showKey} disabled={!!limitMaxed} styles={this.props.styles} deviceId={self.state.deviceId} device={self.state.expandedDevice} unauthorized={true} selected={[device]}  />
-      }
-      var checkIcon = (self.state.authLoading === index && self.props.disabled) ?
-        (
-          <div className="inline-block">
-            <Loader table={true} waiting={true} show={true} />
-          </div>
-        ) : 
-        (
-          <IconButton disabled={self.props.disabled || !!limitMaxed} onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              self._clearSelected();
-              self._authorizeDevices([device], index);
-            }}>
-              <FontIcon className="material-icons green">check_circle</FontIcon>
-          </IconButton>
-        )
-      ;
-      var deleteIcon = (self.state.rejectLoading === index && self.props.disabled) ?
-        (
-          <div className="inline-block">
-            <Loader table={true} waiting={true} show={true} />
-          </div>
-        ) : 
-        (
-          <IconButton disabled={self.props.disabled} onClick={self._openRejectDialog.bind(null, device, index)}>
-            <FontIcon className="material-icons red">cancel</FontIcon>
-          </IconButton>
-        )
-      ;
 
       var id_attribute  = (self.props.globalSettings.id_attribute && self.props.globalSettings.id_attribute !== "Device ID") 
         ? (device.attributes || {})[self.props.globalSettings.id_attribute]
         : (device.device_id || device.id) ;
+
+
+      if ( self.state.expandRow === index ) {
+        expanded = <ExpandedDevice 
+                    highlightHelp={this.props.highlightHelp}
+                    showHelptips={this.props.showHelptips} 
+                    id_attribute={(this.props.globalSettings || {}).id_attribute} 
+                    id_value={id_attribute}
+                    _showKey={this._showKey} 
+                    showKey={this.state.showKey} 
+                    disabled={!!limitMaxed} 
+                    styles={this.props.styles} 
+                    deviceId={self.state.deviceId} 
+                    device={self.state.expandedDevice} 
+                    unauthorized={true} 
+                    selected={[device]} />
+      }
+     
       return (
-        <TableRow selected={this._isSelected(index)} style={{"backgroundColor": "#e9f4f3"}} className={expanded ? "expand" : null} hoverable={true} key={index}>
+        <TableRow style={{"backgroundColor": "#e9f4f3"}} className={expanded ? "expand" : null} hoverable={true} key={index}>
           <TableRowColumn className="no-click-cell" style={expanded ? {height: this.state.divHeight} : null}>
              <div onClick={(e) => {
               e.preventDefault();
@@ -242,7 +228,16 @@ var Pending =  createReactClass({
               e.stopPropagation();
               self._expandRow(index);
             }}>
-            <Time value={device.request_time} format="YYYY-MM-DD HH:mm" />
+            <Time value={device.created_ts} format="YYYY-MM-DD HH:mm" />
+            </div>
+          </TableRowColumn>
+          <TableRowColumn className="no-click-cell">
+              <div onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              self._expandRow(index);
+            }}>
+            <Time value={device.updated_ts} format="YYYY-MM-DD HH:mm" />
             </div>
           </TableRowColumn>
           <TableRowColumn className="no-click-cell capitalized">
@@ -253,15 +248,7 @@ var Pending =  createReactClass({
             }}>{device.status}
             </div>
           </TableRowColumn>
-          <TableRowColumn className="expandButton" style={{"paddingLeft": "12px", width: "140px"}}>
-            <div onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}>
-              {checkIcon}
-              {deleteIcon}
-            </div>
-          </TableRowColumn>
+
           <TableRowColumn style={{width:"55px", paddingRight:"0", paddingLeft:"12px"}} className="expandButton">
              <div onClick={(e) => {
               e.preventDefault();
@@ -352,22 +339,22 @@ var Pending =  createReactClass({
             <h3 className="align-center">{this.props.count} {pluralize("devices", this.props.count)} pending authorization</h3>
 
             <Table
-              multiSelectable={true}
-              onRowSelection={this._onRowSelection}>
+              selectable={false}>
               <TableHeader
                 className="clickable"
-                enableSelectAll={true}>
+                displaySelectAll={false}
+                adjustForCheckbox={false}>
                 <TableRow>
                   <TableHeaderColumn className="columnHeader" tooltip={(this.props.globalSettings || {}).id_attribute || "Device ID"}>{(this.props.globalSettings || {}).id_attribute || "Device ID"}<FontIcon onClick={this.props.openSettingsDialog} style={{fontSize: "16px"}} color={"#c7c7c7"} hoverColor={"#aeaeae"} className="material-icons hover float-right">settings</FontIcon></TableHeaderColumn>
-                  <TableHeaderColumn className="columnHeader" tooltip="Request time">Time of request</TableHeaderColumn>
+                  <TableHeaderColumn className="columnHeader" tooltip="Request time">First request</TableHeaderColumn>
+                  <TableHeaderColumn className="columnHeader" tooltip="Request time">Last updated</TableHeaderColumn>
                   <TableHeaderColumn className="columnHeader" tooltip="Status">Status</TableHeaderColumn>
-                  <TableHeaderColumn className="columnHeader" tooltip="Authorize device?" style={{width:"140px"}}>Authorize?</TableHeaderColumn>
                   <TableHeaderColumn className="columnHeader" style={{width:"55px", paddingRight:"12px", paddingLeft:"0"}}></TableHeaderColumn>
                 </TableRow>
               </TableHeader>
               <TableBody
                 showRowHover={true}
-                deselectOnClickaway={false}
+                displayRowCheckbox={false}
                 className="clickable">
                 {devices}
               </TableBody>
@@ -428,29 +415,6 @@ var Pending =  createReactClass({
             </div>
           </div>
         : null }
-
-          { this.props.showHelptips && this.state.devices.length ?
-            <div>
-              <div 
-                id="onboard-4"
-                className={this.props.highlightHelp ? "tooltip help highlight" : "tooltip help"}
-                data-tip
-                data-for='auth-button-tip'
-                data-event='click focus'
-                style={{left:"87%",top:"178px"}}>
-                <FontIcon className="material-icons">help</FontIcon>
-              </div>
-              <ReactTooltip
-                id="auth-button-tip"
-                globalEventOff='click'
-                place="bottom"
-                type="light"
-                effect="solid"
-                className="react-tooltip">
-                <AuthButton devices={this.state.devices.length} />
-              </ReactTooltip>
-            </div>
-          : null }
 
         </div>
 

@@ -275,3 +275,11 @@ export function calculateStatus(authsets) {
     return "rejected";
   }
 }
+
+
+export function formatTime(date) {
+  if (date) {
+    return date.replace(' ','T').replace(/ /g, '').replace('UTC','');
+  }
+  return;
+}

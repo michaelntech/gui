@@ -157,7 +157,6 @@ var ExpandedDevice = createReactClass({
     AppActions.setSnackbar("Link copied to clipboard");
   },
   render: function() {
-
     var status = this.props.device.status;
 
     var deviceIdentity = [];
@@ -377,7 +376,7 @@ var ExpandedDevice = createReactClass({
       "auth_sets": [
         {
           "id": "qwertyuiop",
-          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "pubkey": "-----BEGIN PUBLIC KEY-----MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xfNavzAgMBAAE=-----END PUBLIC KEY-----",
           "identity_data": {
             "application/json": {
               "mac": "00:01:02:03:04:05",
@@ -390,7 +389,7 @@ var ExpandedDevice = createReactClass({
         },
         {
           "id": "asdfghjkl",
-          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "pubkey": "-----BEGIN PUBLIC KEY-----NGHiihyy355DDSW9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xvhndfhskdiRRWW22=-----END PUBLIC KEY-----",
           "identity_data": {
             "application/json": {
               "mac": "00:01:02:03:04:05",
@@ -403,7 +402,7 @@ var ExpandedDevice = createReactClass({
         },
         {
           "id": "zxcvbnm",
-          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "pubkey": "-----BEGIN PUBLIC KEY-----fRTG21ANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xfNavzAKLDHeff3=-----END PUBLIC KEY-----",
           "identity_data": {
             "application/json": {
               "mac": "00:01:02:03:04:05",
@@ -416,7 +415,7 @@ var ExpandedDevice = createReactClass({
         },
         {
           "id": "plmoknij",
-          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "pubkey": "-----BEGIN PUBLIC KEY-----TNDAncANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xfNajf6649DDDf=-----END PUBLIC KEY-----",
           "identity_data": {
             "application/json": {
               "mac": "00:01:02:03:04:05",

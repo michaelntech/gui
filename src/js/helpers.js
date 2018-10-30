@@ -283,3 +283,9 @@ export function formatTime(date) {
   }
   return;
 }
+
+export function formatPublicKey(key) {
+  key = key.replace("-----BEGIN PUBLIC KEY-----","");
+  key = key.replace("=-----END PUBLIC KEY-----","");
+  return (key.substring(0,15) + " ... "+key.substring(key.length-15));
+}

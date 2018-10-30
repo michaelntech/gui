@@ -3,7 +3,7 @@ var createReactClass = require('create-react-class');
 
 import Time from 'react-time';
 var AppActions = require('../../actions/app-actions');
-import { formatTime } from '../../helpers.js';
+import { formatTime, preformatWithRequestID, formatPublicKey  } from '../../helpers.js';
 import Collapse from 'react-collapse';
 
 // material ui
@@ -60,6 +60,10 @@ var Authsets = createReactClass({
 	setConfirmStatus: function(authset, newStatus, index) {
 		this.setState({expandRow: index, newStatus: newStatus});
 	},
+
+	showKey: function(index) {
+		this.setState({showKey: index});
+	},
 	
 	render: function() {
 		var self = this;
@@ -85,10 +89,20 @@ var Authsets = createReactClass({
 					{authset.status !== "preauthorized" ? <a onClick={self.setConfirmStatus.bind(null, authset, "dismiss", index)}>Dismiss</a> : <span className="bold muted">Dismiss</span> }
 				</div>
 			);
+
+			var key = self.state.showKey === index ? 
+				(
+					<Collapse springConfig={{stiffness: 210, damping: 20}} onHeightReady={self._adjustCellHeight} className="expanded" isOpened={true} style={{whiteSpace: "normal"}}>
+            {authset.pubkey} <a onClick={self.showKey} className="margin-left-small">truncate</a>
+        	</Collapse>
+        )
+        : <span>{formatPublicKey(authset.pubkey)} <a onClick={self.showKey.bind(null, index)} className="margin-left-small">show all</a></span>;
+
+
 			return (
         <TableRow style={{"backgroundColor": "#e9f4f3"}} className={expanded ? "expand" : null} key={index}>
           <TableRowColumn style={expanded ? {height: self.state.divHeight} : null}><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
-          <TableRowColumn style={{width: "450px"}}>{authset.pubkey}</TableRowColumn>
+          <TableRowColumn style={self.state.showKey === index ? {whiteSpace: "normal", width: "400px"} : {width: "400px"}} className={self.state.showKey===index ? "break-word" : "" }>{key}</TableRowColumn>
        		<TableRowColumn className="capitalized">{authset.status}</TableRowColumn>
           <TableRowColumn>
           	{actionButtons}
@@ -113,7 +127,7 @@ var Authsets = createReactClass({
 			return (
         <TableRow key={index}>
           <TableRowColumn><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
-          <TableRowColumn style={{width: "450px"}}>{authset.pubkey}</TableRowColumn>
+          <TableRowColumn style={{width: "400px"}}>{formatPublicKey(authset.pubkey)} <a className="margin-left-small">show all</a></TableRowColumn>
        		<TableRowColumn className="capitalized">{authset.status}</TableRowColumn>
           <TableRowColumn>{actionButtons}</TableRowColumn>
         </TableRow>
@@ -131,7 +145,7 @@ var Authsets = createReactClass({
 		          adjustForCheckbox={false}>
 		          <TableRow>
 		            <TableHeaderColumn>Request time</TableHeaderColumn>
-		            <TableHeaderColumn style={{width: "450px"}}>Public key</TableHeaderColumn>
+		            <TableHeaderColumn style={{width: "400px"}}>Public key</TableHeaderColumn>
 		            <TableHeaderColumn>Status</TableHeaderColumn>
 		            <TableHeaderColumn>Actions</TableHeaderColumn>
 		            <TableHeaderColumn className="columnHeader" style={{width:"0px", paddingRight:"0", paddingLeft:"0"}}></TableHeaderColumn>
@@ -157,7 +171,7 @@ var Authsets = createReactClass({
 		          style={this.state.active.length ? {display:"none"} : {}}>
 		          <TableRow>
 		            <TableHeaderColumn>Request time</TableHeaderColumn>
-		            <TableHeaderColumn style={{width: "450px"}}>Public key</TableHeaderColumn>
+		            <TableHeaderColumn style={{width: "400px"}}>Public key</TableHeaderColumn>
 		            <TableHeaderColumn>Status</TableHeaderColumn>
 		            <TableHeaderColumn>Actions</TableHeaderColumn>
 		          </TableRow>

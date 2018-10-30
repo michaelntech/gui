@@ -348,7 +348,7 @@ var Preauthorize =  createReactClass({
 
 
       return (
-        <TableRow selected={this._isSelected(index)} className={expanded ? "expand" : null} hoverable={true} key={index}>
+        <TableRow className={expanded ? "expand" : null} hoverable={true} key={index}>
           <TableRowColumn className="no-click-cell" style={expanded ? {height: this.state.divHeight} : null}>
              <div onClick={(e) => {
               e.preventDefault();
@@ -373,13 +373,6 @@ var Preauthorize =  createReactClass({
               e.stopPropagation();
               self._expandRow(index);
             }}>{device.status}
-            </div>
-          </TableRowColumn>
-          <TableRowColumn style={{width:"120px"}} className="no-click-cell capitalized">
-            <div onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}><a onClick={this._openRemoveDialog.bind(null, [device])}>Remove</a>
             </div>
           </TableRowColumn>
           <TableRowColumn style={{width:"55px", paddingRight:"0", paddingLeft:"12px"}} className="expandButton">
@@ -435,19 +428,7 @@ var Preauthorize =  createReactClass({
         secondary={true} />
     ];
 
-    var removeActions =  [
-      <div style={{marginRight:"10px", display:"inline-block"}}>
-        <FlatButton
-          label="Cancel"
-          onClick={this._dialogToggle.bind(null, "openRemove")} />
-      </div>,
-      <RaisedButton
-        label="Remove"
-        onClick={this._removePreauth}
-        secondary={true}
-        icon={<FontIcon style={{marginTop:"-4px"}} className="material-icons">cancel</FontIcon>} />
-    ];
-
+  
     var inputs = this.state.inputs.map(function(input, index) {
       var self = this;
       return (
@@ -476,22 +457,21 @@ var Preauthorize =  createReactClass({
             <h3 className="align-center">Preauthorized devices</h3>
 
             <Table
-              multiSelectable={true}
-              onRowSelection={this._onRowSelection}>
+              selectable={false}>
               <TableHeader
                 className="clickable"
-                enableSelectAll={true}>
+                displaySelectAll={false}
+                adjustForCheckbox={false}>>
                 <TableRow>
                   <TableHeaderColumn className="columnHeader" tooltip={(this.props.globalSettings || {}).id_attribute || "Device ID"}>{(this.props.globalSettings || {}).id_attribute || "Device ID"}<FontIcon onClick={this.props.openSettingsDialog} style={{fontSize: "16px"}} color={"#c7c7c7"} hoverColor={"#aeaeae"} className="material-icons hover float-right">settings</FontIcon></TableHeaderColumn>
                   <TableHeaderColumn className="columnHeader" tooltip="Request time">Date added</TableHeaderColumn>
                   <TableHeaderColumn className="columnHeader" tooltip="Status">Status</TableHeaderColumn>
-                  <TableHeaderColumn className="columnHeader" style={{width:"120px"}} tooltip="Remove">Remove</TableHeaderColumn>
                   <TableHeaderColumn className="columnHeader" style={{width:"55px", paddingRight:"12px", paddingLeft:"0"}}></TableHeaderColumn>
                 </TableRow>
               </TableHeader>
               <TableBody
                 showRowHover={true}
-                deselectOnClickaway={false}
+                displayRowCheckbox={false}
                 className="clickable">
                 {devices}
               </TableBody>
@@ -512,24 +492,6 @@ var Preauthorize =  createReactClass({
           </div>
         }
 
-        <div>
-
-        { this.state.selectedRows.length ? 
-          <div className="fixedButtons">
-            <div className="float-right">
-
-              <div style={{width:"100px", top:"7px", position:"relative"}} className={this.props.disabled ? "inline-block" : "hidden"}>
-                <Loader table={true} waiting={true} show={true} />
-              </div>
-
-              <span className="margin-right">{this.state.selectedRows.length} {pluralize("devices", this.state.selectedRows.length)} selected</span>
-              <RaisedButton primary={true} label={"Remove " + this.state.selectedRows.length +" " + pluralize("devices", this.state.selectedRows.length)} onClick={this._removeBatch} />
-            </div>
-          </div>
-        : null }
-
-
-        </div>
 
         <Dialog
           open={this.state.openPreauth}
@@ -568,34 +530,6 @@ var Preauthorize =  createReactClass({
            {deviceLimitWarning}
         </Dialog>
 
-
-        <Dialog
-          open={this.state.openRemove}
-          title={'Remove '+pluralize("this", this.state.devicesToRemove.length)+' '+ pluralize("device", this.state.devicesToRemove.length)}
-          actions={removeActions}
-          autoDetectWindowHeight={true}
-          bodyStyle={{paddingTop:"0", fontSize:"13px"}}
-          contentStyle={{overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}
-          >
-          {this.state.devicesToRemove.length>1 ? 
-
-            <div>
-              <p>
-                {this.state.devicesToRemove.length} device identity data set + public key combinations will be removed from the preauthorization list. Are you sure?
-              </p>
-            </div>
-
-            : 
-
-            <div>
-              <ListItem className="margin-bottom-small" style={this.props.styles.listStyle} disabled={true} primaryText="Device ID" secondaryText={(this.state.devicesToRemove[0]||{}).device_id}  />
-              <p>
-                This device identity data set and public key will be removed from the preauthorization list. Are you sure?
-              </p>
-            </div>
-          }
-          
-        </Dialog>
 
       </Collapse>
     );

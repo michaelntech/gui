@@ -39,33 +39,55 @@ var Authsets = createReactClass({
 		}
 		self.setState({active: active, inactive: inactive});
 	},
+
+	updateAuthset: function(authset, newStatus) {
+		console.log("Updating authset to " + newStatus);
+	},
+
+	deleteAuthset: function(authset) {
+		console.log("dismissing! If this is only one, close dialog?");
+	},
 	
 	render: function() {
-
+		var self = this;
 		var activeList = this.state.active.map(function(authset, index) {
+			var actionButtons = (
+				<div className="actionButtons">
+					{authset.status !== "accepted" ? <a onClick={self.updateAuthset.bind(null, authset, "accept")}>Accept</a> : <span className="bold muted">Accept</span> }
+					{authset.status !== "rejected" ? <a onClick={self.updateAuthset.bind(null, authset, "reject")}>Reject</a> : <span className="bold muted">Reject</span> }
+					<a onClick={self.deleteAuthset.bind(null, authset)}>Dismiss</a>
+				</div>
+			);
 			return (
         <TableRow style={{"backgroundColor": "#e9f4f3"}} key={index}>
-          <TableRowColumn ><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
+          <TableRowColumn><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
           <TableRowColumn style={{width: "450px"}}>{authset.pubkey}</TableRowColumn>
        		<TableRowColumn className="capitalized">{authset.status}</TableRowColumn>
-          <TableRowColumn >Action buttons</TableRowColumn>
+          <TableRowColumn>{actionButtons}</TableRowColumn>
         </TableRow>
       )
 		});
 
 		var inactiveList = this.state.inactive.map(function(authset, index) {
+			var actionButtons = (
+				<div className="actionButtons">
+					{authset.status !== "accepted" ? <a onClick={self.updateAuthset.bind(null, authset, "accept")}>Accept</a> : <span className="bold muted">Accept</span> }
+					{authset.status !== "rejected" ? <a onClick={self.updateAuthset.bind(null, authset, "reject")}>Reject</a> : <span className="bold muted">Reject</span> }
+					<a onClick={self.deleteAuthset.bind(null, authset)}>Dismiss</a>
+				</div>
+			);
 			return (
         <TableRow key={index}>
-          <TableRowColumn ><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
+          <TableRowColumn><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
           <TableRowColumn style={{width: "450px"}}>{authset.pubkey}</TableRowColumn>
        		<TableRowColumn className="capitalized">{authset.status}</TableRowColumn>
-          <TableRowColumn >Action buttons</TableRowColumn>
+          <TableRowColumn>{actionButtons}</TableRowColumn>
         </TableRow>
       )
 		});
 		return (
       <div style={{minWidth:"900px"}}>
-      	{this.props.id_attribute || "Device ID"}: {this.props.id_value}
+      	<div className="margin-bottom-small">For {this.props.id_attribute || "Device ID"}: {this.props.id_value}</div>
 
 	      {this.state.active.length ?
 		      <Table fixedHeader={false}
@@ -74,10 +96,10 @@ var Authsets = createReactClass({
 		          displaySelectAll={false}
 		          adjustForCheckbox={false}>
 		          <TableRow>
-		            <TableHeaderColumn >Request time</TableHeaderColumn>
+		            <TableHeaderColumn>Request time</TableHeaderColumn>
 		            <TableHeaderColumn style={{width: "450px"}}>Public key</TableHeaderColumn>
-		            <TableHeaderColumn >Status</TableHeaderColumn>
-		            <TableHeaderColumn >Actions</TableHeaderColumn>
+		            <TableHeaderColumn>Status</TableHeaderColumn>
+		            <TableHeaderColumn>Actions</TableHeaderColumn>
 		          </TableRow>
 		        </TableHeader>
 		        <TableBody
@@ -87,9 +109,11 @@ var Authsets = createReactClass({
 		      </Table>
 		    : null }
 
-		    <div style={{width:"200px"}} className="margin-top margin-bottom auto"><Divider/></div>
+		    <div className="margin-top-large margin-bottom auto"></div>
 
 		    {this.state.inactive.length ?
+		    	<div>
+		    	<h4 className="align-center">Inactive sets</h4>
 		      <Table fixedHeader={false}
 		        selectable={false}>
 		        <TableHeader
@@ -97,10 +121,10 @@ var Authsets = createReactClass({
 		          adjustForCheckbox={false}
 		          style={this.state.active.length ? {display:"none"} : {}}>
 		          <TableRow>
-		            <TableHeaderColumn >Request time</TableHeaderColumn>
+		            <TableHeaderColumn>Request time</TableHeaderColumn>
 		            <TableHeaderColumn style={{width: "450px"}}>Public key</TableHeaderColumn>
-		            <TableHeaderColumn >Status</TableHeaderColumn>
-		            <TableHeaderColumn >Actions</TableHeaderColumn>
+		            <TableHeaderColumn>Status</TableHeaderColumn>
+		            <TableHeaderColumn>Actions</TableHeaderColumn>
 		          </TableRow>
 		        </TableHeader>
 		        <TableBody
@@ -108,6 +132,7 @@ var Authsets = createReactClass({
 		          {inactiveList}
 		        </TableBody>
 		      </Table>
+		      </div>
 		    : null }
 
       </div>

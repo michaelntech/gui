@@ -250,11 +250,22 @@ var ExpandedDevice = createReactClass({
       case "rejected":
         statusIcon = (<FontIcon className="material-icons red" style={{margin: "12px 0 12px 12px"}}>block</FontIcon>)
         break;
+      case "preauthorized":
+        statusIcon = (<FontIcon className="material-icons" style={{margin: "12px 0 12px 12px"}}>check</FontIcon>)
+        break;
     }
 
     var formatStatus = (
       <span className="text-color">
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+
+    var authLabel = (
+      <span style={{fontSize:'14px'}}>
+        {status === "pending" ? "Accept, reject or dismiss the device?" :
+        status === "accepted" ? "Reject, dismiss or decommission this device?" :
+        status === "rejected" ? "Accept, dismiss or decommission this" : "Remove this device from preauthorization?" }
       </span>
     );
 
@@ -280,7 +291,7 @@ var ExpandedDevice = createReactClass({
               key="authsetsButton"
               disabled={false}
               style={this.props.styles.listButtonStyle}
-              primaryText={"Accept, reject or dismiss the device?"}
+              primaryText={authLabel}
               secondaryText={"Click to adjust authorization status for this device"}
               onClick={this._showAuthsets} />
           </List>
@@ -346,7 +357,7 @@ var ExpandedDevice = createReactClass({
     var authsetActions =  [
       <div style={{marginRight:"10px", display:"inline-block"}}>
         <FlatButton
-          label="Cancel"
+          label="Close"
           onClick={this.dialogToggle.bind(null, 'authsets')} />
       </div>
     ];
@@ -405,7 +416,7 @@ var ExpandedDevice = createReactClass({
                 data-tip
                 data-for='auth-button-tip'
                 data-event='click focus'
-                style={{left:"44%",top:"178px"}}>
+                style={{left:"580px",top:"178px"}}>
                 <FontIcon className="material-icons">help</FontIcon>
               </div>
               <ReactTooltip

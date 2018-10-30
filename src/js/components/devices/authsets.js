@@ -4,6 +4,7 @@ var createReactClass = require('create-react-class');
 import Time from 'react-time';
 var AppActions = require('../../actions/app-actions');
 import { formatTime } from '../../helpers.js';
+import Collapse from 'react-collapse';
 
 // material ui
 var mui = require('material-ui');
@@ -17,12 +18,12 @@ var Authsets = createReactClass({
 	getInitialState() {
 		return {
 			active: [],
-			inactive: []
+			inactive: [],
+			divHeight: 208,
 		};
 	},
 
 	componentDidMount() {
-		console.log(this.props.device);
 		this._getActiveAuthsets(this.props.device.auth_sets);
 	},
 
@@ -40,6 +41,10 @@ var Authsets = createReactClass({
 		self.setState({active: active, inactive: inactive});
 	},
 
+	_adjustCellHeight: function(height) {
+    this.setState({divHeight: height+95});
+  },
+
 	updateAuthset: function(authset, newStatus) {
 		console.log("Updating authset to " + newStatus);
 	},
@@ -47,23 +52,52 @@ var Authsets = createReactClass({
 	deleteAuthset: function(authset) {
 		console.log("dismissing! If this is only one, close dialog?");
 	},
+
+	setConfirmDismiss: function(authset, index) {
+
+	},
+
+	setConfirmStatus: function(authset, newStatus, index) {
+		this.setState({expandRow: index, newStatus: newStatus});
+	},
 	
 	render: function() {
 		var self = this;
 		var activeList = this.state.active.map(function(authset, index) {
-			var actionButtons = (
+
+			var expanded = '';
+			if ( self.state.expandRow === index ) {
+        expanded = <div className="expand-confirm">
+        						<div className="float-right">
+	        						<p className="bold margin-right-large padding-right">Are you sure you want to {self.state.newStatus} this authset?</p>
+	        						<div className="float-right">
+	        							<FlatButton className="margin-right-small" onClick={self.setConfirmStatus.bind(null, null, null, null)}>Cancel</FlatButton>
+	        							<FlatButton><span className="capitalized">{self.state.newStatus}</span></FlatButton>
+	        						</div>
+	        					</div>
+	        				</div>
+      }
+
+			var actionButtons = expanded ? "Confirm " + self.state.newStatus +"?" : (
 				<div className="actionButtons">
-					{authset.status !== "accepted" ? <a onClick={self.updateAuthset.bind(null, authset, "accept")}>Accept</a> : <span className="bold muted">Accept</span> }
-					{authset.status !== "rejected" ? <a onClick={self.updateAuthset.bind(null, authset, "reject")}>Reject</a> : <span className="bold muted">Reject</span> }
-					<a onClick={self.deleteAuthset.bind(null, authset)}>Dismiss</a>
+					{((authset.status !== "accepted") && (authset.status !== "preauthorized")) ? <a onClick={self.setConfirmStatus.bind(null, authset, "accept", index)}>Accept</a> : <span className="bold muted">Accept</span> }
+					{authset.status !== "rejected" ? <a onClick={self.setConfirmStatus.bind(null, authset, "reject", index)}>Reject</a> : <span className="bold muted">Reject</span> }
+					{authset.status !== "preauthorized" ? <a onClick={self.setConfirmStatus.bind(null, authset, "dismiss", index)}>Dismiss</a> : <span className="bold muted">Dismiss</span> }
 				</div>
 			);
 			return (
-        <TableRow style={{"backgroundColor": "#e9f4f3"}} key={index}>
-          <TableRowColumn><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
+        <TableRow style={{"backgroundColor": "#e9f4f3"}} className={expanded ? "expand" : null} key={index}>
+          <TableRowColumn style={expanded ? {height: self.state.divHeight} : null}><Time value={formatTime(authset.ts)} format="YYYY-MM-DD HH:mm" /></TableRowColumn>
           <TableRowColumn style={{width: "450px"}}>{authset.pubkey}</TableRowColumn>
        		<TableRowColumn className="capitalized">{authset.status}</TableRowColumn>
-          <TableRowColumn>{actionButtons}</TableRowColumn>
+          <TableRowColumn>
+          	{actionButtons}
+          </TableRowColumn>
+          <TableRowColumn style={{width:"0", padding:"0", overflow:"visible"}}>
+            <Collapse springConfig={{stiffness: 210, damping: 20}} onHeightReady={self._adjustCellHeight} className="expanded" isOpened={expanded ? true : false}>
+              {expanded}
+            </Collapse>
+          </TableRowColumn>
         </TableRow>
       )
 		});
@@ -71,9 +105,9 @@ var Authsets = createReactClass({
 		var inactiveList = this.state.inactive.map(function(authset, index) {
 			var actionButtons = (
 				<div className="actionButtons">
-					{authset.status !== "accepted" ? <a onClick={self.updateAuthset.bind(null, authset, "accept")}>Accept</a> : <span className="bold muted">Accept</span> }
-					{authset.status !== "rejected" ? <a onClick={self.updateAuthset.bind(null, authset, "reject")}>Reject</a> : <span className="bold muted">Reject</span> }
-					<a onClick={self.deleteAuthset.bind(null, authset)}>Dismiss</a>
+					{(authset.status !== "accepted") && (authset.status !== "preauthorized") ? <a onClick={self.setConfirmStatus.bind(null, authset, "accept", index)}>Accept</a> : <span className="bold muted">Accept</span> }
+					{authset.status !== "rejected" ? <a onClick={self.setConfirmStatus.bind(null, authset, "reject", index)}>Reject</a> : <span className="bold muted">Reject</span> }
+					{authset.status !== "preauthorized" ? <a onClick={self.setConfirmStatus.bind(null, authset, "dismiss", index)}>Dismiss</a> : <span className="bold muted">Dismiss</span> }
 				</div>
 			);
 			return (
@@ -87,7 +121,7 @@ var Authsets = createReactClass({
 		});
 		return (
       <div style={{minWidth:"900px"}}>
-      	<div className="margin-bottom-small">For {this.props.id_attribute || "Device ID"}: {this.props.id_value}</div>
+      	<div className="margin-bottom-small">{this.props.id_attribute || "Device ID"}: {this.props.id_value}</div>
 
 	      {this.state.active.length ?
 		      <Table fixedHeader={false}
@@ -100,6 +134,7 @@ var Authsets = createReactClass({
 		            <TableHeaderColumn style={{width: "450px"}}>Public key</TableHeaderColumn>
 		            <TableHeaderColumn>Status</TableHeaderColumn>
 		            <TableHeaderColumn>Actions</TableHeaderColumn>
+		            <TableHeaderColumn className="columnHeader" style={{width:"0px", paddingRight:"0", paddingLeft:"0"}}></TableHeaderColumn>
 		          </TableRow>
 		        </TableHeader>
 		        <TableBody

@@ -228,13 +228,31 @@ var Authorized =  createReactClass({
         attrs[device.attributes[i].name] = device.attributes[i].value;
       }
 
-      if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice id_attribute={(this.props.globalSettings || {}).id_attribute} _showKey={this._showKey} showKey={this.state.showKey} docsVersion={this.props.docsVersion} showHelpTips={this.props.showHelptips} device={this.state.expandedDevice || device} rejectOrDecomm={this.props.rejectOrDecomm} attrs={device.attributes} device_type={attrs.device_type} styles={this.props.styles} block={this.props.block} accept={this.props.accept} redirect={this.props.redirect} artifacts={this.props.artifacts} selectedGroup={this.props.group} groups={this.props.groups} />
-      }
-
       var id_attribute = (self.props.globalSettings.id_attribute && self.props.globalSettings.id_attribute !== "Device ID") 
         ? (device.id_attributes || {})[self.props.globalSettings.id_attribute]
         : (device.device_id || device.id) ;
+
+
+      if ( self.state.expandRow === index ) {
+        expanded = <ExpandedDevice 
+                    id_attribute={(this.props.globalSettings || {}).id_attribute} 
+                    id_value={id_attribute}
+                    _showKey={this._showKey} 
+                    showKey={this.state.showKey} 
+                    docsVersion={this.props.docsVersion} 
+                    showHelpTips={this.props.showHelptips} 
+                    device={this.state.expandedDevice || device} 
+                    rejectOrDecomm={this.props.rejectOrDecomm} 
+                    attrs={device.attributes} 
+                    device_type={attrs.device_type} 
+                    styles={this.props.styles} 
+                    block={this.props.block} 
+                    accept={this.props.accept} 
+                    redirect={this.props.redirect} 
+                    artifacts={this.props.artifacts} 
+                    selectedGroup={this.props.group} 
+                    groups={this.props.groups} />
+      }
 
       return (
         <TableRow 
@@ -289,7 +307,7 @@ var Authorized =  createReactClass({
           </TableRowColumn>
           <TableRowColumn style={{width:"0", padding:"0", overflow:"visible"}}>
            
-            <Collapse springConfig={{stiffness: 210, damping: 20}} onHeightReady={this._adjustCellHeight} className="expanded" isOpened={expanded ? true : false}
+            <Collapse springConfig={{stiffness: 210, damping: 20}} onHeightReady={this._adjustCellHeight} className="expanded accepted" isOpened={expanded ? true : false}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

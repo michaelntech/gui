@@ -908,10 +908,14 @@ table thead.clickable tr>th:first-child {
 }
 
 #device-identity.report-list.bordered,
-#device-inventory.report-list.bordered {
+#device-inventory.bordered {
   border: 1px solid @lightgrey;
   margin-top: 10px;
   padding: 5px 20px;
+}
+
+#device-inventory.bordered {
+  padding-bottom: 20px;
 }
 
 .list-horizontal-display > div >span.key > div > div > div {
@@ -1285,6 +1289,10 @@ tr.expand {
       margin-top: 60px;
       padding: 0 45px 0 24px;
       right: 0;
+    
+      &.accepted {
+        padding-left: 93px;
+      }
     }
 
   }
@@ -1331,6 +1339,11 @@ td.no-click-cell {
 .actionButtons > span, 
 .actionButtons > a {
   margin-right: 20px;
+}
+
+.expand-confirm {
+  overflow: hidden;
+  padding: 0 5px 5px 0;
 }
 
 

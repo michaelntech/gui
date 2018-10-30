@@ -325,14 +325,27 @@ var Preauthorize =  createReactClass({
     var devices = this.state.devices.map(function(device, index) {
       var self = this;
 
-      var expanded = '';
-      if ( self.state.expandRow === index ) {
-        expanded = <ExpandedDevice id_attribute={(this.props.globalSettings || {}).id_attribute} _showKey={this._showKey} showKey={this.state.showKey} disabled={limitMaxed} styles={this.props.styles} deviceId={self.state.deviceId} device={self.state.expandedDevice} unauthorized={true} selected={[device]}  />
-      }
-
-      var id_attribute  = (self.props.globalSettings.id_attribute && self.props.globalSettings.id_attribute !== "Device ID") 
+    var id_attribute  = (self.props.globalSettings.id_attribute && self.props.globalSettings.id_attribute !== "Device ID") 
         ? (device.attributes || {})[self.props.globalSettings.id_attribute]
         : (device.device_id || device.id) ;
+
+      var expanded = '';
+      if ( self.state.expandRow === index ) {
+        expanded = <ExpandedDevice 
+                    id_attribute={(this.props.globalSettings || {}).id_attribute} 
+                    _showKey={this._showKey} 
+                    showKey={this.state.showKey} 
+                    disabled={limitMaxed} 
+                    styles={this.props.styles} 
+                    deviceId={self.state.deviceId}
+                    id_attribute={(this.props.globalSettings || {}).id_attribute} 
+                    id_value={id_attribute}
+                    device={self.state.expandedDevice} 
+                    unauthorized={true} 
+                    selected={[device]}  />
+      }
+
+
 
       return (
         <TableRow selected={this._isSelected(index)} className={expanded ? "expand" : null} hoverable={true} key={index}>

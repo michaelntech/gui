@@ -1,7 +1,6 @@
 import React from 'react';
 import { Router, Route, Link } from 'react-router';
 import Time from 'react-time';
-import Collapse from 'react-collapse';
 var createReactClass = require('create-react-class');
 import ReactTooltip from 'react-tooltip';
 import { AuthButton } from '../helptips/helptooltips';
@@ -265,7 +264,7 @@ var ExpandedDevice = createReactClass({
       <span style={{fontSize:'14px'}}>
         {status === "pending" ? "Accept, reject or dismiss the device?" :
         status === "accepted" ? "Reject, dismiss or decommission this device?" :
-        status === "rejected" ? "Accept, dismiss or decommission this" : "Remove this device from preauthorization?" }
+        status === "rejected" ? "Accept, dismiss or decommission this device" : "Remove this device from preauthorization?" }
       </span>
     );
 
@@ -297,22 +296,23 @@ var ExpandedDevice = createReactClass({
           </List>
         </div>
 
-        <div id="device-inventory">
-          <div className={this.props.unauthorized ? "hidden" : "report-list"} >
-            <h4 className="margin-bottom-none">Device inventory</h4>
-            <List>
-              {deviceInventory}
-            </List>
-          </div>
-    
+        {this.props.attrs ? 
+          <div id="device-inventory" className="bordered">
+            <div className={this.props.unauthorized ? "hidden" : "report-list"} >
+              <h4 className="margin-bottom-none">Device inventory</h4>
+              <List>
+                {deviceInventory}
+              </List>
+            </div>
+      
 
-          <div className={this.props.unauthorized ? "hidden" : "report-list"} >
-            <List style={{marginTop:"34px"}}>
-              {deviceInventory2}
-            </List>
-          </div>
+            <div className={this.props.unauthorized ? "hidden" : "report-list"} >
+              <List style={{marginTop:"34px"}}>
+                {deviceInventory2}
+              </List>
+            </div>
 
-        </div>
+          </div> : null }
 
         { (status==="accepted" && !waiting) ? 
           (
@@ -400,7 +400,33 @@ var ExpandedDevice = createReactClass({
           },
           "status": "pending",
           "ts": "2018-10-29T09:25:31.385Z"
-        }
+        },
+        {
+          "id": "zxcvbnm",
+          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "identity_data": {
+            "application/json": {
+              "mac": "00:01:02:03:04:05",
+              "sku": "My Device 1",
+              "sn": "SN1234567890"
+            }
+          },
+          "status": "preauthorized",
+          "ts": "2018-10-29T09:25:31.385Z"
+        },
+        {
+          "id": "plmoknij",
+          "pubkey": "-----BEGIN PUBLIC KEY-----↵MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxOc4fm5poQQk5RinJ0Fi↵dZE1843+yCzPtoV8q4nQkCjoA18/6vntx9Cn6kQKnXesiYN2BrefCWom2Pck8WT3↵DKAznsEKxrHA8N/L6IYTzIR4mkZq0o+8jW1mJR+VqXsvtlBwy0GZgdroRkBDCSVA↵DASF5RVOlslaPhZmS62ggSRd0Uask1zrbwgJOFxZ4u3pqUdhgYfAHJJiqUWYYrf4↵0278zzkls7NYp2mUfBHqYZyWljjUkiS4qB00Pamlv5d2bZaffMIBYfy6IuyTcnnj↵Lfu98BWmS/1aviPm+ET6/iieq6K2f/FNCnxpoC0RrGtoloOJgPMlkf/jReX0qoby↵HiCEwq9rp7uzpxyATIrcUxfuUSOmP7eiKr8uTCY6NyWi5ck7bP8d8MBtqxgqtL6E↵cxQ4BsoUtgF2RV8qXd/7lxOpnE6Mfzrn57jS1C1ZMOHzuEihJK31/WXDFx3mRbDO↵bopL5UzqpoPq6GAErl2VuyNzEa8WImG/1BV6X7z794RNAgMBAAE=↵-----END PUBLIC KEY-----↵",
+          "identity_data": {
+            "application/json": {
+              "mac": "00:01:02:03:04:05",
+              "sku": "My Device 1",
+              "sn": "SN1234567890"
+            }
+          },
+          "status": "accepted",
+          "ts": "2018-10-29T09:25:31.385Z"
+        },
       ],
     };
 
@@ -446,7 +472,7 @@ var ExpandedDevice = createReactClass({
 
         <Dialog
           open={this.state.authsets}
-          title='Device authentication sets'
+          title='Authentication sets for this device'
           autoDetectWindowHeight={true}
           actions={authsetActions}
           bodyStyle={{paddingTop:"0", fontSize:"13px"}}

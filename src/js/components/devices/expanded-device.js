@@ -157,6 +157,38 @@ var ExpandedDevice = createReactClass({
     AppActions.setSnackbar("Link copied to clipboard");
   },
   render: function() {
+
+    var fakeDevice = {
+      "id": "00001",
+      "identity_data": {
+        "application/json": {
+          "mac": "00:01:02:03:04:05",
+          "sku": "My Device 1",
+          "sn": "SN1234567890"
+        }
+      },
+      "status": "pending",
+      "created_ts": "2018-10-29T09:25:31.385Z",
+      "updated_ts": "2018-10-29T09:25:31.385Z",
+      "auth_sets": [
+        {
+          "id": "asdfghjkl",
+          "pubkey": "-----BEGIN PUBLIC KEY-----NGHiihyy355DDSW9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xvhndfhskdiRRWW22=-----END PUBLIC KEY-----",
+          "identity_data": {
+            "application/json": {
+              "mac": "00:01:02:03:04:05",
+              "sku": "My Device 1",
+              "sn": "SN1234567890"
+            }
+          },
+          "status": "pending",
+          "ts": "2018-10-29T09:25:31.385Z"
+        },
+      ]
+    };
+
+
+
     var status = this.props.device.status;
 
     var deviceIdentity = [];
@@ -259,9 +291,21 @@ var ExpandedDevice = createReactClass({
       </span>
     );
 
+    var hasPending = "";
+    if (status === "accepted" && fakeDevice.auth_sets.length>1) {
+      for (var i=0; i<fakeDevice.auth_sets.length; i++) {
+        if (fakeDevice.auth_sets[i].status === "pending") {
+          hasPending = "This device has a pending authentication set";
+        }
+      }
+    }
+
+
     var authLabel = (
       <span style={{fontSize:'14px'}}>
-        {status === "pending" ? "Accept, reject or dismiss the device?" :
+        {
+        hasPending ? hasPending :
+        status === "pending" ? "Accept, reject or dismiss the device?" :
         status === "accepted" ? "Reject, dismiss or decommission this device?" :
         status === "rejected" ? "Accept, dismiss or decommission this device" : "Remove this device from preauthorization?" }
       </span>
@@ -291,7 +335,8 @@ var ExpandedDevice = createReactClass({
               style={this.props.styles.listButtonStyle}
               primaryText={authLabel}
               secondaryText={"Click to adjust authorization status for this device"}
-              onClick={this._showAuthsets} />
+              onClick={this._showAuthsets}
+              leftIcon={hasPending ? <FontIcon className="material-icons auth" style={{marginTop:12, marginBottom:6}}>warning</FontIcon> : null} />
           </List>
         </div>
 
@@ -361,73 +406,6 @@ var ExpandedDevice = createReactClass({
       </div>
     ];
 
-    var fakeDevice = {
-      "id": "00001",
-      "identity_data": {
-        "application/json": {
-          "mac": "00:01:02:03:04:05",
-          "sku": "My Device 1",
-          "sn": "SN1234567890"
-        }
-      },
-      "status": "pending",
-      "created_ts": "2018-10-29T09:25:31.385Z",
-      "updated_ts": "2018-10-29T09:25:31.385Z",
-      "auth_sets": [
-        {
-          "id": "qwertyuiop",
-          "pubkey": "-----BEGIN PUBLIC KEY-----MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xfNavzAgMBAAE=-----END PUBLIC KEY-----",
-          "identity_data": {
-            "application/json": {
-              "mac": "00:01:02:03:04:05",
-              "sku": "My Device 1",
-              "sn": "SN1234567890"
-            }
-          },
-          "status": "rejected",
-          "ts": "2018-10-29T09:25:31.385Z"
-        },
-        {
-          "id": "asdfghjkl",
-          "pubkey": "-----BEGIN PUBLIC KEY-----NGHiihyy355DDSW9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xvhndfhskdiRRWW22=-----END PUBLIC KEY-----",
-          "identity_data": {
-            "application/json": {
-              "mac": "00:01:02:03:04:05",
-              "sku": "My Device 1",
-              "sn": "SN1234567890"
-            }
-          },
-          "status": "pending",
-          "ts": "2018-10-29T09:25:31.385Z"
-        },
-        {
-          "id": "zxcvbnm",
-          "pubkey": "-----BEGIN PUBLIC KEY-----fRTG21ANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xfNavzAKLDHeff3=-----END PUBLIC KEY-----",
-          "identity_data": {
-            "application/json": {
-              "mac": "00:01:02:03:04:05",
-              "sku": "My Device 1",
-              "sn": "SN1234567890"
-            }
-          },
-          "status": "preauthorized",
-          "ts": "2018-10-29T09:25:31.385Z"
-        },
-        {
-          "id": "plmoknij",
-          "pubkey": "-----BEGIN PUBLIC KEY-----TNDAncANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAmqA8uaohQiUcAPEZUDetYXCp/0p25bzQpKkZro+Xj8fF7Zi+2e6tyMj6Zk/2BAkxotKBRZfr/nLAx0oGSfV8oYgQ4Gf1h8SrqAbC2EpPXQq9NdILD1elDvXA6FzgRVthHBR3l6K9fITtNwdTM2jE4fiOYsR7A0MJWezchUUS7mD7a126rNRXq1piPEuR3jhVvJOj65iDWswlOdqtnVO4x472cBvSMEF/srutt/UgHGlrZqcT7W1v2Kw7QycBCMiTZYLIm9O6vRiqMSPqgXQESw6VHmQ6wranBI9YZW/ANbT0n1qZAssInBpblKSxAi9y/FThjQDWFfPhtuwRmaVbl8pDawdAFZT34N3P0vuYO/E5vyStt7frp013LR5r17kBgjV3npnAxZAbRCKUuaxvdTghSCKMrTRls1INxRcW5HtSsRfLG2TU0ro/cRw+3i764FdfmdZer24P0vdyPmHzDwAQBUYw9+mVy4Sx0veLj0XoR8GOPcOs4IEgx0xfNajf6649DDDf=-----END PUBLIC KEY-----",
-          "identity_data": {
-            "application/json": {
-              "mac": "00:01:02:03:04:05",
-              "sku": "My Device 1",
-              "sn": "SN1234567890"
-            }
-          },
-          "status": "accepted",
-          "ts": "2018-10-29T09:25:31.385Z"
-        },
-      ],
-    };
 
     return (
       <div>
@@ -471,8 +449,8 @@ var ExpandedDevice = createReactClass({
 
         <Dialog
           open={this.state.authsets}
-          title='Authentication sets for this device'
-          autoDetectWindowHeight={true}
+          title='Authorization status for this device'
+          autoDetectWindowHeight={false}
           actions={authsetActions}
           bodyStyle={{paddingTop:"0", fontSize:"13px"}}
           contentStyle={{width: "80%", maxWidth: "1500px", overflow:"hidden", boxShadow:"0 14px 45px rgba(0, 0, 0, 0.25), 0 10px 18px rgba(0, 0, 0, 0.22)"}}

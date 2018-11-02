@@ -41,20 +41,31 @@ var Authsets = createReactClass({
 
 	updateAuthset: function(authset, newStatus) {
 		console.log("Updating authset to " + newStatus);
+		this.setState({loading: authset.id});
+		// on finish, change "loading" back to null
+		if (newStatus==="dismiss") {
+			this.deleteAuthset(authset);
+		} else {
+			// call API to update authset
+			// refresh - call appactions or send up to parent?
+		}
+
 	},
 
 	deleteAuthset: function(authset) {
 		console.log("dismissing! If this is only one, close dialog?");
+		// call API to dismiss authset
+		// refresh or if only authset, call parent to close dialog and refresh devices
 	},
 	
 	render: function() {
 		var self = this;
-		var activeList = <Authsetlist active={true} authsets={this.state.active} />
-		var inactiveList = <Authsetlist hideHeader={this.state.active.length} authsets={this.state.inactive} />
+		var activeList = <Authsetlist confirm={this.updateAuthset} loading={this.state.loading} device={this.props.device} active={true} authsets={this.state.active} />
+		var inactiveList = <Authsetlist confirm={this.updateAuthset} loading={this.state.loading} device={this.props.device} hideHeader={this.state.active.length} authsets={this.state.inactive} />
 
 		return (
       <div style={{minWidth:"900px"}}>
-      	<div className="margin-bottom-small">{this.props.id_attribute || "Device ID"}: {this.props.id_value}</div>
+      	<div className="margin-bottom-small" style={{fontSize: "15px"}}>{this.props.id_attribute || "Device ID"}: {this.props.id_value}</div>
 
 	      {this.state.active.length ? activeList : null }
 
@@ -62,7 +73,7 @@ var Authsets = createReactClass({
 
 		    {this.state.inactive.length ?
 		    	<div>
-		    		<h4 className="align-center">Inactive authsets</h4>
+		    		<h4 className="align-center">Inactive authentication sets</h4>
 		       {inactiveList}
 		      </div>
 		    : null }

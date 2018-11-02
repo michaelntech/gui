@@ -3,6 +3,7 @@ var createReactClass = require('create-react-class');
 
 var AppActions = require('../../actions/app-actions');
 var Authsetlist = require('./authsetlist');
+var ConfirmDecommission = require('./confirmdecommission');
 import { preformatWithRequestID } from '../../helpers.js';
 
 // material ui
@@ -10,6 +11,8 @@ var mui = require('material-ui');
 import IconButton from 'material-ui/IconButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/RaisedButton';
+
+import TrashIcon from 'react-material-icons/icons/action/delete';
 
 
 var Authsets = createReactClass({
@@ -57,27 +60,46 @@ var Authsets = createReactClass({
 		// call API to dismiss authset
 		// refresh or if only authset, call parent to close dialog and refresh devices
 	},
+
+	_showConfirm: function() {
+		var decommission = !this.state.decommission;
+		this.setState({decommission: decommission});
+	},
 	
 	render: function() {
 		var self = this;
 		var activeList = <Authsetlist confirm={this.updateAuthset} loading={this.state.loading} device={this.props.device} active={true} authsets={this.state.active} />
 		var inactiveList = <Authsetlist confirm={this.updateAuthset} loading={this.state.loading} device={this.props.device} hideHeader={this.state.active.length} authsets={this.state.inactive} />
 
+		var decommission = (
+      <div className="float-right">
+        <FlatButton label="Decommission device" secondary={true} onClick={this._showConfirm} icon={<TrashIcon style={{height:"18px", width:"18px", verticalAlign:"middle"}}/>}/>
+      </div>
+    );
+    if (this.state.decommission) {
+      decommission = (
+        <ConfirmDecommission cancel={this._showConfirm} decommission={this._decommissionHandler} />
+      );
+    }
+
 		return (
       <div style={{minWidth:"900px"}}>
+      	{(this.props.device.status === "accepted" || this.props.device.status === "rejected") ? decommission : null}
+
       	<div className="margin-bottom-small" style={{fontSize: "15px"}}>{this.props.id_attribute || "Device ID"}: {this.props.id_value}</div>
 
-	      {this.state.active.length ? activeList : null }
+      	<div className="clear">
+		      {this.state.active.length ? activeList : null }
 
-		    <div className="margin-top-large margin-bottom auto"></div>
+			    <div className="margin-top-large margin-bottom auto"></div>
 
-		    {this.state.inactive.length ?
-		    	<div>
-		    		<h4 className="align-center">Inactive authentication sets</h4>
-		       {inactiveList}
-		      </div>
-		    : null }
-
+			    {this.state.inactive.length ?
+			    	<div>
+			    		<h4 className="align-center">Inactive authentication sets</h4>
+			       {inactiveList}
+			      </div>
+			    : null }
+		    </div>
       </div>
     )
 	}

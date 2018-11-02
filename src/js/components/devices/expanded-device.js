@@ -167,7 +167,7 @@ var ExpandedDevice = createReactClass({
           "sn": "SN1234567890"
         }
       },
-      "status": "pending",
+      "status": "accepted",
       "created_ts": "2018-10-29T09:25:31.385Z",
       "updated_ts": "2018-10-29T09:25:31.385Z",
       "auth_sets": [
@@ -181,7 +181,7 @@ var ExpandedDevice = createReactClass({
               "sn": "SN1234567890"
             }
           },
-          "status": "pending",
+          "status": "accepted",
           "ts": "2018-10-29T09:25:31.385Z"
         },
       ]

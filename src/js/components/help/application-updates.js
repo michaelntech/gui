@@ -12,7 +12,7 @@ export default class ApplicationUpdates extends React.Component {
     return (
       <div>
         <h2>Application Updates</h2>
-        <hr className="help-hr"/>
+
         <p></p>
 
        

@@ -135,10 +135,12 @@ export default class Help extends React.Component {
 
   render() {
     var ComponentToShow = GettingStarted;
+    var breadcrumbs = "";
     let routeParams = matchPath(this.props.location.pathname, { path: '/help/**' });
     if (routeParams && routeParams.params[0]) {
       var splitsplat = routeParams.params[0].split('/');
       var copyOfComponents = components;
+      console.log(splitsplat, components);
 
       for (var i = 0; i < splitsplat.length; i++) {
         if (i === splitsplat.length - 1) {
@@ -147,6 +149,10 @@ export default class Help extends React.Component {
           copyOfComponents = copyOfComponents[splitsplat[i]];
         }
       }
+
+    
+      breadcrumbs = splitsplat[0] ? ' > '+components[splitsplat[0]].title : '';
+      breadcrumbs = splitsplat[1] ? breadcrumbs+' > '+components[splitsplat[0]][splitsplat[1]].title : breadcrumbs;
     }
 
     return (
@@ -155,7 +161,7 @@ export default class Help extends React.Component {
           <LeftNav pages={components} />
         </div>
         <div className="rightFluid padding-right" style={{ maxWidth: '780px', paddingTop: '1px', paddingLeft: '70px' }}>
-          <h5>Help</h5>
+          <h4>Help {breadcrumbs}</h4>
           <div style={{ position: 'relative', top: '12px' }} className="help-content">
             <ComponentToShow
               version={this.props.version}

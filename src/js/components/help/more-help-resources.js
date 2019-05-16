@@ -6,7 +6,7 @@ export default class MoreHelp extends React.Component {
 
     return (
       <div>
-        <h2>More help resources</h2>
+        <h2>More resources</h2>
 
         <p>{`If you can't find what you're looking for here, there are other places to find help getting started with Mender:`}</p>
         <br />

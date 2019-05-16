@@ -1,63 +1,67 @@
 import React from 'react';
-import { Link, matchPath } from 'react-router-dom';
+import { matchPath } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import HelpTopics from './helptopics';
 import LeftNav from './left-nav';
-import ConnectingDevices from './connecting-devices';
-import ProvisionDemo from './connecting-devices/provision-a-demo';
-import VirtualDevice from './connecting-devices/virtual-device';
-import RaspberryPi from './connecting-devices/raspberry-pi-3';
-import BeagleBoneBlack from './connecting-devices/beagleboneblack';
-import DemoArtifacts from './connecting-devices/demo-artifacts';
-import BuildYocto from './connecting-devices/build-with-yocto';
-import IntegrateDebian from './connecting-devices/integrate-debian';
+import GettingStarted from './getting-started';
+import ApplicationUpdates from './application-updates';
+import DebPackage from './application-updates/mender-deb-package';
+import VirtualDevice from './application-updates/demo-virtual-device';
+import UpdateModules from './application-updates/update-modules';
+import SystemUpdates from './system-updates';
+import BoardIntegrations from './system-updates/board-integrations';
+import BuildYocto from './system-updates/build-with-yocto';
+import IntegrateDebian from './system-updates/integrate-debian';
+import Support from './support';
 import MoreHelp from './more-help-resources';
 import { isEmpty, versionCompare } from '../../helpers';
-import BoardIcon from '@material-ui/icons/DeveloperBoard';
-import HelpIcon from '@material-ui/icons/HelpOutline';
-import Support from './support';
 
 import AppStore from '../../stores/app-store';
 import AppActions from '../../actions/app-actions';
 
 var components = {
-  'connecting-devices': {
-    title: 'Connecting devices',
-    component: ConnectingDevices,
-    icon: BoardIcon,
-    'provision-a-demo': {
-      title: 'Provision a demo device',
-      component: ProvisionDemo,
-      'virtual-device': {
-        title: 'Virtual device',
-        component: VirtualDevice
-      },
-      'raspberry-pi-3': {
-        title: 'Raspberry Pi 3',
-        component: RaspberryPi
-      },
-      beagleboneblack: {
-        title: 'BeagleBone Black',
-        component: BeagleBoneBlack
-      }
+  'getting-started': {
+    title: 'Getting started',
+    component: GettingStarted,
+  },
+  'application-updates': {
+    title: 'Application updates',
+    component: ApplicationUpdates,
+    'mender-deb-package': {
+      title: 'Connecting your device using Mender .deb package',
+      component: DebPackage,
     },
-    'demo-artifacts': {
-      title: 'Download demo Artifacts',
-      component: DemoArtifacts
+    'demo-virtual-device': {
+      title: 'Connecting a demo virtual device',
+      component: VirtualDevice,
+    },
+    'update-modules': {
+      title: 'Enabling different kinds of updates with Update Modules',
+      component: UpdateModules,
+    },
+   },
+   'system-updates': {
+    title: 'System updates',
+    component: SystemUpdates,
+    'board-integrations': {
+      title: 'Supported board integrations on Mender Hub',
+      component: BoardIntegrations
     },
     'build-with-yocto': {
-      title: 'Build with Yocto',
+      title: 'Building a Mender-enabled Yocto image',
       component: BuildYocto
     },
     'integrate-debian': {
-      title: 'Integrate with Debian',
+      title: 'Devices running Debian family',
       component: IntegrateDebian
     }
   },
+  'support': {
+    title: 'Support',
+    component: Support,
+  },
   'more-help-resources': {
-    title: 'More help resources',
+    title: 'More resources',
     component: MoreHelp,
-    icon: HelpIcon
   }
 };
 
@@ -130,7 +134,7 @@ export default class Help extends React.Component {
   }
 
   render() {
-    var ComponentToShow = HelpTopics;
+    var ComponentToShow = GettingStarted;
     let routeParams = matchPath(this.props.location.pathname, { path: '/help/**' });
     if (routeParams && routeParams.params[0]) {
       var splitsplat = routeParams.params[0].split('/');
@@ -150,7 +154,8 @@ export default class Help extends React.Component {
         <div className="leftFixed">
           <LeftNav pages={components} />
         </div>
-        <div className="rightFluid padding-right" style={{ maxWidth: '980px', paddingTop: '0', paddingLeft: '45px' }}>
+        <div className="rightFluid padding-right" style={{ maxWidth: '780px', paddingTop: '1px', paddingLeft: '70px' }}>
+          <h5>Help</h5>
           <div style={{ position: 'relative', top: '12px' }} className="help-content">
             <ComponentToShow
               version={this.props.version}
@@ -163,12 +168,6 @@ export default class Help extends React.Component {
               isEmpty={isEmpty}
               pages={components}
             />
-            {ComponentToShow !== HelpTopics ? (
-              <p className="margin-top-large">
-                <Link to="/help">&lsaquo; Back to help topics</Link>
-              </p>
-            ) : null}
-            <Support />
           </div>
         </div>
       </div>

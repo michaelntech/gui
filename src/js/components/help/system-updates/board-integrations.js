@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-export default class Support extends React.Component {
+export default class ApplicationUpdates extends React.Component {
   static contextTypes = {
     router: PropTypes.object
   };
@@ -11,7 +11,7 @@ export default class Support extends React.Component {
 
     return (
       <div>
-        <h2>Support</h2>
+        <h2>Application Updates</h2>
         <hr className="help-hr"/>
         <p></p>
 

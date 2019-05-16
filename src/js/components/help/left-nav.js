@@ -52,7 +52,7 @@ export default class LeftNav extends React.Component {
     var self = this;
     return (
       <List>
-        <ListSubheader component={Link} to="/help" key="/help">
+        <ListSubheader>
           Help topics
         </ListSubheader>
         {self.state.links.map(link => (

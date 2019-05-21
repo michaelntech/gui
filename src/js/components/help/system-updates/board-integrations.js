@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 
-export default class ApplicationUpdates extends React.Component {
+export default class BoardIntegrations extends React.Component {
   static contextTypes = {
     router: PropTypes.object
   };
@@ -11,14 +10,17 @@ export default class ApplicationUpdates extends React.Component {
 
     return (
       <div>
-        <h2>Application Updates</h2>
-        <hr className="help-hr"/>
-        <p></p>
+        <h2>Supported board integrations on Mender Hub</h2>
+        
+        <p>
+          Check out the board integrations at <a href="https://hub.mender.io/c/board-integrations" target="_blank">Mender Hub</a> to see if your board has already been integrated. 
+          There are over 30 different board and OS combinations, and more being added by the community.
+        </p>
 
-       
-        <p>The <Link to={`getting-started/`}>System updates section</Link> has several help pages to get you started enabling and connecting your devices for system updates.</p>
-   
-      
+        <p>Each post has instructions on how to configure your board to integrate it with the Mender client and to connect to the Mender server.</p>
+          
+        <p>Find your board on <a href="https://hub.mender.io/c/board-integrations" target="_blank">Mender Hub</a>.</p>
+
       </div>
     );
   }

@@ -12,13 +12,10 @@ export default class Support extends React.Component {
     return (
       <div>
         <h2>Support</h2>
-        <hr className="help-hr"/>
-        <p></p>
-
        
-        <p>The <Link to={`getting-started/`}>System updates section</Link> has several help pages to get you started enabling and connecting your devices for system updates.</p>
+        <p>Contact us directly for support with Hosted Mender at: <a href="mailto:support@hosted.mender.io" target="_blank">support@hosted.mender.io</a>.</p>
+        <p>You can also try our <Link to={`/help/more-help-resources`}>other resources</Link> to find help from our community, our documentation and more.</p>
    
-      
       </div>
     );
   }

@@ -11,14 +11,19 @@ export default class SystemUpdates extends React.Component {
 
     return (
       <div>
-        <h2>Application Updates</h2>
-        <hr className="help-hr"/>
-        <p></p>
-
+        <h2>System Updates</h2>
        
-        <p>The <Link to={`getting-started/`}>System updates section</Link> has several help pages to get you started enabling and connecting your devices for system updates.</p>
-   
-      
+        <p>The built-in update mechanism in Mender is dual A/B rootfs updates, meaning the whole system on the device is updated. 
+        To enable system updates, the device needs to have an A/B partition layout with the Mender client installed in its disk image.</p> 
+
+        <p>Learn how to enable and connect your devices for system updates:</p>
+        <ul>
+          <li><Link to={`/help/system-updates/board-integrations`}>Supported board integrations on Mender Hub</Link></li>
+          <li><Link to={`/help/system-updates/build-with-yocto`}>Building a Mender-enabled Yocto image</Link></li>
+          <li><Link to={`/help/system-updates/integrate-debian`}>Devices running Debian family OSes</Link></li>
+        </ul>
+        
+        <p>You can learn more about Mender&#39;s A&#47;B partition architecture <a href={`https://docs.mender.io/${this.props.docsVersion}architecture/overview`} target="_blank">here</a>.</p>
       </div>
     );
   }

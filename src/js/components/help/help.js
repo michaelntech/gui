@@ -11,6 +11,8 @@ import SystemUpdates from './system-updates';
 import BoardIntegrations from './system-updates/board-integrations';
 import BuildYocto from './system-updates/build-with-yocto';
 import IntegrateDebian from './system-updates/integrate-debian';
+import ReleasesArtifacts from './releases-and-artifacts';
+import BuildDemoArtifact from './releases-and-artifacts/build-demo-artifact';
 import Support from './support';
 import MoreHelp from './more-help-resources';
 import { isEmpty, versionCompare } from '../../helpers';
@@ -38,8 +40,8 @@ var components = {
       title: 'Enabling different kinds of updates with Update Modules',
       component: UpdateModules,
     },
-   },
-   'system-updates': {
+  },
+  'system-updates': {
     title: 'System updates',
     component: SystemUpdates,
     'board-integrations': {
@@ -54,6 +56,14 @@ var components = {
       title: 'Devices running Debian family',
       component: IntegrateDebian
     }
+  },
+  'releases-artifacts': {
+    title: 'Releases and artifacts',
+    component: ReleasesArtifacts,
+    'build-demo-artifact': {
+      title: 'Building a demo application update Artifact',
+      component: BuildDemoArtifact
+    },
   },
   'support': {
     title: 'Support',
@@ -135,12 +145,11 @@ export default class Help extends React.Component {
 
   render() {
     var ComponentToShow = GettingStarted;
-    var breadcrumbs = "";
+    var breadcrumbs = '';
     let routeParams = matchPath(this.props.location.pathname, { path: '/help/**' });
     if (routeParams && routeParams.params[0]) {
       var splitsplat = routeParams.params[0].split('/');
       var copyOfComponents = components;
-      console.log(splitsplat, components);
 
       for (var i = 0; i < splitsplat.length; i++) {
         if (i === splitsplat.length - 1) {
@@ -151,8 +160,8 @@ export default class Help extends React.Component {
       }
 
     
-      breadcrumbs = splitsplat[0] ? ' > '+components[splitsplat[0]].title : '';
-      breadcrumbs = splitsplat[1] ? breadcrumbs+' > '+components[splitsplat[0]][splitsplat[1]].title : breadcrumbs;
+      breadcrumbs = splitsplat[0] ? '  >  '+components[splitsplat[0]].title : '';
+      breadcrumbs = splitsplat[1] ? breadcrumbs+'  >  '+components[splitsplat[0]][splitsplat[1]].title : breadcrumbs;
     }
 
     return (
@@ -161,7 +170,7 @@ export default class Help extends React.Component {
           <LeftNav pages={components} />
         </div>
         <div className="rightFluid padding-right" style={{ maxWidth: '780px', paddingTop: '1px', paddingLeft: '70px' }}>
-          <h4>Help {breadcrumbs}</h4>
+          <p style={{color: 'rgba(0, 0, 0, 0.54)'}}>Help {breadcrumbs}</p>
           <div style={{ position: 'relative', top: '12px' }} className="help-content">
             <ComponentToShow
               version={this.props.version}

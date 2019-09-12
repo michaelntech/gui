@@ -18,7 +18,7 @@ import Pending from './pendingdeployments';
 import Progress from './inprogressdeployments';
 import Past from './pastdeployments';
 import Report from './report';
-import ScheduleDialog from './scheduledialog';
+import CreateDialog from './createdeployment';
 
 import { preformatWithRequestID } from '../../helpers';
 import { getOnboardingComponentFor } from '../../utils/onboardingmanager';
@@ -54,7 +54,7 @@ export default class Deployments extends React.Component {
       refreshDeploymentsLength: 30000,
       dialog: false,
       reportDialog: false,
-      scheduleDialog: false,
+      createDialog: false,
       ...this._getInitialState()
     };
   }
@@ -100,7 +100,7 @@ export default class Deployments extends React.Component {
           });
         } else {
           setTimeout(() => {
-            self.setState({ scheduleDialog: true });
+            self.setState({ createDialog: true });
           }, 400);
         }
       }
@@ -108,7 +108,7 @@ export default class Deployments extends React.Component {
     this.setState({ reportType: this.props.match ? this.props.match.params.tab : 'active' });
 
     const query = new URLSearchParams(this.props.location.search);
-    this.setState({ scheduleDialog: Boolean(query.get('open')) || false });
+    this.setState({ createDialog: Boolean(query.get('open')) || false });
   }
 
   componentWillUnmount() {
@@ -307,7 +307,7 @@ export default class Deployments extends React.Component {
       artifact_name: artifact.name,
       devices: ids
     };
-    self.setState({ doneLoading: false, scheduleDialog: false });
+    self.setState({ doneLoading: false, createDialog: false });
 
     return AppActions.createDeployment(newDeployment)
       .then(data => {
@@ -354,25 +354,20 @@ export default class Deployments extends React.Component {
   }
   _getDeploymentDevices(group, artifact) {
     var devices = [];
-    var filteredDevices = [];
     // set the selected groups devices to state, to be sent down to the child schedule form
-    if (artifact && group) {
+    if (group) {
       devices = (group !== 'All devices' ? this.state[group] : this.state.allDevices) || [];
-      filteredDevices = devices;
-      if (devices.length < AppStore.getDeploymentDeviceLimit()) {
-        filteredDevices = AppStore.filterDevicesByType(devices, artifact.device_types_compatible);
-      }
     }
-    this.setState({ deploymentDevices: devices, filteredDevices: filteredDevices });
+    this.setState({ deploymentDevices: devices });
   }
   _getReportById(id) {
     var self = this;
     return AppActions.getSingleDeployment(id).then(data => self._showReport(data, self.state.reportType));
   }
   _showReport(selectedDeployment, reportType) {
-    this.setState({ scheduleDialog: false, selectedDeployment, reportType, reportDialog: true });
+    this.setState({ createDialog: false, selectedDeployment, reportType, reportDialog: true });
   }
-  _scheduleDeployment(deployment) {
+  _createDeployment(deployment) {
     var artifact = '';
     var group = '';
     var start_time = null;
@@ -397,7 +392,7 @@ export default class Deployments extends React.Component {
     }
     this.setState({
       dialog: false,
-      scheduleDialog: true,
+      createDialog: true,
       id: id,
       start_time: start_time,
       end_time: end_time,
@@ -420,7 +415,7 @@ export default class Deployments extends React.Component {
         clearInterval(self.timer);
         self.timer = setInterval(() => self._refreshDeployments(), self.state.refreshDeploymentsLength);
         self._refreshDeployments();
-        self.setState({ scheduleDialog: false });
+        self.setState({ createDialog: false });
         AppActions.setSnackbar('The deployment was successfully aborted');
       })
       .catch(err => {
@@ -506,7 +501,7 @@ export default class Deployments extends React.Component {
           className="top-right-button"
           color="secondary"
           variant="contained"
-          onClick={() => this.setState({ scheduleDialog: true })}
+          onClick={() => this.setState({ createDialog: true })}
           style={{ position: 'absolute' }}
         >
           Create a deployment
@@ -540,7 +535,7 @@ export default class Deployments extends React.Component {
               loading={!this.state.doneLoading}
               openReport={rowNum => this._showProgress(rowNum)}
               progress={this.state.progress}
-              createClick={() => this.setState({ scheduleDialog: true })}
+              createClick={() => this.setState({ createDialog: true })}
             />
           </div>
         )}
@@ -549,7 +544,7 @@ export default class Deployments extends React.Component {
             <Past
               groups={this.state.groups}
               deviceGroup={this.state.groupFilter}
-              createClick={() => this.setState({ scheduleDialog: true })}
+              createClick={() => this.setState({ createDialog: true })}
               pageSize={this.state.per_page}
               startDate={this.state.startDate}
               endDate={this.state.endDate}
@@ -573,12 +568,11 @@ export default class Deployments extends React.Component {
           <DialogActions>{reportActions}</DialogActions>
         </Dialog>
 
-        <ScheduleDialog
-          open={this.state.scheduleDialog}
+        <CreateDialog
+          open={this.state.createDialog}
           hasDeployments={this.state.hasDeployments}
           showHelptips={this.state.showHelptips}
           deploymentDevices={this.state.deploymentDevices}
-          filteredDevices={this.state.filteredDevices}
           hasPending={this.state.hasPending}
           hasDevices={this.state.hasDevices}
           deploymentSettings={(...args) => this._deploymentParams(...args)}
@@ -589,13 +583,12 @@ export default class Deployments extends React.Component {
           group={this.state.group}
           onDismiss={() =>
             this.setState({
-              scheduleDialog: false,
+              createDialog: false,
               releaseArtifacts: null,
               release: null,
               artifact: null,
               group: null,
               deploymentDevices: null,
-              filteredDevices: null
             })
           }
           onScheduleSubmit={(...args) => this._onScheduleSubmit(...args)}

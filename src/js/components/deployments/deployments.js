@@ -350,9 +350,9 @@ export default class Deployments extends React.Component {
     this.setState(tmp);
     var group = attr === 'group' ? val : this.state.group;
     var artifact = attr === 'artifact' ? val : this.state.artifact;
-    this._getDeploymentDevices(group, artifact);
+    this._getDeploymentDevices(group);
   }
-  _getDeploymentDevices(group, artifact) {
+  _getDeploymentDevices(group) {
     var devices = [];
     // set the selected groups devices to state, to be sent down to the child schedule form
     if (group) {

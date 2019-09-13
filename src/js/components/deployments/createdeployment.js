@@ -18,7 +18,17 @@ export default class ScheduleDialog extends React.Component {
     this.state = {
       showDevices: false,
       activeStep: 0,
+      disabled: true
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    var disabled = true;
+    if (this.state.activeStep === 0 && (nextProps.deploymentDevices && nextProps.deploymentDevices.length > 0) && nextProps.artifact) {
+      disabled = false;
+    }
+
+    this.setState({disabled: disabled});
   }
 
   _getSteps() {
@@ -26,9 +36,10 @@ export default class ScheduleDialog extends React.Component {
   }
 
   _getStepContent(stepIndex) {
+    const props = this.props;
     switch (stepIndex) {
     case 0:
-      return <SoftwareDevices />;
+      return <SoftwareDevices { ...props} />;
     case 1:
       return 'schedule?';
     case 2:
@@ -43,7 +54,6 @@ export default class ScheduleDialog extends React.Component {
     const { artifact, open, onDismiss, deploymentDevices, ...other } = this.props;
     var disabled = deploymentDevices && deploymentDevices.length > 0 ? false : true;
     const steps = self._getSteps();
-
 
     return (
       <Dialog open={open || false} fullWidth={true} maxWidth="sm">

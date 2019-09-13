@@ -10,6 +10,7 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 
 import SoftwareDevices from './deployment-wizard/softwaredevices';
+import ScheduleRollout from './deployment-wizard/schedulerollout';
 
 
 export default class ScheduleDialog extends React.Component {
@@ -41,7 +42,7 @@ export default class ScheduleDialog extends React.Component {
     case 0:
       return <SoftwareDevices { ...props} />;
     case 1:
-      return 'schedule?';
+      return <ScheduleRollout { ...props} />;
     case 2:
       return 'review';
     default:

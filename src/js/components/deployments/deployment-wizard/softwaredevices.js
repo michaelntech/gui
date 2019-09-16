@@ -47,7 +47,7 @@ export default class SoftwareDevices extends React.Component {
 
     const devicetypes = artifact ? artifact.device_types_compatible : []; 
     const tooltipTypes = (
-       <p>{devicetypes.join(', ')}</p>
+      <p>{devicetypes.join(', ')}</p>
     );
 
     const devicetypesInfo = (

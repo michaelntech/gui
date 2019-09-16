@@ -17,6 +17,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 
+import DateTimePicker from 'material-ui-pickers/DateTimePicker';
 import MuiPickersUtilsProvider from 'material-ui-pickers/MuiPickersUtilsProvider';
 import MomentUtils from '@date-io/moment';
 
@@ -24,11 +25,14 @@ import { RootRef } from '@material-ui/core';
 import { getOnboardingComponentFor } from '../../../utils/onboardingmanager';
 import AppStore from '../../../stores/app-store';
 
-export default class SoftwareDevices extends React.Component {
+export default class ScheduleRollout extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       disabled: false,
+      start_time: '',
+      pattern: '',
+      isPickerOpen: true,
     };
   }
 
@@ -37,15 +41,27 @@ export default class SoftwareDevices extends React.Component {
     this.props.deploymentSettings(value, property);
   }
 
-  handleChange(event) {
-    console.log(event.target.name, event.target.value);
+  handleStartChange(event) {
+    if (event.target.value === "immediate") {
+      this.setState({start_time: event.target.value});
+    } else {
+      this.setPickerOpen(true);
+    }
 
+  }
+
+  handlePatternChange(value) {
+
+  }
+
+  setPickerOpen(value) {
+    this.setState({isPickerOpen: value});
+    console.log(value);
   }
 
   render() {
     const self = this;
     const { artifact, device, deploymentAnchor, deploymentDevices, groups, hasDevices, hasPending, showDevices } = self.props;
-
   
     const styles = {
       textField: {
@@ -86,15 +102,30 @@ export default class SoftwareDevices extends React.Component {
               <Grid item>
                 <div style={{width:'min-content', minHeight:'105px'}}>
 
-                <FormControl className={classes.formControl}>
-                  <InputLabel htmlFor="age-simple">Age</InputLabel>
+                <FormControl>
+                  <InputLabel>Set the start time</InputLabel>
                   <Select
-                    onChange={self._handleChange}
+                    onChange={event => self.handleStartChange(event)}
+                    value={self.state.start_time}
+                    style={styles.textField}
                   >
-                    <MenuItem value={0}>Start immediately</MenuItem>
-                    <MenuItem value={1}>Schedule a start date & time</MenuItem>
+                    <MenuItem value="immediate">Start immediately</MenuItem>
+                    <MenuItem value="schedule">Schedule a start date & time</MenuItem>
 
                   </Select>
+
+                  <MuiPickersUtilsProvider utils={MomentUtils} className="margin-left margin-right inline-block">
+                    <DateTimePicker
+                      open={self.state.isPickerOpen}
+                      onOpen={() => self.setPickerOpen(true)}
+                      onClose={() => self.setPickerOpen(false)}
+                      label="Start time"
+                      value={self.props.startDate}
+                      onChange={date => self._handleChangeStartDate(date)}
+                    />
+         
+                  </MuiPickersUtilsProvider>
+
                 </FormControl>
                  
                 </div>
@@ -113,30 +144,20 @@ export default class SoftwareDevices extends React.Component {
                 <div style={{width:'min-content'}}>
 
                   {self.state.disabled ? (
-                    <TextField value={device ? device.id : ''} label="Device" disabled={self.state.disabled} style={styles.infoStyle} />
+                    <TextField value={"Single phase: 100%"} label="Select a rollout pattern" disabled={self.state.disabled} style={styles.infoStyle} />
                   ) : (
-                    <div>
-                      <AutoSelect
-                        label="Select a device group to deploy to"
-                        errorText="Please select a group from the list"
-                        value={self.props.group}
-                        items={groupItems}
-                        disabled={!hasDevices}
-                        onChange={item => self.deploymentSettingsUpdate(item, 'group')}
-                        style={styles.textField}
-                      />
-                      {hasDevices ? null : (
-                        <p className="info" style={{ marginTop: '10px' }}>
-                          <ErrorOutlineIcon style={{ marginRight: '4px', fontSize: '18px', top: '4px', color: 'rgb(171, 16, 0)', position: 'relative' }} />
-                          There are no connected devices.{' '}
-                          {hasPending ? (
-                            <span>
-                              <Link to="/devices/pending">Accept pending devices</Link> to get started.
-                            </span>
-                          ) : null}
-                        </p>
-                      )}
-                    </div>
+                   <FormControl>
+                    <InputLabel>Select a rollout pattern</InputLabel>
+                    <Select
+                      onChange={event => this.handlePatternChange(event.target.value)}
+                      value={self.state.pattern}
+                      style={styles.textField}
+                    >
+                      <MenuItem value={0}>Single phase: 100%</MenuItem>
+                      <MenuItem value={1}>Custom</MenuItem>
+
+                    </Select>
+                    </FormControl>
                   )}
              
 
@@ -145,17 +166,6 @@ export default class SoftwareDevices extends React.Component {
               </Grid>
             </Grid>
 
-
-            <Grid 
-              container 
-              spacing={16} 
-              justify="center" 
-              alignItems="center"
-            >
-              <Grid item xs={10}>
-             
-              </Grid>
-            </Grid>
           </div>
         </form>
       </div>

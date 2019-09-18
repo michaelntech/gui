@@ -12,6 +12,7 @@ import StepLabel from '@material-ui/core/StepLabel';
 import SoftwareDevices from './deployment-wizard/softwaredevices';
 import ScheduleRollout from './deployment-wizard/schedulerollout';
 
+import AppStore from '../../stores/app-store';
 
 export default class ScheduleDialog extends React.Component {
   constructor(props, context) {
@@ -19,7 +20,8 @@ export default class ScheduleDialog extends React.Component {
     this.state = {
       showDevices: false,
       activeStep: 0,
-      disabled: true
+      disabled: true,
+      isEnterprise: AppStore.getIsEnterprise()
     };
   }
 
@@ -38,15 +40,27 @@ export default class ScheduleDialog extends React.Component {
 
   _getStepContent(stepIndex) {
     const props = this.props;
-    switch (stepIndex) {
-    case 0:
-      return <SoftwareDevices { ...props} />;
-    case 1:
-      return <ScheduleRollout { ...props} />;
-    case 2:
-      return 'review';
-    default:
-      return 'Unknown stepIndex';
+
+    if (this.state.isEnterprise) {
+      switch (stepIndex) {
+      case 0:
+        return <SoftwareDevices isEnterprise={true} { ...props} />;
+      case 1:
+        return <ScheduleRollout { ...props} />;
+      case 2:
+        return 'review';
+      default:
+        return 'Unknown stepIndex';
+      }
+    } else {
+      switch (stepIndex) {
+      case 0:
+        return <SoftwareDevices { ...props} />;
+      case 1:
+        return 'review';
+      default:
+        return 'Unknown stepIndex';
+      }
     }
   }
 

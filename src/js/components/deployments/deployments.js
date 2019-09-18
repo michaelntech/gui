@@ -350,6 +350,8 @@ export default class Deployments extends React.Component {
     this.setState(tmp);
     var group = attr === 'group' ? val : this.state.group;
     var artifact = attr === 'artifact' ? val : this.state.artifact;
+    var start_time = attr === 'start_time' ? val : this.state.start_time;
+    console.log(start_time);
     this._getDeploymentDevices(group);
   }
   _getDeploymentDevices(group) {
@@ -371,7 +373,6 @@ export default class Deployments extends React.Component {
     var artifact = '';
     var group = '';
     var start_time = null;
-    var end_time = null;
     var id = null;
     if (deployment) {
       if (deployment.id) {
@@ -386,16 +387,12 @@ export default class Deployments extends React.Component {
       if (deployment.start_time) {
         start_time = deployment.start_time;
       }
-      if (deployment.end_time) {
-        end_time = deployment.end_time;
-      }
     }
     this.setState({
       dialog: false,
       createDialog: true,
       id: id,
       start_time: start_time,
-      end_time: end_time,
       artifact: artifact,
       group: group
     });

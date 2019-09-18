@@ -210,12 +210,12 @@ export default class SoftwareDevices extends React.Component {
                 alignItems="center"
               >
                 <Grid item xs={10}>
-                {devicesLength && artifact ? (
-                  <p className="info icon">
-                    <InfoOutlinedIcon fontSize="small" style={{ verticalAlign: 'middle', margin: '0 6px 4px 0' }} />
-                    The deployment will skip any devices in the group that are already on the target Release version, or that have an incompatible device type.
-                  </p>
-                ) : null}
+                  {devicesLength && artifact ? (
+                    <p className="info icon">
+                      <InfoOutlinedIcon fontSize="small" style={{ verticalAlign: 'middle', margin: '0 6px 4px 0' }} />
+                      The deployment will skip any devices in the group that are already on the target Release version, or that have an incompatible device type.
+                    </p>
+                  ) : null}
                 </Grid>
               </Grid>
             </div>

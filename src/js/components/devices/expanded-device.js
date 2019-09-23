@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import AppStore from '../../stores/app-store';
 import AppActions from '../../actions/app-actions';
-import ScheduleDialog from '../deployments/scheduledialog';
+import ScheduleDialog from '../deployments/createdeployment';
 import Authsets from './authsets';
 import ExpandableDeviceAttribute from './expandable-device-attribute';
 import Loader from '../common/loader';

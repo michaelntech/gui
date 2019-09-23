@@ -54,7 +54,6 @@ export default class Deployments extends React.Component {
       prog_page: 1,
       pend_page: 1,
       refreshDeploymentsLength: 30000,
-      dialog: false,
       reportDialog: false,
       createDialog: false,
       ...this._getInitialState()
@@ -126,13 +125,10 @@ export default class Deployments extends React.Component {
       pending: AppStore.getPendingDeployments(),
       progress: AppStore.getDeploymentsInProgress() || [],
       events: AppStore.getEventLog(),
-      collatedArtifacts: AppStore.getCollatedArtifacts(),
-      groups: AppStore.getGroups(),
       hasDeployments: AppStore.getHasDeployments(),
       showHelptips: AppStore.showHelptips(),
       hasPending: AppStore.getTotalPendingDevices(),
       hasDevices: AppStore.getTotalAcceptedDevices(),
-      release: AppStore.getDeploymentRelease(),
       user: AppStore.getCurrentUser(),
       pageLength: AppStore.getTotalDevices(),
       isHosted: AppStore.getIsHosted()
@@ -281,39 +277,18 @@ export default class Deployments extends React.Component {
     this.setState(this._getInitialState());
   }
 
-  _getGroupDevices(group) {
-    // get list of devices for each group and save them to state
-    var self = this;
-    return AppActions.getAllDevicesInGroup(group).then(devices => {
-      let state = {};
-      state[group] = devices;
-      self.setState(state);
-    });
-  }
-
-  dialogDismiss() {
-    this.setState({
-      reportDialog: false,
-      artifact: null,
-      release: null,
-      releaseArtifacts: null,
-      group: null
-    });
-  }
-
   _retryDeployment(deployment, devices) {
     var self = this;
     var artifact = { name: deployment.artifact_name, device_types_compatible: deployment.device_types_compatible || [] };
     this.setState({ artifact, group: deployment.name, filteredDevices: devices }, () => self._onScheduleSubmit(deployment.name, devices, artifact));
   }
 
-  _onScheduleSubmit(group, devices, artifact) {
+  _onScheduleSubmit(group, deviceIds, artifact) {
     var self = this;
-    var ids = devices.map(device => device.id);
     var newDeployment = {
       name: decodeURIComponent(group) || 'All devices',
       artifact_name: artifact.name,
-      devices: ids
+      devices: deviceIds
     };
     self.setState({ doneLoading: false, createDialog: false });
 
@@ -351,62 +326,12 @@ export default class Deployments extends React.Component {
         AppActions.setSnackbar(preformatWithRequestID(err.res, `Error creating deployment. ${errMsg}`), null, 'Copy to clipboard');
       });
   }
-  _deploymentParams(val, attr) {
-    // updating params from child schedule form
-    var tmp = {};
-    tmp[attr] = val;
-    this.setState(tmp);
-    var group = attr === 'group' ? val : this.state.group;
-    var artifact = attr === 'artifact' ? val : this.state.artifact;
-    var start_time = attr === 'start_time' ? val : this.state.start_time;
-    console.log(start_time);
-    this._getDeploymentDevices(group);
-  }
-  _getDeploymentDevices(group) {
-    var devices = [];
-    // set the selected groups devices to state, to be sent down to the child schedule form
-    if (group) {
-      devices = (group !== 'All devices' ? this.state[group] : this.state.allDevices) || [];
-    }
-    this.setState({ deploymentDevices: devices });
-  }
   _getReportById(id) {
     var self = this;
     return AppActions.getSingleDeployment(id).then(data => self._showReport(data, self.state.reportType));
   }
   _showReport(selectedDeployment, reportType) {
     this.setState({ createDialog: false, selectedDeployment, reportType, reportDialog: true });
-  }
-  _createDeployment(deployment) {
-    var artifact = '';
-    var group = '';
-    var start_time = null;
-    var id = null;
-    if (deployment) {
-      if (deployment.id) {
-        id = deployment.id;
-      }
-      if (deployment.artifact_name) {
-        artifact = AppStore.getSoftwareArtifact('name', deployment.artifact_name);
-      }
-      if (deployment.group) {
-        group = AppStore.getSingleGroup('name', deployment.group);
-      }
-      if (deployment.start_time) {
-        start_time = deployment.start_time;
-      }
-    }
-    this.setState({
-      dialog: false,
-      createDialog: true,
-      id: id,
-      start_time: start_time,
-      artifact: artifact,
-      group: group
-    });
-  }
-  _handleRequestClose() {
-    AppActions.setSnackbar('');
   }
   _showProgress(rowNumber) {
     var deployment = this.state.progress[rowNumber];
@@ -429,11 +354,6 @@ export default class Deployments extends React.Component {
         AppActions.setSnackbar(preformatWithRequestID(err.res, `There was wan error while aborting the deployment: ${errMsg}`));
       });
   }
-  updated() {
-    // use to make sure re-renders dialog at correct height when device list built
-    this.setState({ updated: true });
-  }
-
   _isOnBoardFinished(id) {
     var self = this;
     return AppActions.getSingleDeployment(id).then(data => {
@@ -441,11 +361,6 @@ export default class Deployments extends React.Component {
         cookie.remove(`${self.state.user.id}-deploymentID`);
       }
     });
-  }
-
-  // nested tabs
-  componentWillReceiveProps() {
-    // this.setState({ tabIndex: this._updateActive(), currentTab: this._getCurrentLabel() });
   }
 
   _updateActive(tab = this.context.router.route.match.params.tab) {
@@ -479,8 +394,9 @@ export default class Deployments extends React.Component {
     ];
 
     var dialogContent = '';
+    // use to make sure re-renders dialog at correct height when device list built
     const dialogProps = {
-      updated: () => this.updated(),
+      updated: () => this.setState({ updated: true }),
       deployment: this.state.selectedDeployment
     };
     if (this.state.reportType === 'active') {
@@ -528,7 +444,6 @@ export default class Deployments extends React.Component {
               showHelptips={this.state.showHelptips}
               hasDeployments={this.state.hasDeployments}
               devices={this.state.allDevices || []}
-              hasArtifacts={this.state.collatedArtifacts.length}
               count={this.state.progressCount || this.state.progress.length}
               pendingCount={this.state.pendingCount || this.state.pending.length}
               refreshProgress={(...args) => this._refreshInProgress(...args)}
@@ -572,27 +487,7 @@ export default class Deployments extends React.Component {
 
         <CreateDialog
           open={this.state.createDialog}
-          hasDeployments={this.state.hasDeployments}
-          showHelptips={this.state.showHelptips}
-          deploymentDevices={this.state.deploymentDevices}
-          hasPending={this.state.hasPending}
-          hasDevices={this.state.hasDevices}
-          deploymentSettings={(...args) => this._deploymentParams(...args)}
-          releaseArtifacts={this.state.releaseArtifacts}
-          artifacts={this.state.collatedArtifacts}
-          artifact={this.state.artifact}
-          groups={this.state.groups}
-          group={this.state.group}
-          onDismiss={() =>
-            this.setState({
-              createDialog: false,
-              releaseArtifacts: null,
-              release: null,
-              artifact: null,
-              group: null,
-              deploymentDevices: null,
-            })
-          }
+          onDismiss={() => self.setState({ createDialog: false })}
           onScheduleSubmit={(...args) => this._onScheduleSubmit(...args)}
         />
         {onboardingComponent}

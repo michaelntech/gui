@@ -1,116 +1,81 @@
 import React from 'react';
 
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Step, StepLabel, Stepper } from '@material-ui/core';
 
 import SoftwareDevices from './deployment-wizard/softwaredevices';
 import ScheduleRollout from './deployment-wizard/schedulerollout';
+import Review from './deployment-wizard/review';
 
 import AppStore from '../../stores/app-store';
+
+const deploymentSteps = [
+  { title: 'Select target software and devices', closed: false, component: SoftwareDevices },
+  { title: 'Set a rollout schedule', closed: true, component: ScheduleRollout },
+  { title: 'Review and create', closed: false, component: Review }
+];
 
 export default class ScheduleDialog extends React.Component {
   constructor(props, context) {
     super(props, context);
+    const isEnterprise = AppStore.getIsEnterprise();
+    const steps = deploymentSteps.reduce((accu, step) => {
+      if (step.closed && !isEnterprise) {
+        return accu;
+      }
+      accu.push(step);
+      return accu;
+    }, []);
     this.state = {
-      showDevices: false,
       activeStep: 0,
-      disabled: true,
-      isEnterprise: AppStore.getIsEnterprise()
+      release: null,
+      deploymentDeviceIds: [],
+      isEnterprise,
+      steps
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    var disabled = true;
-    if (this.state.activeStep === 0 && (nextProps.deploymentDevices && nextProps.deploymentDevices.length > 0) && nextProps.artifact) {
-      disabled = false;
-    }
-
-    this.setState({disabled: disabled});
-  }
-
-  _getSteps() {
-    return ['Select target software and devices', 'Set a rollout schedule', 'Review and create'];
-  }
-
-  _getStepContent(stepIndex) {
-    const props = this.props;
-
-    if (this.state.isEnterprise) {
-      switch (stepIndex) {
-      case 0:
-        return <SoftwareDevices isEnterprise={true} { ...props} />;
-      case 1:
-        return <ScheduleRollout { ...props} />;
-      case 2:
-        return 'review';
-      default:
-        return 'Unknown stepIndex';
-      }
-    } else {
-      switch (stepIndex) {
-      case 0:
-        return <SoftwareDevices { ...props} />;
-      case 1:
-        return 'review';
-      default:
-        return 'Unknown stepIndex';
-      }
-    }
+  deploymentSettings(value, property) {
+    this.setState({ [property]: value });
   }
 
   render() {
     const self = this;
-    const { artifact, open, onDismiss, deploymentDevices, ...other } = this.props;
-    var disabled = deploymentDevices && deploymentDevices.length > 0 ? false : true;
-    const steps = self._getSteps();
-
+    const { open, onDismiss, onScheduleSubmit } = this.props;
+    const { activeStep, release, deploymentDeviceIds, group, steps } = self.state;
+    const disabled = !(release && deploymentDeviceIds.length);
+    const finalStep = activeStep === steps.length - 1;
+    const ComponentToShow = steps[activeStep].component;
     return (
       <Dialog open={open || false} fullWidth={true} maxWidth="sm">
         <DialogTitle>Create a deployment</DialogTitle>
         <DialogContent className="dialog">
-          <Stepper activeStep={self.state.activeStep} alternativeLabel>
-            {steps.map(label => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map(step => (
+              <Step key={step.title}>
+                <StepLabel>{step.title}</StepLabel>
               </Step>
             ))}
           </Stepper>
-
-          <div>
-            {self._getStepContent(self.state.activeStep)}
-            
-          </div>
-          
+          <ComponentToShow deploymentSettings={(...args) => self.deploymentSettings(...args)} {...self.props} {...self.state} />
         </DialogContent>
         <DialogActions>
           <Button key="schedule-action-button-1" onClick={onDismiss} style={{ marginRight: '10px', display: 'inline-block' }}>
             Cancel
           </Button>
-          <Button
-            disabled={self.state.activeStep === 0}
-            onClick={() => self.setState({ activeStep: self.state.activeStep - 1 })}
-          >
-          Back
+          <Button disabled={activeStep === 0} onClick={() => self.setState({ activeStep: activeStep - 1 })}>
+            Back
           </Button>
           <div style={{ flexGrow: 1 }} />
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             color="primary"
-            disabled={self.state.disabled}
-            onClick={(self.state.activeStep === steps.length - 1) ? () => self.onScheduleSubmit(self.state.group, deploymentDevices, self.state.artifact || artifact) : () => self.setState({ activeStep: self.state.activeStep + 1 })}
+            disabled={disabled}
+            onClick={finalStep ? () => onScheduleSubmit(group, deploymentDeviceIds, release) : () => self.setState({ activeStep: activeStep + 1 })}
           >
-            {self.state.activeStep === steps.length - 1 ? 'Create' : 'Next'}
+            {finalStep ? 'Create' : 'Next'}
           </Button>
-      
         </DialogActions>
       </Dialog>
     );
   }
 }
-

@@ -3,73 +3,98 @@ import { Link } from 'react-router-dom';
 
 import pluralize from 'pluralize';
 
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-
-import Tooltip from '@material-ui/core/Tooltip';
+import { TextField, Tooltip } from '@material-ui/core';
+import { ErrorOutline as ErrorOutlineIcon, InfoOutlined as InfoOutlinedIcon } from '@material-ui/icons';
 
 import AutoSelect from '../../common/forms/autoselect';
-import { RootRef } from '@material-ui/core';
-import { getOnboardingComponentFor } from '../../../utils/onboardingmanager';
+import AppActions from '../../../actions/app-actions';
 import AppStore from '../../../stores/app-store';
+import { getOnboardingComponentFor } from '../../../utils/onboardingmanager';
+
+const allDevices = 'All devices';
+const styles = {
+  textField: {
+    minWidth: '400px'
+  },
+  infoStyle: {
+    minWidth: '400px',
+    borderBottom: 'none'
+  }
+};
 
 export default class SoftwareDevices extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
+      artifacts: AppStore.getCollatedArtifacts(AppStore.getArtifactsRepo()),
       disabled: false,
+      groups: AppStore.getGroups(),
+      hasDevices: AppStore.getAcceptedDevices(),
+      deploymentRelease: AppStore.getDeploymentRelease(),
+      release: null
     };
   }
 
   deploymentSettingsUpdate(value, property) {
-    this.setState({ [property]: value });
-    this.props.deploymentSettings(value, property);
+    const self = this;
+    let state = { [property]: value };
+    if (property === 'group') {
+      if (value) {
+        let promise = value === allDevices ? Promise.resolve(AppStore.getTotalAcceptedDevices()) : AppActions.getNumberOfDevicesInGroup(value);
+        promise.then(devicesLength => self.setState({ devicesLength }));
+      } else {
+        state.devicesLength = 0;
+      }
+    }
+    self.setState(state);
+    self.props.deploymentSettings(value, property);
+    if ((self.state.group || property === 'group') && (self.state.release || property === 'release')) {
+      self
+        .filterDeploymentDeviceIds(self.state.group || value, self.state.release || value)
+        .then(devices => self.props.deploymentSettings(devices, 'deploymentDeviceIds'));
+    }
+  }
+
+  filterDeploymentDeviceIds(group, release, device) {
+    // check that device type matches
+    let promisedDevices;
+    if (group === allDevices) {
+      promisedDevices = AppActions.getAllDevices();
+    } else if (device) {
+      promisedDevices = Promise.resolve([AppStore.getSingleDevice(device)]);
+    } else {
+      promisedDevices = AppActions.getAllDevicesInGroup(group);
+    }
+    return promisedDevices.then(devices =>
+      devices.reduce((accu, item) => {
+        const deviceType = item.attributes ? item.attributes.find(attribute => attribute.name === 'device_type').value : null;
+        if (release.device_types_compatible.includes(deviceType)) {
+          accu.push(item.id);
+        }
+        return accu;
+      }, [])
+    );
   }
 
   render() {
     const self = this;
-    const { artifact, device, deploymentAnchor, deploymentDevices, groups, hasDevices, hasPending, showDevices } = self.props;
+    const { device, deploymentAnchor, hasPending } = self.props;
+    const { artifacts, deploymentRelease, devicesLength, group, groups, hasDevices, release } = self.state;
+    const selectedRelease = deploymentRelease ? deploymentRelease : release;
 
-    var devicesLength = deploymentDevices ? deploymentDevices.length : 0;
-
-    const styles = {
-      textField: {
-        minWidth: '400px'
-      },
-      infoStyle: {
-        minWidth: '400px',
-        borderBottom: 'none',
-      }
-    }
-
-    const devicetypes = artifact ? artifact.device_types_compatible : []; 
-    const tooltipTypes = (
-      <p>{devicetypes.join(', ')}</p>
-    );
-
+    const releaseDeviceTypes = selectedRelease ? selectedRelease.device_types_compatible : [];
     const devicetypesInfo = (
-      <Tooltip title={tooltipTypes} placement="bottom">
-        <span className="link">{devicetypes.length} device {pluralize('types', devicetypes.length)}</span>
+      <Tooltip title={<p>{releaseDeviceTypes.join(', ')}</p>} placement="bottom">
+        <span className="link">
+          {releaseDeviceTypes.length} device {pluralize('types', releaseDeviceTypes.length)}
+        </span>
       </Tooltip>
     );
 
-
-    var artifactItems = this.props.artifacts.map(art => ({
+    var artifactItems = artifacts.map(art => ({
       title: art.name,
       value: art
     }));
-
-
-    const release = AppStore.getDeploymentRelease();
-    const releaseDeviceTypes = release
-      ? release.Artifacts.reduce((accu, item) => {
-        accu.push(item.device_types_compatible);
-        return accu;
-      }, [])
-      : [];
 
     let groupItems = [{ title: 'All devices', value: 'All devices' }];
     if (device) {
@@ -91,7 +116,7 @@ export default class SoftwareDevices extends React.Component {
       }, groupItems);
     }
 
-    const groupLink = self.props.group ? `/devices/group=`+self.props.group : '/devices/';
+    const groupLink = group ? `/devices/group=${group}` : '/devices/';
 
     let onboardingComponent = null;
     if (this.releaseRef && this.groupRef && deploymentAnchor) {
@@ -108,116 +133,75 @@ export default class SoftwareDevices extends React.Component {
     }
 
     return (
-      <div style={{ overflow: 'visible', minHeight: '300px', marginTop:'15px' }}>
+      <div style={{ overflow: 'visible', minHeight: '300px', marginTop: '15px' }}>
         {!artifactItems.length ? (
           <p className="info" style={{ marginTop: '0' }}>
             <ErrorOutlineIcon style={{ marginRight: '4px', fontSize: '18px', top: '4px', color: 'rgb(171, 16, 0)' }} />
             There are no artifacts available. <Link to="/artifacts">Upload one to the repository</Link> to get started.
           </p>
         ) : (
-          <form>
-            <RootRef rootRef={ref => (this.releaseRef = ref)}>
-              <Grid 
-                container 
-                spacing={16} 
-                justify="center" 
-                alignItems="center"
-              >
-                <Grid item>
-                  <div style={{width:'min-content', minHeight:'105px'}}>
-                    {release ? (
-                      <TextField value={release.Name} label="Release" disabled={true} style={styles.infoStyle} />
-                    ) : (
-                      <AutoSelect
-                        label="Select a Release to deploy"
-                        errorText="Select a Release to deploy"
-                        items={artifactItems}
-                        onChange={item => self.deploymentSettingsUpdate(item, 'artifact')}
-                        style={styles.textField}
-                        value={artifact ? artifact.name : null}
-                      />
-                    )}
+          <form className="flexbox centered column">
+            <div ref={ref => (this.releaseRef = ref)} style={{ minWidth: 'min-content', minHeight: '105px' }}>
+              {deploymentRelease ? (
+                <TextField value={deploymentRelease.Name} label="Release" disabled={true} style={styles.infoStyle} />
+              ) : (
+                <AutoSelect
+                  label="Select a Release to deploy"
+                  errorText="Select a Release to deploy"
+                  items={artifactItems}
+                  onChange={item => self.deploymentSettingsUpdate(item, 'release')}
+                  style={styles.textField}
+                  value={release ? release.name : null}
+                />
+              )}
 
-
-                    <div>
-                      {artifact ? (
-                        <p className="info" style={{marginBottom:0}}>
-                          This Release is compatible with {devicetypesInfo}.
-                        </p>
+              <div>
+                {release ? (
+                  <p className="info" style={{ marginBottom: 0 }}>
+                    This Release is compatible with {devicetypesInfo}.
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <div ref={ref => (this.groupRef = ref)} style={{ width: 'min-content' }}>
+              {self.state.disabled ? (
+                <TextField value={device ? device.id : ''} label="Device" disabled={self.state.disabled} style={styles.infoStyle} />
+              ) : (
+                <div>
+                  <AutoSelect
+                    label="Select a device group to deploy to"
+                    errorText="Please select a group from the list"
+                    value={group}
+                    items={groupItems}
+                    disabled={!hasDevices}
+                    onChange={item => self.deploymentSettingsUpdate(item, 'group')}
+                    style={styles.textField}
+                  />
+                  {hasDevices ? null : (
+                    <p className="info" style={{ marginTop: '10px' }}>
+                      <ErrorOutlineIcon style={{ marginRight: '4px', fontSize: '18px', top: '4px', color: 'rgb(171, 16, 0)', position: 'relative' }} />
+                      There are no connected devices.{' '}
+                      {hasPending ? (
+                        <span>
+                          <Link to="/devices/pending">Accept pending devices</Link> to get started.
+                        </span>
                       ) : null}
-                    </div>
-                  </div>
-                </Grid>
-              </Grid>
-            </RootRef>
-
-            <div ref={ref => (this.groupRef = ref)}>
-              <Grid 
-                container 
-                spacing={16} 
-                justify="center" 
-                alignItems="center"
-              >
-                <Grid item>
-                  <div style={{width:'min-content'}}>
-
-                    {self.state.disabled ? (
-                      <TextField value={device ? device.id : ''} label="Device" disabled={self.state.disabled} style={styles.infoStyle} />
-                    ) : (
-                      <div>
-                        <AutoSelect
-                          label="Select a device group to deploy to"
-                          errorText="Please select a group from the list"
-                          value={self.props.group}
-                          items={groupItems}
-                          disabled={!hasDevices}
-                          onChange={item => self.deploymentSettingsUpdate(item, 'group')}
-                          style={styles.textField}
-                        />
-                        {hasDevices ? null : (
-                          <p className="info" style={{ marginTop: '10px' }}>
-                            <ErrorOutlineIcon style={{ marginRight: '4px', fontSize: '18px', top: '4px', color: 'rgb(171, 16, 0)', position: 'relative' }} />
-                            There are no connected devices.{' '}
-                            {hasPending ? (
-                              <span>
-                                <Link to="/devices/pending">Accept pending devices</Link> to get started.
-                              </span>
-                            ) : null}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                   
-                    {devicesLength ? (
-                      <p className="info">
-                        {devicesLength} {pluralize('devices', devicesLength)} will be targeted.{' '}
-                      
-                        <Link to={groupLink}>View the devices</Link>
-                          
-                      </p>
-                    ) : null}         
-
-                    {onboardingComponent}
-                  </div>
-                </Grid>
-              </Grid>
-
-
-              <Grid 
-                container 
-                spacing={16} 
-                justify="center" 
-                alignItems="center"
-              >
-                <Grid item xs={10}>
-                  {devicesLength && artifact ? (
-                    <p className="info icon">
-                      <InfoOutlinedIcon fontSize="small" style={{ verticalAlign: 'middle', margin: '0 6px 4px 0' }} />
-                      The deployment will skip any devices in the group that are already on the target Release version, or that have an incompatible device type.
                     </p>
-                  ) : null}
-                </Grid>
-              </Grid>
+                  )}
+                </div>
+              )}
+              {devicesLength > 0 && (
+                <p className="info">
+                  {devicesLength} {pluralize('devices', devicesLength)} will be targeted. <Link to={groupLink}>View the devices</Link>
+                </p>
+              )}
+              {onboardingComponent}
+              {devicesLength > 0 && release && (
+                <p className="info icon">
+                  <InfoOutlinedIcon fontSize="small" style={{ verticalAlign: 'middle', margin: '0 6px 4px 0' }} />
+                  The deployment will skip any devices in the group that are already on the target Release version, or that have an incompatible device type.
+                </p>
+              )}
             </div>
           </form>
         )}

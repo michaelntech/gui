@@ -1,31 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
-import pluralize from 'pluralize';
-
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-
-import Tooltip from '@material-ui/core/Tooltip';
-
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-
-import PhaseSettings from './phasesettings';
-
-
-import { DateTimePicker, MuiPickersUtilsProvider } from 'material-ui-pickers';
+import { FormControl, Grid, InputLabel, MenuItem, RootRef, Select } from '@material-ui/core';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 
-import { RootRef } from '@material-ui/core';
-import { getOnboardingComponentFor } from '../../../utils/onboardingmanager';
-import AppStore from '../../../stores/app-store';
+import PhaseSettings from './phasesettings';
 
 export default class ScheduleRollout extends React.Component {
   constructor(props, context) {
@@ -40,7 +19,7 @@ export default class ScheduleRollout extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.start_time !== this.props.start_time) {
-      this.setState({start_time: this.props.start_time});
+      this.setState({ start_time: this.props.start_time });
     }
   }
 
@@ -49,7 +28,7 @@ export default class ScheduleRollout extends React.Component {
     this.props.deploymentSettings(value, property);
   }
 
-  handleStartChange(event) {
+  handleStartChange() {
     // To be used with updated datetimepicker to open programmatically
     /*if (event.target.value === "immediate") {
       this.setState({start_time: event.target.value});
@@ -59,110 +38,70 @@ export default class ScheduleRollout extends React.Component {
   }
 
   handlePatternChange(value) {
-    this.setState({pattern: value});
+    this.setState({ pattern: value });
   }
 
   setPickerOpen(value) {
-    this.setState({isPickerOpen: value});
+    this.setState({ isPickerOpen: value });
     // To be used with updated datetimepicker
   }
-
 
   render() {
     const self = this;
     const props = self.props;
-    const { artifact, device, deploymentAnchor, deploymentDevices, groups, hasDevices, hasPending, showDevices } = self.props;
-  
+
     const styles = {
       textField: {
         minWidth: '400px'
       },
       infoStyle: {
         minWidth: '400px',
-        borderBottom: 'none',
+        borderBottom: 'none'
       }
-    }
-
- 
-    let onboardingComponent = null;
-    if (this.scheduleRef && this.groupRef && deploymentAnchor) {
-      const anchor = { top: this.scheduleRef.offsetTop + (this.scheduleRef.offsetHeight / 3) * 2, left: this.scheduleRef.offsetWidth / 2 };
-      onboardingComponent = getOnboardingComponentFor('scheduling-artifact-selection', { anchor, place: 'right' });
-      const groupAnchor = { top: this.groupRef.offsetTop + (this.groupRef.offsetHeight / 3) * 2, left: this.groupRef.offsetWidth / 2 };
-      onboardingComponent = getOnboardingComponentFor('scheduling-all-devices-selection', { anchor: groupAnchor, place: 'right' }, onboardingComponent);
-      onboardingComponent = getOnboardingComponentFor('scheduling-group-selection', { anchor: groupAnchor, place: 'right' }, onboardingComponent);
-      const buttonAnchor = {
-        top: deploymentAnchor.offsetTop - deploymentAnchor.offsetHeight,
-        left: deploymentAnchor.offsetLeft + deploymentAnchor.offsetWidth / 2
-      };
-      onboardingComponent = getOnboardingComponentFor('scheduling-release-to-devices', { anchor: buttonAnchor, place: 'bottom' }, onboardingComponent);
-    }
+    };
 
     return (
-      <div style={{ overflow: 'visible', minHeight: '300px', marginTop:'15px' }}>
-      
+      <div style={{ overflow: 'visible', minHeight: '300px', marginTop: '15px' }}>
         <form>
           <RootRef rootRef={ref => (this.scheduleRef = ref)}>
-            <Grid 
-              container 
-              spacing={16} 
-              justify="center" 
-              alignItems="center"
-            >
+            <Grid container spacing={16} justify="center" alignItems="center">
               <Grid item>
-                <div style={{width:'min-content', minHeight:'105px'}}>
-
+                <div style={{ width: 'min-content', minHeight: '105px' }}>
                   <FormControl>
                     <MuiPickersUtilsProvider utils={MomentUtils}>
-                      <DateTimePicker
+                      <DatePicker
                         open={self.state.isPickerOpen}
                         onOpen={() => self.setPickerOpen(true)}
                         onClose={() => self.setPickerOpen(false)}
                         label="Set the start time"
                         value={self.state.start_time}
                         style={styles.textField}
-                        minDate={ new Date() }
+                        minDate={new Date()}
                         onChange={date => self.deploymentSettingsUpdate(date.toISOString(), 'start_time')}
                       />
-           
                     </MuiPickersUtilsProvider>
-
                   </FormControl>
-                 
                 </div>
               </Grid>
             </Grid>
           </RootRef>
 
           <div ref={ref => (this.groupRef = ref)}>
-            <Grid 
-              container 
-              spacing={16} 
-              justify="center" 
-              alignItems="center"
-            >
+            <Grid container spacing={16} justify="center" alignItems="center">
               <Grid item>
-                <div style={{width:'min-content'}}>
+                <div style={{ width: 'min-content' }}>
                   <FormControl>
                     <InputLabel>Select a rollout pattern</InputLabel>
-                    <Select
-                      onChange={event => this.handlePatternChange(event.target.value)}
-                      value={self.state.pattern}
-                      style={styles.textField}
-                    >
+                    <Select onChange={event => this.handlePatternChange(event.target.value)} value={self.state.pattern} style={styles.textField}>
                       <MenuItem value={0}>Single phase: 100%</MenuItem>
                       <MenuItem value={1}>Custom</MenuItem>
-
                     </Select>
                   </FormControl>
 
-                  {self.state.pattern ? <PhaseSettings { ...props } /> : null }
-                  
-                  {onboardingComponent}
+                  {self.state.pattern ? <PhaseSettings {...props} /> : null}
                 </div>
               </Grid>
             </Grid>
-
           </div>
         </form>
       </div>

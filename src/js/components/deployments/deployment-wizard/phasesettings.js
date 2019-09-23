@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Chip from '@material-ui/core/Chip';
 import AddIcon from '@material-ui/icons/Add';
@@ -10,11 +10,12 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 function PhaseSettings(props) {
-
-  const rows = [{
-    batch_size: 100,
-    start_ts: props.start_time
-  }];
+  const rows = [
+    {
+      batch_size: 100,
+      start_ts: props.start_time
+    }
+  ];
 
   return (
     <div>
@@ -32,7 +33,7 @@ function PhaseSettings(props) {
           {rows.map((row, index) => (
             <TableRow key={index}>
               <TableCell component="th" scope="row">
-                <Chip size="small" label={"Phase "+index} />
+                <Chip size="small" label={'Phase ' + index} />
               </TableCell>
               <TableCell>{row.batch_size}</TableCell>
               <TableCell>{row.start_ts}</TableCell>
@@ -44,7 +45,6 @@ function PhaseSettings(props) {
       </Table>
 
       <Chip color="primary" clickable icon={<AddIcon />} label="Add a phase" />
-
     </div>
   );
 }

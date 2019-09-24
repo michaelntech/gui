@@ -92,12 +92,11 @@ export default class Deployments extends React.Component {
         if (params.get('id')) {
           self._getReportById(params.get('id'));
         } else if (params.get('release')) {
-          const release = AppStore.getRelease(params.get('release'));
+          const release = self.flattenRelease(AppStore.getRelease(params.get('release')));
+          const deploymentRelease = self.flattenRelease(AppStore.getDeploymentRelease());
           self.setState({
             scheduleDialog: true,
-            releaseArtifacts: release ? release.Artifacts : null,
-            release,
-            artifact: release && release.Artifacts ? release.Artifacts[0] : null
+            release: release || deploymentRelease
           });
         } else {
           setTimeout(() => {
@@ -116,6 +115,19 @@ export default class Deployments extends React.Component {
     clearInterval(this.timer);
     clearAllRetryTimers();
     AppStore.removeChangeListener(this._onChange.bind(this));
+  }
+
+  flattenRelease(release) {
+    if (release && release.hasOwnProperty('Artifacts')) {
+      return release.Artifacts.reduce(
+        (accu, item) => {
+          accu.device_types_compatible = accu.device_types_compatible.concat(item.device_types_compatible);
+          return accu;
+        },
+        { name: release.Name, device_types_compatible: [] }
+      );
+    }
+    return release;
   }
 
   _getInitialState() {
@@ -278,17 +290,18 @@ export default class Deployments extends React.Component {
   }
 
   _retryDeployment(deployment, devices) {
-    var self = this;
-    var artifact = { name: deployment.artifact_name, device_types_compatible: deployment.device_types_compatible || [] };
-    this.setState({ artifact, group: deployment.name, filteredDevices: devices }, () => self._onScheduleSubmit(deployment.name, devices, artifact));
+    const self = this;
+    const release = { name: deployment.artifact_name, device_types_compatible: deployment.device_types_compatible || [] };
+    self.setState({ release, group: deployment.name, filteredDevices: devices }, () => self._onScheduleSubmit(deployment.name, devices, release));
   }
 
-  _onScheduleSubmit(group, deviceIds, artifact) {
+  _onScheduleSubmit(deploymentObject) {
     var self = this;
+    const { group, deploymentDeviceIds, release } = deploymentObject;
     var newDeployment = {
       name: decodeURIComponent(group) || 'All devices',
-      artifact_name: artifact.name,
-      devices: deviceIds
+      artifact_name: release.name,
+      devices: deploymentDeviceIds
     };
     self.setState({ doneLoading: false, createDialog: false });
 
@@ -406,7 +419,7 @@ export default class Deployments extends React.Component {
     }
 
     // tabs
-    const { past, per_page, pastCount, tabIndex } = this.state;
+    const { past, per_page, pastCount, release, tabIndex } = this.state;
     let onboardingComponent = null;
     if (past.length || pastCount) {
       onboardingComponent = getOnboardingComponentFor('deployments-past', { anchor: { left: 240, top: 50 } });
@@ -489,6 +502,7 @@ export default class Deployments extends React.Component {
           open={this.state.createDialog}
           onDismiss={() => self.setState({ createDialog: false })}
           onScheduleSubmit={(...args) => this._onScheduleSubmit(...args)}
+          deploymentRelease={release}
         />
         {onboardingComponent}
       </div>

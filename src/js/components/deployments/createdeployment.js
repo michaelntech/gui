@@ -17,7 +17,7 @@ const deploymentSteps = [
 export default class ScheduleDialog extends React.Component {
   constructor(props, context) {
     super(props, context);
-    const isEnterprise = AppStore.getIsEnterprise();
+    const isEnterprise = AppStore.getIsEnterprise() || AppStore.getIsHosted();
     const steps = deploymentSteps.reduce((accu, step) => {
       if (step.closed && !isEnterprise) {
         return accu;
@@ -38,15 +38,26 @@ export default class ScheduleDialog extends React.Component {
     this.setState({ [property]: value });
   }
 
+  onScheduleSubmit(settings) {
+    this.props.onScheduleSubmit(settings);
+    this.setState({ activeStep: 0, deploymentDeviceIds: [], group: null, phases: [], release: null });
+  }
+
   render() {
     const self = this;
-    const { open, onDismiss, onScheduleSubmit } = this.props;
-    const { activeStep, release, deploymentDeviceIds, group, steps } = self.state;
+    const { device, open, onDismiss } = this.props;
+    const { activeStep, release, deploymentDeviceIds, group, phases, steps } = self.state;
     const disabled = !(release && deploymentDeviceIds.length);
     const finalStep = activeStep === steps.length - 1;
     const ComponentToShow = steps[activeStep].component;
+    const deploymentSettings = {
+      group: device ? null : group,
+      deploymentDeviceIds,
+      release,
+      phases
+    };
     return (
-      <Dialog open={open || false} fullWidth={true} maxWidth="sm">
+      <Dialog open={open || false} fullWidth={true} maxWidth="md">
         <DialogTitle>Create a deployment</DialogTitle>
         <DialogContent className="dialog">
           <Stepper activeStep={activeStep} alternativeLabel>
@@ -56,9 +67,9 @@ export default class ScheduleDialog extends React.Component {
               </Step>
             ))}
           </Stepper>
-          <ComponentToShow deploymentSettings={(...args) => self.deploymentSettings(...args)} {...self.props} {...self.state} />
+          <ComponentToShow {...self.props} {...self.state} deploymentSettings={(...args) => self.deploymentSettings(...args)} />
         </DialogContent>
-        <DialogActions>
+        <DialogActions className="margin-left margin-right">
           <Button key="schedule-action-button-1" onClick={onDismiss} style={{ marginRight: '10px', display: 'inline-block' }}>
             Cancel
           </Button>
@@ -70,7 +81,7 @@ export default class ScheduleDialog extends React.Component {
             variant="contained"
             color="primary"
             disabled={disabled}
-            onClick={finalStep ? () => onScheduleSubmit(group, deploymentDeviceIds, release) : () => self.setState({ activeStep: activeStep + 1 })}
+            onClick={finalStep ? () => self.onScheduleSubmit(deploymentSettings) : () => self.setState({ activeStep: activeStep + 1 })}
           >
             {finalStep ? 'Create' : 'Next'}
           </Button>

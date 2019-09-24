@@ -9,6 +9,8 @@ import { ErrorOutline as ErrorOutlineIcon, InfoOutlined as InfoOutlinedIcon } fr
 import AutoSelect from '../../common/forms/autoselect';
 import AppActions from '../../../actions/app-actions';
 import AppStore from '../../../stores/app-store';
+import AppConstants from '../../../constants/app-constants';
+
 import { getOnboardingComponentFor } from '../../../utils/onboardingmanager';
 
 const allDevices = 'All devices';
@@ -25,12 +27,12 @@ const styles = {
 export default class SoftwareDevices extends React.Component {
   constructor(props, context) {
     super(props, context);
+
     this.state = {
       artifacts: AppStore.getCollatedArtifacts(AppStore.getArtifactsRepo()),
       disabled: false,
-      groups: AppStore.getGroups(),
+      groups: AppStore.getGroups().filter(item => item !== AppConstants.UNGROUPED_GROUP.id),
       hasDevices: AppStore.getAcceptedDevices(),
-      deploymentRelease: AppStore.getDeploymentRelease(),
       release: null
     };
   }
@@ -38,6 +40,8 @@ export default class SoftwareDevices extends React.Component {
   deploymentSettingsUpdate(value, property) {
     const self = this;
     let state = { [property]: value };
+    self.props.deploymentSettings(value, property);
+    self.props.deploymentSettings([{ batch_size: 100, start_ts: new Date() }], 'phases');
     if (property === 'group') {
       if (value) {
         let promise = value === allDevices ? Promise.resolve(AppStore.getTotalAcceptedDevices()) : AppActions.getNumberOfDevicesInGroup(value);
@@ -46,13 +50,17 @@ export default class SoftwareDevices extends React.Component {
         state.devicesLength = 0;
       }
     }
-    self.setState(state);
-    self.props.deploymentSettings(value, property);
-    if ((self.state.group || property === 'group') && (self.state.release || property === 'release')) {
+    const currentState = Object.assign({}, self.state, state);
+    if (!currentState.release && property !== 'release') {
+      self.props.deploymentSettings(self.props.deploymentRelease, 'release');
+      currentState.release = state.release = self.props.deploymentRelease;
+    }
+    if (currentState.group && currentState.release) {
       self
-        .filterDeploymentDeviceIds(self.state.group || value, self.state.release || value)
+        .filterDeploymentDeviceIds(currentState.group, currentState.release, self.props.device)
         .then(devices => self.props.deploymentSettings(devices, 'deploymentDeviceIds'));
     }
+    self.setState(state);
   }
 
   filterDeploymentDeviceIds(group, release, device) {
@@ -61,7 +69,7 @@ export default class SoftwareDevices extends React.Component {
     if (group === allDevices) {
       promisedDevices = AppActions.getAllDevices();
     } else if (device) {
-      promisedDevices = Promise.resolve([AppStore.getSingleDevice(device)]);
+      promisedDevices = Promise.resolve([device]);
     } else {
       promisedDevices = AppActions.getAllDevicesInGroup(group);
     }
@@ -78,8 +86,9 @@ export default class SoftwareDevices extends React.Component {
 
   render() {
     const self = this;
-    const { device, deploymentAnchor, hasPending } = self.props;
-    const { artifacts, deploymentRelease, devicesLength, group, groups, hasDevices, release } = self.state;
+    const { device, deploymentAnchor, deploymentRelease, hasPending } = self.props;
+    const { artifacts, devicesLength, group, groups, hasDevices, release } = self.state;
+
     const selectedRelease = deploymentRelease ? deploymentRelease : release;
 
     const releaseDeviceTypes = selectedRelease ? selectedRelease.device_types_compatible : [];
@@ -143,7 +152,7 @@ export default class SoftwareDevices extends React.Component {
           <form className="flexbox centered column">
             <div ref={ref => (this.releaseRef = ref)} style={{ minWidth: 'min-content', minHeight: '105px' }}>
               {deploymentRelease ? (
-                <TextField value={deploymentRelease.Name} label="Release" disabled={true} style={styles.infoStyle} />
+                <TextField value={deploymentRelease.name} label="Release" disabled={true} style={styles.infoStyle} />
               ) : (
                 <AutoSelect
                   label="Select a Release to deploy"
@@ -154,14 +163,11 @@ export default class SoftwareDevices extends React.Component {
                   value={release ? release.name : null}
                 />
               )}
-
-              <div>
-                {release ? (
-                  <p className="info" style={{ marginBottom: 0 }}>
-                    This Release is compatible with {devicetypesInfo}.
-                  </p>
-                ) : null}
-              </div>
+              {releaseDeviceTypes.length ? (
+                <p className="info" style={{ marginBottom: 0 }}>
+                  This Release is compatible with {devicetypesInfo}.
+                </p>
+              ) : null}
             </div>
             <div ref={ref => (this.groupRef = ref)} style={{ width: 'min-content' }}>
               {self.state.disabled ? (

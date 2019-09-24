@@ -1299,14 +1299,13 @@ p.info {
   &.icon {
     position: relative;
     padding-left: 30px;
-  
+
     svg {
       position: absolute;
       left: 0;
     }
   }
 }
-
 
 form .required::after {
   content: '* required';
@@ -1537,6 +1536,12 @@ tr.expand {
   }
 }
 
+.bordered {
+  border: 1px solid @lightgrey;
+  margin-top: 10px;
+  padding: 5px 20px;
+}
+
 .deviceList {
   min-width: 800px;
   .header {
@@ -1560,12 +1565,6 @@ tr.expand {
     .expandedDevice {
       padding-left: 48px;
       padding-right: 35px;
-    }
-    .device-identity.bordered,
-    .device-inventory.bordered {
-      border: 1px solid @lightgrey;
-      margin-top: 10px;
-      padding: 5px 20px;
     }
     .device-identity,
     .device-actions {
@@ -2027,6 +2026,14 @@ span.day {
       color: @grey;
       text-align: center;
     }
+  }
+}
+
+.deployment-phases-list > .column {
+  margin-right: @defaultGutterWidth;
+  justify-content: flex-end;
+  & > div {
+    margin-bottom: @defaultGutterWidth;
   }
 }
 

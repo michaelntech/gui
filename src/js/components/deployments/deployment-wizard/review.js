@@ -1,55 +1,67 @@
 import React from 'react';
 
-import { Chip, List, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
+import pluralize from 'pluralize';
+
+import { Chip, List } from '@material-ui/core';
+import { InfoOutlined as InfoOutlinedIcon } from '@material-ui/icons';
 
 import ExpandableDeviceAttribute from '../../devices/expandable-device-attribute';
 
 const Review = props => {
-  const { release, group, deploymentDeviceIds, startTime, phases = [] } = props;
-  // const rows = [
-  //   {
-  //     batch_size: 100,
-  //     start_ts: props.start_time
-  //   }
-  // ];
+  const { deploymentDeviceIds, device, group, isEnterprise, phases, release } = props;
 
-  const items = [
+  const deploymentInformation = [
     { primary: 'Release', secondary: release.name },
-    { primary: 'Device group', secondary: group },
+    { primary: `Device${device ? '' : ' group'}`, secondary: device ? device.id : group },
     { primary: 'Device types compatible', secondary: release.device_types_compatible.join(', ') },
     { primary: '# devices', secondary: deploymentDeviceIds.length },
-    { primary: 'Start time', secondary: startTime }
+    { primary: 'Start time', secondary: phases[0].start_ts.toLocaleString() }
   ];
 
   return (
-    <div className="device-identity bordered">
-      <h4 className="margin-bottom-none">Review deployment details</h4>
+    <div className="flexbox centered column">
+      <div className="bordered">
+        <h4 className="margin-bottom-none">Review deployment details</h4>
 
-      <List className="list-horizontal-flex">
-        {items.map(item => (
-          <ExpandableDeviceAttribute key={item.primary} primary={item.primary} secondary={item.secondary} style={{ flexBasis: 200 }} dividerDisabled={true} />
-        ))}
-      </List>
-
-      <h6 className="margin-bottom-none">Rollout Schedule</h6>
-
-      <span>Batch size</span>
-      <span>Phase begins</span>
-      <Table size="small">
-        <TableBody>
-          {phases.map((row, index) => (
-            <TableRow key={index}>
-              <TableCell component="th" scope="row">
-                <Chip size="small" label={'Phase ' + index} />
-              </TableCell>
-              <TableCell>{row.batch_size}</TableCell>
-              <TableCell>{row.start_ts}</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
+        <List className="list-horizontal-flex">
+          {deploymentInformation.map(item => (
+            <ExpandableDeviceAttribute
+              key={item.primary}
+              primary={item.primary}
+              secondary={item.secondary}
+              style={{ flexBasis: 240, margin: '-5px 0' }}
+              dividerDisabled={true}
+            />
           ))}
-        </TableBody>
-      </Table>
+        </List>
+
+        <h4 className="margin-bottom-none">Rollout Schedule</h4>
+
+        <div className="flexbox deployment-phases-list margin-top-small">
+          <div className="flexbox column align-right">
+            <div>Phase begins</div>
+            <div>Batch size</div>
+          </div>
+          {phases.map((row, index) => {
+            const deviceCount = Math.ceil((deploymentDeviceIds.length / 100) * row.batch_size);
+            return (
+              <div className="flexbox column" key={row.start_ts.toISOString()}>
+                <Chip size="small" label={`Phase ${index + 1}`} />
+                <div>{row.start_ts.toLocaleString()}</div>
+                <div>{`${row.batch_size}% (${deviceCount}) ${pluralize('device', deviceCount)}`}</div>
+              </div>
+            );
+          })}
+        </div>
+        {!isEnterprise && (
+          <p className="info icon">
+            <InfoOutlinedIcon fontSize="small" style={{ verticalAlign: 'middle', margin: '0 6px 4px 0' }} />
+            {`Hosted Mender & Mender Enterprise users can choose to roll out their deployments delayed or in multiple phases. ${(
+              <a href="https://mender.io">Learn more</a>
+            )}`}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

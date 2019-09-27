@@ -26,7 +26,7 @@ export default class PhaseSettings extends React.Component {
     const phases = props.phases.map((phase, index) => (
       <TableRow key={index}>
         <TableCell component="th" scope="row">
-          <Chip size="small" label={'Phase ' + index} />
+          <Chip size="small" label={'Phase ' + index+1} />
         </TableCell>
         <TableCell>{phase.batch_size}</TableCell>
         <TableCell>{phase.start_ts}</TableCell>

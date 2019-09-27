@@ -59,7 +59,17 @@ export default class ScheduleRollout extends React.Component {
   }
 
   handlePatternChange(value) {
-    this.setState({ pattern: value });
+    var phases = [];
+    // if setting new custom pattern we use default 2 phases
+    if (value === 'custom') {
+      phases = [{batch_size:10, start_ts:new Date().toISOString(), delay:2},{}];
+      // check if a start time already exists from props and if so, use it
+      if (this.props.phases) {
+        phases[0].start_ts = this.props.phases[0].start_ts;
+      }
+      this.updatePhaseStarts(phases);
+      this.setState({ pattern: value });
+    }
   }
 
   setPickerOpen(value) {
@@ -116,7 +126,7 @@ export default class ScheduleRollout extends React.Component {
                         style={styles.textField}
                       >
                         <MenuItem value={0}>Start immediately</MenuItem>
-                        <MenuItem value={1}>Schedule a start date & time</MenuItem>
+                        <MenuItem value="custom">Schedule a start date & time</MenuItem>
                       </Select>
                     </FormControl>
                   }

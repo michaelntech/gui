@@ -86,8 +86,8 @@ export default class SoftwareDevices extends React.Component {
 
   render() {
     const self = this;
-    const { device, deploymentAnchor, deploymentRelease, hasPending } = self.props;
-    const { artifacts, devicesLength, group, groups, hasDevices, release } = self.state;
+    const { device, deploymentAnchor, deploymentRelease, hasPending, release, group } = self.props;
+    const { artifacts, devicesLength, groups, hasDevices } = self.state;
 
     const selectedRelease = deploymentRelease ? deploymentRelease : release;
 

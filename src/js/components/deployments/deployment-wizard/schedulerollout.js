@@ -30,11 +30,9 @@ export default class ScheduleRollout extends React.Component {
 
   handleStartChange() {
     // To be used with updated datetimepicker to open programmatically
-    /*if (event.target.value === "immediate") {
-      this.setState({start_time: event.target.value});
-    } else {
+    if (event.target.value) {
       this.setPickerOpen(true);
-    }*/
+    }
   }
 
   handlePatternChange(value) {
@@ -66,21 +64,38 @@ export default class ScheduleRollout extends React.Component {
           <RootRef rootRef={ref => (this.scheduleRef = ref)}>
             <Grid container spacing={16} justify="center" alignItems="center">
               <Grid item>
-                <div style={{ width: 'min-content', minHeight: '105px' }}>
+                <div style={{width:'min-content', minHeight:'105px'}}>
+
+                { (self.state.isPickerOpen || props.start_time) ?
+
                   <FormControl>
                     <MuiPickersUtilsProvider utils={MomentUtils}>
-                      <DatePicker
+                      <DateTimePicker
                         open={self.state.isPickerOpen}
                         onOpen={() => self.setPickerOpen(true)}
                         onClose={() => self.setPickerOpen(false)}
                         label="Set the start time"
-                        value={self.state.start_time}
+                        value={props.start_time}
                         style={styles.textField}
                         minDate={new Date()}
                         onChange={date => self.deploymentSettingsUpdate(date.toISOString(), 'start_time')}
                       />
                     </MuiPickersUtilsProvider>
                   </FormControl>
+                  :
+                  <FormControl>
+                    <InputLabel>Set a start time</InputLabel>
+                    <Select
+                      onChange={event => this.handlePatternChange(event.target.value)}
+                      value={0}
+                      style={styles.textField}
+                    >
+                      <MenuItem value={0}>Start immediately</MenuItem>
+                      <MenuItem value={1}>Schedule a start date & time</MenuItem>
+                    </Select>
+                  </FormControl>
+                }
+                 
                 </div>
               </Grid>
             </Grid>

@@ -41,7 +41,7 @@ export default class SoftwareDevices extends React.Component {
     const self = this;
     let state = { [property]: value };
     self.props.deploymentSettings(value, property);
-    self.props.deploymentSettings([{ batch_size: 100, start_ts: new Date() }], 'phases');
+
     if (property === 'group') {
       if (value) {
         let promise = value === allDevices ? Promise.resolve(AppStore.getTotalAcceptedDevices()) : AppActions.getNumberOfDevicesInGroup(value);

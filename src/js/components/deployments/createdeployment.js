@@ -57,7 +57,7 @@ export default class ScheduleDialog extends React.Component {
       phases
     };
     return (
-      <Dialog open={open || false} fullWidth={true} maxWidth="md">
+      <Dialog open={open || false} fullWidth={false} maxWidth="md">
         <DialogTitle>Create a deployment</DialogTitle>
         <DialogContent className="dialog">
           <Stepper activeStep={activeStep} alternativeLabel>

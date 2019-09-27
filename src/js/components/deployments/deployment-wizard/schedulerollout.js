@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { FormControl, Grid, InputLabel, MenuItem, RootRef, Select } from '@material-ui/core';
-import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { DateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 
 import PhaseSettings from './phasesettings';
@@ -28,9 +28,32 @@ export default class ScheduleRollout extends React.Component {
     this.props.deploymentSettings(value, property);
   }
 
-  handleStartChange() {
+  handleStartTimeChange(value) {
+    // if there is no existing phase, set phase and start time
+    if (!this.props.phases) {
+      this.props.deploymentSettings([{ batch_size: 100, start_ts: value, delay: 0}], 'phases');
+    } else {
+      //if there are existing phases, set the first phases to the new start time and adjust later phases in different function
+      var newPhases = this.props.phases;
+      newPhases[0].start_ts = value;
+      this.updatePhaseStarts(newPhases);
+    }
+    
+  }
+
+  updatePhaseStarts(phases) {
+    // Iterate through phases ensuring start times are based on delay from previous phase
+    for (var i=1; i<phases.length; i++) {
+      phases[i].start_ts = phases[i-1].start_ts.addHours(phases[i-1].delay);
+      if (i===phases.length-1) {
+        this.props.deploymentSettings(phases);
+      }
+    }
+  }
+
+  handleStartChange(value) {
     // To be used with updated datetimepicker to open programmatically
-    if (event.target.value) {
+    if (value) {
       this.setPickerOpen(true);
     }
   }
@@ -42,11 +65,13 @@ export default class ScheduleRollout extends React.Component {
   setPickerOpen(value) {
     this.setState({ isPickerOpen: value });
     // To be used with updated datetimepicker
+
   }
 
   render() {
     const self = this;
     const props = self.props;
+    const start_time = props.phases ? props.phases[0].start_ts : null;
 
     const styles = {
       textField: {
@@ -62,61 +87,69 @@ export default class ScheduleRollout extends React.Component {
       <div style={{ overflow: 'visible', minHeight: '300px', marginTop: '15px' }}>
         <form>
           <RootRef rootRef={ref => (this.scheduleRef = ref)}>
-            <Grid container spacing={16} justify="center" alignItems="center">
+            <Grid container justify="center" alignItems="center">
               <Grid item>
                 <div style={{width:'min-content', minHeight:'105px'}}>
 
-                { (self.state.isPickerOpen || props.start_time) ?
+                  { (self.state.isPickerOpen || start_time) ?
 
-                  <FormControl>
-                    <MuiPickersUtilsProvider utils={MomentUtils}>
-                      <DateTimePicker
-                        open={self.state.isPickerOpen}
-                        onOpen={() => self.setPickerOpen(true)}
-                        onClose={() => self.setPickerOpen(false)}
-                        label="Set the start time"
-                        value={props.start_time}
+                    <FormControl>
+                      <MuiPickersUtilsProvider utils={MomentUtils}>
+                        <DateTimePicker
+                          open={self.state.isPickerOpen}
+                          onOpen={() => self.setPickerOpen(true)}
+                          onClose={() => self.setPickerOpen(false)}
+                          label="Set the start time"
+                          value={start_time}
+                          style={styles.textField}
+                          minDate={new Date()}
+                          onChange={date => self.handleStartTimeChange(date.toISOString())}
+                        />
+                      </MuiPickersUtilsProvider>
+                    </FormControl>
+                    :
+                    <FormControl>
+                      <InputLabel>Set a start time</InputLabel>
+                      <Select
+                        onChange={event => this.handleStartChange(event.target.value)}
+                        value={0}
                         style={styles.textField}
-                        minDate={new Date()}
-                        onChange={date => self.deploymentSettingsUpdate(date.toISOString(), 'start_time')}
-                      />
-                    </MuiPickersUtilsProvider>
-                  </FormControl>
-                  :
-                  <FormControl>
-                    <InputLabel>Set a start time</InputLabel>
-                    <Select
-                      onChange={event => this.handlePatternChange(event.target.value)}
-                      value={0}
-                      style={styles.textField}
-                    >
-                      <MenuItem value={0}>Start immediately</MenuItem>
-                      <MenuItem value={1}>Schedule a start date & time</MenuItem>
-                    </Select>
-                  </FormControl>
-                }
+                      >
+                        <MenuItem value={0}>Start immediately</MenuItem>
+                        <MenuItem value={1}>Schedule a start date & time</MenuItem>
+                      </Select>
+                    </FormControl>
+                  }
                  
                 </div>
               </Grid>
             </Grid>
           </RootRef>
 
-          <div ref={ref => (this.groupRef = ref)}>
-            <Grid container spacing={16} justify="center" alignItems="center">
+          <div>
+            <Grid container justify="center" alignItems="center">
               <Grid item>
-                <div style={{ width: 'min-content' }}>
+                <div style={{ width:'min-content' }}>
                   <FormControl>
                     <InputLabel>Select a rollout pattern</InputLabel>
-                    <Select onChange={event => this.handlePatternChange(event.target.value)} value={self.state.pattern} style={styles.textField}>
+                    <Select onChange={event => this.handlePatternChange(event.target.value)} value={self.state.pattern ? 1 : 0} style={styles.textField}>
                       <MenuItem value={0}>Single phase: 100%</MenuItem>
                       <MenuItem value={1}>Custom</MenuItem>
                     </Select>
                   </FormControl>
-
-                  {self.state.pattern ? <PhaseSettings {...props} /> : null}
                 </div>
               </Grid>
             </Grid>
+
+            {self.state.pattern ? 
+              <Grid style={{ marginBottom: '15px' }} container justify="center" alignItems="center">
+                <Grid item>
+                  <PhaseSettings {...props} updatePhaseStarts={this.updatePhaseStarts} />
+                </Grid>
+              </Grid>
+              : null
+            }
+            
           </div>
         </form>
       </div>

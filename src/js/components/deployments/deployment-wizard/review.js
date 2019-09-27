@@ -10,12 +10,14 @@ import ExpandableDeviceAttribute from '../../devices/expandable-device-attribute
 const Review = props => {
   const { deploymentDeviceIds, device, group, isEnterprise, phases, release } = props;
 
+  var deploymentPhases = phases ? phases : [{batch_size: 100, start_ts: new Date()}];
+
   const deploymentInformation = [
     { primary: 'Release', secondary: release.name },
     { primary: `Device${device ? '' : ' group'}`, secondary: device ? device.id : group },
     { primary: 'Device types compatible', secondary: release.device_types_compatible.join(', ') },
     { primary: '# devices', secondary: deploymentDeviceIds.length },
-    { primary: 'Start time', secondary: phases[0].start_ts.toLocaleString() }
+    { primary: 'Start time', secondary: (phases ? phases[0].start_ts.toLocaleString() : null) }
   ];
 
   return (
@@ -42,10 +44,10 @@ const Review = props => {
             <div>Phase begins</div>
             <div>Batch size</div>
           </div>
-          {phases.map((row, index) => {
+          {deploymentPhases.map((row, index) => {
             const deviceCount = Math.ceil((deploymentDeviceIds.length / 100) * row.batch_size);
             return (
-              <div className="flexbox column" key={row.start_ts.toISOString()}>
+              <div className="flexbox column" key={row.start_ts}>
                 <Chip size="small" label={`Phase ${index + 1}`} />
                 <div>{row.start_ts.toLocaleString()}</div>
                 <div>{`${row.batch_size}% (${deviceCount}) ${pluralize('device', deviceCount)}`}</div>

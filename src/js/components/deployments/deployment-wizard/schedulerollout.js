@@ -29,24 +29,28 @@ export default class ScheduleRollout extends React.Component {
   }
 
   handleStartTimeChange(value) {
+    const self = this;
     // if there is no existing phase, set phase and start time
-    if (!this.props.phases) {
-      this.props.deploymentSettings([{ batch_size: 100, start_ts: value, delay: 0}], 'phases');
+    if (!self.props.phases) {
+      self.props.deploymentSettings([{ batch_size: 100, start_ts: value, delay: 0}], 'phases');
     } else {
       //if there are existing phases, set the first phases to the new start time and adjust later phases in different function
-      var newPhases = this.props.phases;
+      let newPhases = this.props.phases;
       newPhases[0].start_ts = value;
-      this.updatePhaseStarts(newPhases);
+      self.updatePhaseStarts(newPhases);
     }
     
   }
 
   updatePhaseStarts(phases) {
+    const self = this;
     // Iterate through phases ensuring start times are based on delay from previous phase
-    for (var i=1; i<phases.length; i++) {
-      phases[i].start_ts = phases[i-1].start_ts.addHours(phases[i-1].delay);
+    for (let i=1; i<phases.length; i++) {
+      let dateObj = new Date(phases[i-1].start_ts);
+      dateObj = dateObj.setHours(dateObj.getHours()+(phases[i-1].delay));
+      phases[i].start_ts = new Date(dateObj).toISOString();
       if (i===phases.length-1) {
-        this.props.deploymentSettings(phases);
+        self.props.deploymentSettings(phases, 'phases');
       }
     }
   }
@@ -59,17 +63,20 @@ export default class ScheduleRollout extends React.Component {
   }
 
   handlePatternChange(value) {
-    var phases = [];
+    let phases = [];
     // if setting new custom pattern we use default 2 phases
-    if (value === 'custom') {
+    if (value) {
       phases = [{batch_size:10, start_ts:new Date().toISOString(), delay:2},{}];
-      // check if a start time already exists from props and if so, use it
-      if (this.props.phases) {
-        phases[0].start_ts = this.props.phases[0].start_ts;
-      }
-      this.updatePhaseStarts(phases);
-      this.setState({ pattern: value });
+    } else {
+      phases = [{batch_size:100, start_ts:new Date().toISOString()}];
     }
+
+    // check if a start time already exists from props and if so, use it
+    if (this.props.phases) {
+      phases[0].start_ts = this.props.phases[0].start_ts;
+    }
+    this.updatePhaseStarts(phases);
+    this.setState({ pattern: value });
   }
 
   setPickerOpen(value) {
@@ -142,7 +149,7 @@ export default class ScheduleRollout extends React.Component {
                 <div style={{ width:'min-content' }}>
                   <FormControl>
                     <InputLabel>Select a rollout pattern</InputLabel>
-                    <Select onChange={event => this.handlePatternChange(event.target.value)} value={self.state.pattern ? 1 : 0} style={styles.textField}>
+                    <Select onChange={event => self.handlePatternChange(event.target.value)} value={self.state.pattern ? 1 : 0} style={styles.textField}>
                       <MenuItem value={0}>Single phase: 100%</MenuItem>
                       <MenuItem value={1}>Custom</MenuItem>
                     </Select>
@@ -154,7 +161,7 @@ export default class ScheduleRollout extends React.Component {
             {self.state.pattern ? 
               <Grid style={{ marginBottom: '15px' }} container justify="center" alignItems="center">
                 <Grid item>
-                  <PhaseSettings {...props} updatePhaseStarts={this.updatePhaseStarts} />
+                  <PhaseSettings {...props} updatePhaseStarts={(...args) => self.updatePhaseStarts(...args)} />
                 </Grid>
               </Grid>
               : null

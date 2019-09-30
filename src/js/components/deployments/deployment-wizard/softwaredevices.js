@@ -100,7 +100,7 @@ export default class SoftwareDevices extends React.Component {
       </Tooltip>
     );
 
-    var artifactItems = artifacts.map(art => ({
+    let artifactItems = artifacts.map(art => ({
       title: art.name,
       value: art
     }));

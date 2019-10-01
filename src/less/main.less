@@ -1300,9 +1300,19 @@ input[required]:-moz-ui-invalid {
   background-color: rgba(66, 66, 66, 0.03);
 }
 
-p.info {
-  margin: 20px 0;
+p.info, span.info {
+  margin: 15px 0;
   color: rgba(66, 66, 66, 0.6);
+
+  &.icon {
+    position: relative;
+    padding-left: 30px;
+
+    svg {
+      position: absolute;
+      left: 0;
+    }
+  }
 }
 
 form .required::after {
@@ -1534,6 +1544,12 @@ tr.expand {
   }
 }
 
+.bordered {
+  border: 1px solid @lightgrey;
+  margin-top: 10px;
+  padding: 5px 20px;
+}
+
 .deviceList {
   min-width: 800px;
   .header {
@@ -1557,12 +1573,6 @@ tr.expand {
     .expandedDevice {
       padding-left: 48px;
       padding-right: 35px;
-    }
-    .device-identity.bordered,
-    .device-inventory.bordered {
-      border: 1px solid @lightgrey;
-      margin-top: 10px;
-      padding: 5px 20px;
     }
     .device-identity,
     .device-actions {
@@ -1766,6 +1776,14 @@ span.day {
     text-align: center;
     font-size: 12px;
     margin-top: 12px;
+  }
+}
+
+.deployment-phases-list > .column {
+  margin-right: @defaultGutterWidth;
+  justify-content: flex-end;
+  & > div {
+    margin-bottom: @defaultGutterWidth;
   }
 }
 

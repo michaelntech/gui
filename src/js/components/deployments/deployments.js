@@ -90,14 +90,12 @@ export default class Deployments extends React.Component {
           const release = self.flattenRelease(AppStore.getRelease(params.get('release')));
           const deploymentRelease = self.flattenRelease(AppStore.getDeploymentRelease());
           self.setState({
-            scheduleDialog: true,
             release: release || deploymentRelease
           });
         } else if (params.get('deviceId')) {
           AppActions.getDeviceById(params.get('deviceId'))
             .then(device => { 
               self.setState({
-                scheduleDialog: true,
                 device: device,
                 deploymentDeviceIds: [device.id],
               });

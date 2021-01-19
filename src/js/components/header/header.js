@@ -108,15 +108,15 @@ export class Header extends React.Component {
       toggleHelptips,
       user
     } = self.props;
-    const offerValid = moment().isBefore('2021-01-01');
+    const offerValid = moment().isBefore('2021-04-01');
 
     return (
       <Toolbar
         id="fixedHeader"
-        className={organization && organization.trial && offerValid ? 'header banner' : 'header'}
+        className={organization && !organization.trial && offerValid ? 'header banner' : 'header'}
         style={{ backgroundColor: '#fff', minHeight: 'unset', paddingLeft: 32, paddingRight: 40 }}
       >
-        {organization && organization.trial && offerValid && <OfferHeader />}
+        {organization && !organization.trial && offerValid && <OfferHeader />}
         <div className="flexbox">
           <Link to="/">
             <img id="logo" src={isEnterprise ? enterpriseLogo : logo} />
